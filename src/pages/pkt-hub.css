@@ -21,6 +21,35 @@
   padding: 0 24px;
   flex-shrink: 0;
 }
+.hub-strip--quote {
+  justify-content: center;
+  border-left: none;
+}
+.hub-strip__quote {
+  margin: 0;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 12.5px;
+  color: #366368;
+  letter-spacing: .02em;
+  position: relative;
+  padding: 0 8px;
+}
+.hub-strip__quote::before,
+.hub-strip__quote::after {
+  content: "";
+  display: inline-block;
+  width: 28px;
+  height: 1px;
+  background: rgba(54, 99, 104, .25);
+  vertical-align: middle;
+}
+.hub-strip__quote::before {
+  margin-right: 14px;
+}
+.hub-strip__quote::after {
+  margin-left: 14px;
+}
 .hub-strip__left {
   display: flex;
   align-items: center;

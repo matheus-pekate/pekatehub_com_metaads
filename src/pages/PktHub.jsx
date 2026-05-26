@@ -70,13 +70,10 @@ export function PktHub() {
 
       {/* ── Right column (strip + content) ── */}
       <div className="hub-right">
-        <div className="hub-strip">
-          <div className="hub-strip__left">
-            <span className="hub-strip__page">PKT-HUB</span>
-          </div>
-          <div className="hub-strip__right">
-            <span className="hub-strip__status">Operacional</span>
-          </div>
+        <div className="hub-strip hub-strip--quote">
+          <p className="hub-strip__quote">
+            "Desde 2003 melhorando a vida das pessoas e empresas brasileiras"
+          </p>
         </div>
 
         <nav className="hub-tabs">
