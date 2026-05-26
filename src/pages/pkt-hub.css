@@ -420,11 +420,11 @@
   border: 1px solid rgba(255, 255, 255, .06);
 }
 .hub-banner__seta {
-  width: 100px;
-  height: 100px;
+  width: 110px;
+  height: 110px;
   object-fit: contain;
-  opacity: 1;
-  filter: brightness(0) saturate(100%) invert(65%) sepia(67%) saturate(2500%) hue-rotate(360deg) brightness(103%) contrast(101%);
+  opacity: .85;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, .25));
   position: relative;
   z-index: 1;
 }

@@ -96,7 +96,7 @@ export function PktHub() {
             <p className="hub-banner__text">Acompanhe em tempo real os indicadores comerciais, de marketing e operacionais de toda a operação.</p>
           </div>
           <div className="hub-banner__art">
-            <img src="/seta-pekate.png" alt="" className="hub-banner__seta" />
+            <img src="/pekate-logo.png" alt="Pekatê" className="hub-banner__seta" />
           </div>
         </div>
 
