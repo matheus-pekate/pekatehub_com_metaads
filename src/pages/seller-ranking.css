@@ -1,0 +1,469 @@
+/* =================================================================
+   Seller Ranking — Ranking Comparativo B2C
+   ================================================================= */
+
+.rk-main {
+  flex: 1;
+  padding: 28px 36px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* ── Section titles ── */
+.rk-section {
+  margin-bottom: 32px;
+}
+.rk-section__title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #08373f;
+  margin: 0 0 18px;
+}
+.rk-section__sub {
+  font-weight: 400;
+  font-size: 13px;
+  color: #6b7280;
+  margin-left: 6px;
+}
+
+/* ==================== PODIUM (dark) ==================== */
+.rk-podium {
+  margin-bottom: 32px;
+  background: linear-gradient(170deg, #0a3d45 0%, #062a30 55%, #041e23 100%);
+  border-radius: 18px;
+  padding: 28px 24px 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Triangular spotlight beam ── */
+.rk-podium__beam {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 180px solid transparent;
+  border-right: 180px solid transparent;
+  border-top: 500px solid rgba(212, 168, 67, .06);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(20px);
+}
+
+/* Header */
+.rk-podium__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 2;
+}
+.rk-podium__supra {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #fe8f20;
+  display: block;
+  margin-bottom: 4px;
+}
+.rk-podium__title {
+  font-size: 22px;
+  font-weight: 900;
+  font-style: italic;
+  color: #fff;
+  margin: 0 0 6px;
+}
+.rk-podium__title-period {
+  font-weight: 400;
+  font-style: normal;
+  font-size: 14px;
+  color: rgba(255, 255, 255, .5);
+}
+.rk-podium__desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, .40);
+  margin: 0;
+  max-width: 480px;
+}
+.rk-podium__team-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, .7);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.rk-podium__team-badge b {
+  color: #fff;
+  font-weight: 800;
+  margin-left: 2px;
+}
+
+/* ── Arena: columns with person + pedestal stacked ── */
+.rk-podium__arena {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+  margin: 0 -24px;
+  padding: 0 20px;
+}
+
+/* Each column (person + pedestal) */
+.rk-podium__col {
+  flex: 1;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform .2s;
+}
+.rk-podium__col:hover {
+  transform: translateY(-4px);
+}
+
+/* Person card (the info area above pedestal) */
+.rk-podium__person {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Crown */
+.rk-podium__crown {
+  margin-bottom: 2px;
+  filter: drop-shadow(0 2px 8px rgba(212, 168, 67, .45));
+}
+
+/* Avatar */
+.rk-podium__avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .10);
+  border: 3px solid rgba(255, 255, 255, .18);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 22px;
+  position: relative;
+  overflow: visible;
+  flex-shrink: 0;
+}
+.rk-podium__avatar--gold {
+  width: 82px;
+  height: 82px;
+  font-size: 26px;
+  border-color: #D4A843;
+  box-shadow: 0 0 24px rgba(212, 168, 67, .30);
+  background: rgba(212, 168, 67, .10);
+}
+.rk-podium__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.rk-podium__badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2d6a4f;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #0a3d45;
+}
+.rk-podium__col--r1 .rk-podium__badge {
+  background: #D4A843;
+  color: #08373f;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+/* Name + role */
+.rk-podium__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 10px;
+  text-align: center;
+}
+.rk-podium__role {
+  font-size: 10px;
+  color: rgba(255, 255, 255, .35);
+  margin-top: 2px;
+}
+
+/* Main metric */
+.rk-podium__metric-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .35);
+  margin-top: 14px;
+}
+.rk-podium__metric-value {
+  font-size: 19px;
+  font-weight: 900;
+  color: #fff;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.rk-podium__metric-value--lg {
+  font-size: 28px;
+}
+
+/* Sub stats */
+.rk-podium__sub-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 10px;
+  margin-bottom: 16px;
+}
+.rk-podium__sub-stats span {
+  font-size: 11px;
+  color: rgba(255, 255, 255, .30);
+}
+
+/* ── Pedestals ── */
+.rk-podium__pedestal {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px 14px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+.rk-podium__pedestal--1 {
+  height: 120px;
+  background: linear-gradient(180deg, rgba(212, 168, 67, .16) 0%, rgba(212, 168, 67, .04) 100%);
+  border-top: 2px solid rgba(212, 168, 67, .28);
+}
+.rk-podium__pedestal--2 {
+  height: 76px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .06) 0%, rgba(255, 255, 255, .015) 100%);
+  border-top: 2px solid rgba(255, 255, 255, .10);
+}
+.rk-podium__pedestal--3 {
+  height: 52px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .04) 0%, rgba(255, 255, 255, .01) 100%);
+  border-top: 2px solid rgba(255, 255, 255, .07);
+}
+.rk-podium__pedestal-num {
+  font-size: 52px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, .06);
+  user-select: none;
+  line-height: 1;
+}
+.rk-podium__pedestal--1 .rk-podium__pedestal-num {
+  font-size: 72px;
+  color: rgba(212, 168, 67, .10);
+}
+
+/* ==================== LEGEND ==================== */
+.rk-legend {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 16px;
+  padding: 10px 16px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid rgba(48, 50, 51, .08);
+}
+.rk-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rk-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.rk-legend__dot--team {
+  background: repeating-linear-gradient(
+    135deg,
+    #6b7280,
+    #6b7280 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  border: 1.5px solid #6b7280;
+}
+.rk-legend__name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #366368;
+}
+
+/* ==================== RADAR ==================== */
+.rk-radar-wrap {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(48, 50, 51, .08);
+  padding: 20px;
+}
+
+/* ==================== CHARTS GRID ==================== */
+.rk-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.rk-charts-grid--2col {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.rk-chart-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(48, 50, 51, .08);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.rk-chart-card__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #08373f;
+  margin: 0 0 2px;
+}
+.rk-chart-card__bench {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+.rk-chart-card__body {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ==================== TOOLTIP ==================== */
+.rk-tooltip {
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .12);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #08373f;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+}
+.rk-tooltip__label {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+.rk-tooltip__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rk-tooltip__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ==================== DETAIL TABLE ==================== */
+.rk-table-wrap {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(48, 50, 51, .08);
+  overflow: hidden;
+}
+.rk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.rk-table__th {
+  padding: 12px 16px;
+  text-align: right;
+  font-weight: 800;
+  font-size: 13px;
+  border-bottom: 2px solid rgba(48, 50, 51, .08);
+  white-space: nowrap;
+}
+.rk-table__th--metric {
+  text-align: left;
+  color: #6b7280;
+  font-weight: 600;
+  width: 180px;
+}
+.rk-table__th--team {
+  color: #6b7280;
+  font-style: italic;
+}
+.rk-table__td {
+  padding: 10px 16px;
+  text-align: right;
+  color: #08373f;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid rgba(48, 50, 51, .04);
+}
+.rk-table__td--metric {
+  text-align: left;
+  font-weight: 600;
+  color: #366368;
+}
+.rk-table__td--team {
+  color: #6b7280;
+  font-style: italic;
+}
+.rk-table__row--alt {
+  background: rgba(48, 50, 51, .015);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1200px) {
+  .rk-charts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 900px) {
+  .rk-podium__arena {
+    flex-direction: column;
+    align-items: center;
+  }
+  .rk-podium__pedestal {
+    display: none;
+  }
+  .rk-charts-grid,
+  .rk-charts-grid--2col {
+    grid-template-columns: 1fr;
+  }
+  .rk-table-wrap {
+    overflow-x: auto;
+  }
+}

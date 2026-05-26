@@ -1,0 +1,1429 @@
+/* =================================================================
+   Seller Analysis — módulo dentro do HUB layout
+   ================================================================= */
+
+.sa-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.sa-main {
+  flex: 1;
+  padding: 28px 36px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* ── Highlight pulse (insight click) ── */
+@keyframes sa-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(254, 143, 32, .35); }
+  50%  { box-shadow: 0 0 0 6px rgba(254, 143, 32, .12); }
+  100% { box-shadow: 0 0 0 0 rgba(254, 143, 32, 0); }
+}
+.sa-highlight {
+  outline: 2px solid rgba(254, 143, 32, .50);
+  outline-offset: 4px;
+  border-radius: 12px;
+  animation: sa-pulse 1.2s ease 2;
+}
+
+/* ==================== SIDEBAR: A REVISAR ==================== */
+.sa-rv {
+  width: 320px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  border-left: 1px solid rgba(48, 50, 51, .10);
+  background: #faf8f5;
+  display: flex;
+  flex-direction: column;
+}
+.sa-rv__header {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(48, 50, 51, .08);
+}
+.sa-rv__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.sa-rv__title {
+  font-style: italic; font-weight: 900;
+  font-size: 18px;
+  color: #08373f;
+  letter-spacing: -.01em;
+  margin: 0;
+}
+.sa-rv__badge-total {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #08373f;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid; place-items: center;
+  font-variant-numeric: tabular-nums;
+}
+.sa-rv__desc {
+  font-size: 12px;
+  color: #4a4d4f;
+  line-height: 1.4;
+  margin: 0 0 12px;
+}
+.sa-rv__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sa-rv__sev {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.sa-rv__sev--critical {
+  color: #b22222;
+  background: #fde8e8;
+}
+.sa-rv__sev--warning {
+  color: #cb5b36;
+  background: #fde4cd;
+}
+.sa-rv__sev--opportunity {
+  color: #2d6a4f;
+  background: #e7f1ec;
+}
+.sa-rv__sev--insight {
+  color: #366368;
+  background: #e4eeef;
+}
+
+/* ── Insight cards ── */
+.sa-rv__list {
+  padding: 12px 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sa-rv__card {
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .08);
+  border-left: 3px solid #ccc;
+  border-radius: 8px;
+  padding: 14px 14px 12px;
+}
+.sa-rv__card--critical { border-left-color: #b22222; }
+.sa-rv__card--warning  { border-left-color: #cb5b36; }
+.sa-rv__card--opportunity { border-left-color: #2d6a4f; }
+.sa-rv__card--insight  { border-left-color: #366368; }
+
+.sa-rv__card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.sa-rv__card-type {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+.sa-rv__card-type--critical { color: #b22222; }
+.sa-rv__card-type--warning  { color: #cb5b36; }
+.sa-rv__card-type--opportunity { color: #2d6a4f; }
+.sa-rv__card-type--insight  { color: #366368; }
+
+.sa-rv__card-time {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: #a0a0a0;
+}
+.sa-rv__card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #08373f;
+  line-height: 1.35;
+  margin: 0 0 4px;
+}
+.sa-rv__card-desc {
+  font-size: 11.5px;
+  color: #4a4d4f;
+  line-height: 1.4;
+  margin: 0;
+}
+.sa-rv__card--clickable {
+  cursor: pointer;
+  transition: transform .12s, box-shadow .12s, border-color .12s;
+}
+.sa-rv__card--clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(8, 55, 63, .10);
+}
+.sa-rv__card--clickable:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.sa-rv__card--clickable:focus-visible {
+  outline: 2px solid #fe8f20;
+  outline-offset: 2px;
+}
+
+/* Back button */
+.sa-back {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(48, 50, 51, .10);
+  background: #fff;
+  color: #366368;
+  cursor: pointer;
+  display: grid; place-items: center;
+  transition: background .15s, color .15s;
+}
+.sa-back:hover {
+  background: #fde4cd;
+  color: #fe8f20;
+}
+
+/* ==================== FILTERS ==================== */
+.sa-filters {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.sa-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sa-filter__label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: #366368;
+}
+.sa-filter__select {
+  padding: 8px 14px;
+  border: 1px solid rgba(48, 50, 51, .12);
+  border-radius: 8px;
+  background: #fff;
+  font-family: 'Lato', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #08373f;
+  cursor: pointer;
+  min-width: 180px;
+  transition: border-color .15s;
+}
+.sa-filter__select:focus {
+  outline: none;
+  border-color: #fe8f20;
+}
+
+/* Loading */
+.sa-loading {
+  text-align: center;
+  padding: 80px 0;
+  font-size: 15px;
+  color: #366368;
+  font-weight: 600;
+}
+
+/* ==================== HEADER ==================== */
+.sa-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px 24px;
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-radius: 12px;
+}
+.sa-header__avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #08373f, #0a4951);
+  color: #fff;
+  font-style: italic; font-weight: 900;
+  font-size: 18px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.sa-header__avatar-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.sa-header__info {
+  flex: 1;
+}
+.sa-header__name {
+  font-style: italic; font-weight: 900;
+  font-size: 22px;
+  color: #08373f;
+  letter-spacing: -.02em;
+  margin: 0;
+  line-height: 1.2;
+}
+.sa-header__sub {
+  font-size: 12px;
+  color: #366368;
+  font-weight: 600;
+}
+.sa-header__rank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  background: #fde4cd;
+  border-radius: 10px;
+}
+.sa-header__rank-num {
+  font-style: italic; font-weight: 900;
+  font-size: 24px;
+  color: #cb5b36;
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+.sa-header__rank-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: #cb5b36;
+}
+
+/* ==================== KPIs ==================== */
+.sa-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.sa-kpi {
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-radius: 10px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sa-kpi__label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: #366368;
+}
+.sa-kpi__main {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.sa-kpi__value {
+  font-style: italic; font-weight: 900;
+  font-size: 28px;
+  color: #08373f;
+  letter-spacing: -.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.sa-kpi__suffix {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a4d4f;
+}
+
+/* Proportional bar */
+.sa-kpi__bar {
+  display: flex;
+  gap: 4px;
+  height: 4px;
+  margin: 4px 0 2px;
+}
+.sa-kpi__bar-seg {
+  border-radius: 2px;
+  min-width: 2px;
+}
+.sa-kpi__bar-seg--won  { background: #08373f; }
+.sa-kpi__bar-seg--lost { background: #b22222; }
+.sa-kpi__bar-seg--open { background: #2d6a4f; }
+
+/* Breakdown row */
+.sa-kpi__breakdown {
+  display: flex;
+  gap: 18px;
+}
+.sa-kpi__bd-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.sa-kpi__bd-num {
+  font-style: italic; font-weight: 900;
+  font-size: 16px;
+  color: #08373f;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.sa-kpi__bd-label {
+  font-size: 8px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: #366368;
+}
+
+/* Delta indicator */
+.sa-kpi__delta {
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sa-kpi__delta--up   { color: #2d6a4f; }
+.sa-kpi__delta--down { color: #b22222; }
+.sa-kpi__delta-txt {
+  font-weight: 500;
+  color: #4a4d4f;
+  font-size: 11px;
+}
+
+/* Detail line */
+.sa-kpi__detail {
+  font-size: 12px;
+  color: #4a4d4f;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==================== SECTIONS ==================== */
+.sa-section {
+  margin-bottom: 24px;
+}
+.sa-section__title {
+  font-style: italic; font-weight: 900;
+  font-size: 16px;
+  color: #08373f;
+  letter-spacing: -.01em;
+  margin: 0 0 12px;
+}
+.sa-section__title-sub {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  color: #4a4d4f;
+  letter-spacing: 0;
+}
+.sa-section__title--alert {
+  color: #cb5b36;
+}
+
+/* ==================== ACTIVITY GRID (3 cards) ==================== */
+.sa-act-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 14px;
+}
+.sa-act-grid > div {
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-radius: 10px;
+  padding: 20px 22px;
+}
+
+/* ── Card 1: Volume diário ── */
+.sa-vol__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.sa-vol__title {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: #366368;
+}
+.sa-vol__legend {
+  display: flex;
+  gap: 12px;
+}
+.sa-vol__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #4a4d4f;
+}
+.sa-vol__dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+}
+.sa-vol__dot--vol   { background: #fe8f20; }
+.sa-vol__dot--today { background: #08373f; }
+.sa-vol__total {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.sa-vol__num {
+  font-style: italic; font-weight: 900;
+  font-size: 32px;
+  color: #08373f;
+  letter-spacing: -.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.sa-vol__unit {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a4d4f;
+}
+.sa-vol__chart {
+  margin: 0 -10px -8px;
+}
+
+/* ── Card 2: Mix por canal ── */
+.sa-mix__title {
+  font-style: italic; font-weight: 900;
+  font-size: 15px;
+  color: #08373f;
+  margin: 0 0 16px;
+}
+.sa-mix__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.sa-mix__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sa-mix__dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sa-mix__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #08373f;
+  width: 68px;
+  flex-shrink: 0;
+}
+.sa-mix__bar {
+  flex: 1;
+  height: 10px;
+  background: #f0ece6;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.sa-mix__bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  min-width: 2px;
+  transition: width .3s ease;
+}
+.sa-mix__count {
+  font-style: italic; font-weight: 900;
+  font-size: 14px;
+  color: #08373f;
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+  text-align: right;
+}
+.sa-mix__footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #4a4d4f;
+  border-top: 1px solid rgba(48, 50, 51, .08);
+  padding-top: 10px;
+}
+.sa-mix__bench {
+  color: #366368;
+}
+
+/* ── Card 3: Cadência por lead ── */
+.sa-cad__title {
+  font-style: italic; font-weight: 900;
+  font-size: 15px;
+  color: #08373f;
+  margin: 0 0 14px;
+}
+.sa-cad__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(48, 50, 51, .06);
+}
+.sa-cad__row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.sa-cad__metric-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: #366368;
+  display: block;
+  margin-bottom: 2px;
+}
+.sa-cad__metric-val {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.sa-cad__num {
+  font-style: italic; font-weight: 900;
+  font-size: 22px;
+  color: #08373f;
+  letter-spacing: -.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.sa-cad__unit {
+  font-size: 12px;
+  color: #4a4d4f;
+}
+.sa-cad__bench {
+  text-align: right;
+}
+.sa-cad__bench-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #366368;
+  display: block;
+}
+.sa-cad__bench-num {
+  font-style: italic; font-weight: 900;
+  font-size: 20px;
+  color: #08373f;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+.sa-cad__badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.sa-cad__badge--warn {
+  color: #cb5b36;
+  background: #fde4cd;
+}
+.sa-cad__link {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fe8f20;
+  cursor: pointer;
+  letter-spacing: .04em;
+}
+
+/* ==================== VELOCITY GRID (3 cards) ==================== */
+.sa-section__title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+.sa-section__title-row .sa-section__title {
+  margin-bottom: 0;
+}
+.sa-vel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr 1fr;
+  gap: 14px;
+}
+.sa-vel-grid > div {
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-radius: 10px;
+  padding: 20px 22px;
+}
+
+/* ── Card 1: Tempo médio conversão ── */
+.sa-vel-conv__label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: #366368;
+  display: block;
+  margin-bottom: 10px;
+}
+.sa-vel-conv__main {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.sa-vel-conv__num {
+  font-style: italic; font-weight: 900;
+  font-size: 36px;
+  color: #08373f;
+  letter-spacing: -.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.sa-vel-conv__unit {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a4d4f;
+}
+.sa-vel-conv__sub {
+  font-size: 11px;
+  color: #4a4d4f;
+  display: block;
+  margin-bottom: auto;
+}
+.sa-vel-conv {
+  display: flex;
+  flex-direction: column;
+}
+.sa-vel-conv__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(48, 50, 51, .08);
+  padding-top: 12px;
+  margin-top: 16px;
+}
+.sa-vel-conv__bench {
+  font-size: 11px;
+  color: #4a4d4f;
+}
+.sa-vel-conv__bench-val {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sa-vel-conv__bench-num {
+  font-style: italic; font-weight: 900;
+  font-size: 14px;
+  color: #08373f;
+  font-variant-numeric: tabular-nums;
+}
+.sa-vel-conv__badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.sa-vel-conv__badge--warn {
+  color: #cb5b36;
+  background: #fde4cd;
+}
+.sa-vel-conv__badge--ok {
+  color: #2d6a4f;
+  background: #e7f1ec;
+}
+
+/* ── Card 2: Tempo médio por stage ── */
+.sa-vel-stages__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+.sa-vel-stages__title {
+  font-style: italic; font-weight: 900;
+  font-size: 15px;
+  color: #08373f;
+  margin: 0;
+}
+.sa-vel-stages__unit {
+  font-size: 11px;
+  color: #366368;
+  font-weight: 600;
+}
+.sa-vel-stages__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.sa-vel-stages__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sa-vel-stages__name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #08373f;
+  width: 120px;
+  flex-shrink: 0;
+}
+.sa-vel-stages__bar-wrap {
+  flex: 1;
+  height: 24px;
+  position: relative;
+}
+.sa-vel-stages__bar {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #fe8f20, #f5a623);
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  min-width: 36px;
+  transition: width .3s ease;
+}
+.sa-vel-stages__bar--gargalo {
+  background: linear-gradient(90deg, #cb5b36, #8b1a1a);
+}
+.sa-vel-stages__bar-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+.sa-vel-stages__days {
+  font-style: italic; font-weight: 900;
+  font-size: 13px;
+  color: #08373f;
+  font-variant-numeric: tabular-nums;
+  min-width: 28px;
+  text-align: right;
+}
+.sa-vel-stages__alert {
+  font-size: 11px;
+  color: #4a4d4f;
+  border-top: 1px solid rgba(48, 50, 51, .08);
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sa-vel-stages__alert-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #cb5b36;
+  flex-shrink: 0;
+}
+.sa-vel-stages__empty {
+  font-size: 12px;
+  color: #366368;
+  font-style: italic;
+}
+
+/* ── Card 3: Deals estagnados ── */
+.sa-vel-stag {
+  display: flex;
+  flex-direction: column;
+}
+.sa-vel-stag__label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: #cb5b36;
+  display: block;
+  margin-bottom: 10px;
+}
+.sa-vel-stag__main {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.sa-vel-stag__num {
+  font-style: italic; font-weight: 900;
+  font-size: 36px;
+  color: #cb5b36;
+  letter-spacing: -.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.sa-vel-stag__unit {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a4d4f;
+}
+.sa-vel-stag__sub {
+  font-size: 11px;
+  color: #4a4d4f;
+  display: block;
+  margin-bottom: auto;
+}
+.sa-vel-stag__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(48, 50, 51, .08);
+  padding-top: 12px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: #4a4d4f;
+}
+.sa-vel-stag__val {
+  font-style: italic; font-weight: 900;
+  font-size: 14px;
+  color: #08373f;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==================== PORTFOLIO / CARTEIRA ATIVA ==================== */
+.sa-port-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 14px;
+}
+.sa-port-grid > div {
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-radius: 10px;
+  padding: 20px 22px;
+}
+
+/* ── Card 1: Distribuição por stage ── */
+.sa-port-dist__title {
+  font-style: italic; font-weight: 900;
+  font-size: 15px;
+  color: #08373f;
+  margin: 0 0 16px;
+}
+.sa-port-dist__body {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.sa-port-dist__chart {
+  position: relative;
+  flex-shrink: 0;
+  width: 160px;
+  height: 160px;
+}
+.sa-port-dist__center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+.sa-port-dist__center-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #366368;
+}
+.sa-port-dist__center-num {
+  font-style: italic; font-weight: 900;
+  font-size: 28px;
+  color: #08373f;
+  letter-spacing: -.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.sa-port-dist__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.sa-port-dist__legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sa-port-dist__legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.sa-port-dist__legend-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #08373f;
+  flex: 1;
+}
+.sa-port-dist__legend-pct {
+  font-style: italic; font-weight: 900;
+  font-size: 14px;
+  color: #08373f;
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+  text-align: right;
+}
+.sa-port-dist__legend-count {
+  font-size: 12px;
+  color: #4a4d4f;
+  font-variant-numeric: tabular-nums;
+  min-width: 52px;
+}
+
+/* ── Card 2: Pipeline por stage ── */
+.sa-port-pipe__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+.sa-port-pipe__title {
+  font-style: italic; font-weight: 900;
+  font-size: 15px;
+  color: #08373f;
+  margin: 0;
+}
+.sa-port-pipe__sub {
+  font-size: 11px;
+  color: #366368;
+  font-weight: 600;
+}
+.sa-port-pipe__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.sa-port-pipe__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sa-port-pipe__name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #08373f;
+  width: 120px;
+  flex-shrink: 0;
+}
+.sa-port-pipe__bar-wrap {
+  flex: 1;
+  height: 28px;
+  background: #f0ece6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.sa-port-pipe__bar {
+  height: 100%;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  min-width: 36px;
+  transition: width .3s ease;
+}
+.sa-port-pipe__bar-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+.sa-port-pipe__val {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 80px;
+}
+.sa-port-pipe__val-brl {
+  font-style: italic; font-weight: 900;
+  font-size: 13px;
+  color: #08373f;
+  font-variant-numeric: tabular-nums;
+}
+.sa-port-pipe__val-pct {
+  font-size: 10px;
+  color: #4a4d4f;
+}
+.sa-port-pipe__count {
+  font-style: italic; font-weight: 900;
+  font-size: 16px;
+  color: #08373f;
+  font-variant-numeric: tabular-nums;
+  min-width: 28px;
+  text-align: right;
+}
+.sa-port-pipe__footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #4a4d4f;
+  border-top: 1px solid rgba(48, 50, 51, .08);
+  padding-top: 12px;
+}
+
+/* ==================== FUNNEL ==================== */
+.sa-funnel {
+  display: flex;
+  gap: 8px;
+}
+.sa-funnel__stage {
+  flex: 1;
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-radius: 8px;
+  padding: 14px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sa-funnel__count {
+  font-style: italic; font-weight: 900;
+  font-size: 22px;
+  color: #fe8f20;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+.sa-funnel__name {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: #366368;
+}
+
+/* ==================== DEALS ==================== */
+.sa-deals {
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sa-deals__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 20px 0;
+}
+
+.sa-deals__title {
+  font-style: italic;
+  font-weight: 900;
+  font-size: 16px;
+  color: #08373f;
+  letter-spacing: -.01em;
+  margin: 0;
+}
+
+.sa-deals__subtitle {
+  font-size: 12px;
+  color: #4a4d4f;
+  text-align: right;
+}
+
+.sa-deals__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 16px 20px 0;
+  border-bottom: 1px solid rgba(48, 50, 51, .08);
+}
+
+.sa-deals__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px 12px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a4d4f;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+
+.sa-deals__tab:hover {
+  color: #08373f;
+}
+
+.sa-deals__tab--active {
+  color: #08373f;
+  border-bottom-color: #fe8f20;
+}
+
+.sa-deals__tab-count {
+  font-weight: 700;
+  color: #366368;
+}
+
+.sa-deals__tab--active .sa-deals__tab-count {
+  color: #fe8f20;
+}
+
+.sa-deals__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  flex-wrap: wrap;
+}
+
+.sa-deals__search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 220px;
+  max-width: 420px;
+  padding: 0 12px;
+  border: 1px solid rgba(48, 50, 51, .12);
+  border-radius: 8px;
+  background: #fff;
+  color: #366368;
+}
+
+.sa-deals__search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 9px 0;
+  font-family: 'Lato', system-ui, sans-serif;
+  font-size: 13px;
+  color: #08373f;
+  min-width: 0;
+}
+
+.sa-deals__search-input::placeholder {
+  color: #a0a0a0;
+}
+
+.sa-deals__search-input:focus {
+  outline: none;
+}
+
+.sa-deals__sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sa-deals__sort-label {
+  font-size: 13px;
+  color: #4a4d4f;
+}
+
+.sa-deals__sort-select {
+  padding: 8px 28px 8px 10px;
+  border: 1px solid rgba(48, 50, 51, .12);
+  border-radius: 8px;
+  background: #fff;
+  font-family: 'Lato', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #08373f;
+  cursor: pointer;
+}
+
+.sa-deals__sort-select:focus {
+  outline: none;
+  border-color: #fe8f20;
+}
+
+.sa-deals__table-wrap {
+  overflow-x: auto;
+}
+
+.sa-deals__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(48, 50, 51, .08);
+  flex-wrap: wrap;
+}
+
+.sa-deals__pagination-info {
+  font-size: 13px;
+  color: #4a4d4f;
+}
+
+.sa-deals__pagination-info b {
+  color: #08373f;
+  font-weight: 700;
+}
+
+.sa-deals__pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sa-deals__page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid rgba(48, 50, 51, .12);
+  border-radius: 8px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #366368;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.sa-deals__page-btn:hover:not(:disabled) {
+  background: #f5f0eb;
+  color: #08373f;
+}
+
+.sa-deals__page-btn:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.sa-deals__page-btn--active {
+  background: #08373f;
+  border-color: #08373f;
+  color: #fff;
+}
+
+.sa-deals__page-btn--active:hover {
+  background: #08373f;
+  color: #fff;
+}
+
+/* ==================== TABLE ==================== */
+.sa-deals .sa-table {
+  border: none;
+  border-radius: 0;
+}
+
+.sa-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.sa-table th {
+  text-align: left;
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: #366368;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(48, 50, 51, .14);
+  background: #f7f5f0;
+  white-space: nowrap;
+}
+.sa-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(48, 50, 51, .06);
+  color: #08373f;
+  font-variant-numeric: tabular-nums;
+  vertical-align: middle;
+}
+.sa-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.sa-table__deal {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.sa-table__name {
+  font-weight: 700;
+  color: #08373f;
+  line-height: 1.35;
+}
+.sa-table__sub {
+  font-size: 11px;
+  color: #4a4d4f;
+  line-height: 1.3;
+}
+.sa-table__empty {
+  text-align: center;
+  padding: 32px 14px !important;
+  color: #366368;
+  font-weight: 600;
+}
+.sa-table__actions-head {
+  width: 44px;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+.sa-table__actions {
+  width: 44px;
+  text-align: center;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+.sa-table__menu-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #366368;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.sa-table__menu-btn:hover {
+  background: #f5f0eb;
+  color: #08373f;
+}
+
+.sa-stage-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4a4d4f;
+  background: #f5f0eb;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Status badges */
+.sa-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.sa-status--won {
+  color: #2d6a4f;
+  background: #e7f1ec;
+}
+.sa-status--won::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #2d6a4f;
+  flex-shrink: 0;
+}
+.sa-status--lost {
+  color: #b22222;
+  background: #fde8e8;
+}
+.sa-status--lost::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #b22222;
+  flex-shrink: 0;
+}
+.sa-status--open {
+  color: #366368;
+  background: #eef4f3;
+}
+.sa-status--open::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #2d6a4f;
+  flex-shrink: 0;
+}
+
