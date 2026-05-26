@@ -38,7 +38,7 @@ export function PktHub() {
           <div className="hub-sidebar__brand">
             <img src="/pekate-logo.png" alt="Pekatê" className="hub-sidebar__logo" />
             <div>
-              <span className="hub-sidebar__brand-name">PKT-HUB</span>
+              <span className="hub-sidebar__brand-name">HUB</span>
               <span className="hub-sidebar__brand-sub">Pekatê Brasil</span>
             </div>
           </div>
