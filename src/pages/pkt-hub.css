@@ -462,6 +462,10 @@
   color: #08373f;
   background: #e8eeef;
 }
+.hub-card__tag--geral {
+  color: #1a6b3c;
+  background: #d4edda;
+}
 
 .hub-card__icon {
   width: 48px; height: 48px;
@@ -472,6 +476,9 @@
 }
 .hub-card__icon--b2c {
   background: #fde4cd;
+}
+.hub-card__icon--geral {
+  background: #d4edda;
 }
 .hub-card__title {
   font-style: italic; font-weight: 900;

@@ -107,6 +107,14 @@ export function PktHub() {
           <section className="hub-main__section">
             <h2 className="hub-main__section-title">Comercial</h2>
             <div className="hub-main__grid">
+              <div className="hub-card hub-card--disabled">
+                <span className="hub-card__tag hub-card__tag--geral">Geral</span>
+                <div className="hub-card__icon hub-card__icon--geral">🎯</div>
+                <h3 className="hub-card__title">Controle de Metas</h3>
+                <p className="hub-card__desc">Acompanhamento consolidado de metas de receita e conversão de todos os programas.</p>
+                <span className="hub-card__status">Em breve</span>
+              </div>
+
               <button className="hub-card" onClick={() => navigate('/pekate-dash')}>
                 <span className="hub-card__tag">B2C</span>
                 <div className="hub-card__icon hub-card__icon--b2c">📊</div>
@@ -144,6 +152,19 @@ export function PktHub() {
 
         {activeTab === 'Comercial' && (
           <>
+            <section className="hub-main__section">
+              <h2 className="hub-main__section-title">Geral</h2>
+              <div className="hub-main__grid">
+                <div className="hub-card hub-card--disabled">
+                  <span className="hub-card__tag hub-card__tag--geral">Geral</span>
+                  <div className="hub-card__icon hub-card__icon--geral">🎯</div>
+                  <h3 className="hub-card__title">Controle de Metas</h3>
+                  <p className="hub-card__desc">Acompanhamento consolidado de metas de receita e conversão de todos os programas.</p>
+                  <span className="hub-card__status">Em breve</span>
+                </div>
+              </div>
+            </section>
+
             <section className="hub-main__section">
               <h2 className="hub-main__section-title">B2C</h2>
               <div className="hub-main__grid">
