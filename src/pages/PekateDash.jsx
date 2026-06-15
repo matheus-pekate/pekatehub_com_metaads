@@ -15,6 +15,7 @@ const CAROUSEL = [
   { id: 'pos',    duration: 30000 },
   { id: 'clevel', duration: 20000 },
   { id: 'gef',    duration: 20000 },
+  { id: 'pdd',    duration: 20000 },
 ]
 
 export function PekateDash() {

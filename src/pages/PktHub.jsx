@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './pkt-hub.css'
 
 const SIDEBAR_ITEMS = [
@@ -7,9 +7,11 @@ const SIDEBAR_ITEMS = [
   { id: 'comercial', label: 'Comercial', icon: 'chart' },
   { id: 'marketing', label: 'Marketing', icon: 'megaphone' },
   { id: 'operacao', label: 'Operação', icon: 'gear' },
+  { id: 'agentes', label: 'Agentes', icon: 'bot' },
 ]
 
-const TABS = ['Home', 'Comercial', 'Marketing', 'Operação']
+const TABS = ['Home', 'Comercial', 'Marketing', 'Operação', 'Agentes']
+const AGENT_SUBTABS = ['Funis', 'Performance', 'Conversas']
 
 function NavIcon({ type }) {
   const icons = {
@@ -17,6 +19,7 @@ function NavIcon({ type }) {
     chart: <><path d="M18 20V10M12 20V4M6 20v-6"/></>,
     megaphone: <><path d="M3 11l18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 01-5.8-1.6"/></>,
     gear: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1.08-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1.08 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001.08 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1.08z"/></>,
+    bot: <><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 2v3M8 11V9a4 4 0 018 0v2"/><circle cx="9" cy="16" r="1" fill="currentColor"/><circle cx="15" cy="16" r="1" fill="currentColor"/></>,
   }
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -25,10 +28,153 @@ function NavIcon({ type }) {
   )
 }
 
+/* ── Utilitários de chat ── */
+function parseMessage(raw) {
+  const match = raw.match(/^(AI|USER)(?:_[A-Z]+)?_(\d{4}-\d{2}-\d{2}T[\d:.+-]+):\s?(.*)$/s)
+  if (!match) return { role: 'unknown', time: '', text: raw }
+  return { role: match[1] === 'AI' ? 'ai' : 'user', time: match[2], text: match[3].trim() }
+}
+
+function formatTime(iso) {
+  try { return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) }
+  catch { return '' }
+}
+
+function formatPhone(key) {
+  const num = key.replace('chat-history_', '')
+  return num.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/, '+$1 ($2) $3-$4') || num
+}
+
+/* ── Sub-página da Laura ── */
+function LauraPage() {
+  const [subTab, setSubTab] = useState('Funis')
+  const [chats, setChats] = useState({})
+  const [selected, setSelected] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const bottomRef = useRef(null)
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/chats')
+      .then(r => r.json())
+      .then(data => {
+        const c = data.chats || {}
+        setChats(c)
+        const first = Object.keys(c)[0]
+        if (first) setSelected(first)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [selected, chats])
+
+  const keys = Object.keys(chats)
+  const messages = selected ? (chats[selected] || []).map(parseMessage) : []
+
+  return (
+    <div className="agent-page">
+      {/* Cabeçalho do agente */}
+      <div className="agent-page__header">
+        <img src="/Laura-agent.png" alt="Laura" className="agent-page__photo" />
+        <div className="agent-page__info">
+          <h2 className="agent-page__name">Laura Vieira</h2>
+          <span className="agent-page__role">Pré-qualificação B2C · <span className="agent-page__live">● Ativo</span></span>
+          <nav className="agent-page__subtabs">
+            {AGENT_SUBTABS.map(t => (
+              <button
+                key={t}
+                className={`agent-subtab ${subTab === t ? 'agent-subtab--active' : ''}`}
+                onClick={() => setSubTab(t)}
+              >{t}</button>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* Conversas */}
+      {subTab === 'Conversas' && (
+        <div className="agent-chats">
+          {/* Lista de conversas */}
+          <aside className="agent-chats__list">
+            {loading && <p className="agent-chats__empty">Carregando...</p>}
+            {!loading && keys.length === 0 && <p className="agent-chats__empty">Nenhuma conversa.</p>}
+            {keys.map(key => {
+              const msgs = chats[key].map(parseMessage)
+              const last = msgs[msgs.length - 1]
+              return (
+                <button
+                  key={key}
+                  className={`agent-chat-item ${selected === key ? 'agent-chat-item--active' : ''}`}
+                  onClick={() => setSelected(key)}
+                >
+                  <div className="agent-chat-item__avatar">{formatPhone(key).slice(-2)}</div>
+                  <div className="agent-chat-item__info">
+                    <span className="agent-chat-item__phone">{formatPhone(key)}</span>
+                    <span className="agent-chat-item__preview">{last?.text?.slice(0, 40)}…</span>
+                  </div>
+                  <span className="agent-chat-item__count">{msgs.length}</span>
+                </button>
+              )
+            })}
+          </aside>
+
+          {/* Janela de mensagens */}
+          <div className="agent-chats__window">
+            {!selected ? (
+              <p className="agent-chats__empty">Selecione uma conversa</p>
+            ) : (
+              <>
+                <div className="agent-chats__winheader">
+                  <div className="agent-chat-item__avatar">{formatPhone(selected).slice(-2)}</div>
+                  <div>
+                    <span className="agent-chat-item__phone">{formatPhone(selected)}</span>
+                    <span className="agent-chat-item__preview">{messages.length} mensagens</span>
+                  </div>
+                </div>
+                <div className="agent-messages">
+                  {messages.map((m, i) => (
+                    <div key={i} className={`agent-bubble agent-bubble--${m.role}`}>
+                      <p className="agent-bubble__text">{m.text}</p>
+                      <span className="agent-bubble__time">{formatTime(m.time)}</span>
+                    </div>
+                  ))}
+                  <div ref={bottomRef} />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {subTab === 'Funis' && (
+        <div className="agent-placeholder">
+          <span>📊</span>
+          <p>Funis — em breve</p>
+        </div>
+      )}
+
+      {subTab === 'Performance' && (
+        <div className="agent-placeholder">
+          <span>📈</span>
+          <p>Performance — em breve</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── PktHub principal ── */
 export function PktHub() {
   const navigate = useNavigate()
-  const location = useLocation()
   const [activeTab, setActiveTab] = useState('Home')
+  const [activeAgent, setActiveAgent] = useState(null)
+
+  function handleTabChange(tab) {
+    setActiveTab(tab)
+    setActiveAgent(null)
+  }
 
   return (
     <div className="hub-layout">
@@ -48,7 +194,7 @@ export function PktHub() {
               <button
                 key={item.id}
                 className={`hub-nav-item ${activeTab === item.label ? 'hub-nav-item--active' : ''}`}
-                onClick={() => setActiveTab(item.label)}
+                onClick={() => handleTabChange(item.label)}
               >
                 <NavIcon type={item.icon} />
                 <span>{item.label}</span>
@@ -68,7 +214,7 @@ export function PktHub() {
         </div>
       </aside>
 
-      {/* ── Right column (strip + content) ── */}
+      {/* ── Coluna direita ── */}
       <div className="hub-right">
         <div className="hub-strip hub-strip--quote">
           <p className="hub-strip__quote">
@@ -76,81 +222,57 @@ export function PktHub() {
           </p>
         </div>
 
-        <nav className="hub-tabs">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              className={`hub-tabs__item ${activeTab === tab ? 'hub-tabs__item--active' : ''}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-        </nav>
-
-        <main className="hub-main">
-        <div className="hub-banner">
-          <div className="hub-banner__content">
-            <span className="hub-banner__badge">Central</span>
-            <h2 className="hub-banner__title">Pekatê Brasil · PKT-HUB</h2>
-            <p className="hub-banner__text">Acompanhe em tempo real os indicadores comerciais, de marketing e operacionais de toda a operação.</p>
-          </div>
-          <div className="hub-banner__art">
-            <img src="/pekate-logo.png" alt="Pekatê" className="hub-banner__seta" />
-          </div>
-        </div>
-
-        {activeTab === 'Home' && (
-          <section className="hub-main__section">
-            <h2 className="hub-main__section-title">Comercial</h2>
-            <div className="hub-main__grid">
-              <div className="hub-card hub-card--disabled">
-                <span className="hub-card__tag hub-card__tag--geral">Geral</span>
-                <div className="hub-card__icon hub-card__icon--geral">🎯</div>
-                <h3 className="hub-card__title">Controle de Metas</h3>
-                <p className="hub-card__desc">Acompanhamento consolidado de metas de receita e conversão de todos os programas.</p>
-                <span className="hub-card__status">Em breve</span>
-              </div>
-
-              <button className="hub-card" onClick={() => navigate('/pekate-dash')}>
-                <span className="hub-card__tag">B2C</span>
-                <div className="hub-card__icon hub-card__icon--b2c">📊</div>
-                <h3 className="hub-card__title">Comando B2C</h3>
-                <p className="hub-card__desc">Funil, metas, vendedores e alertas dos programas B2C em tempo real.</p>
-                <span className="hub-card__status hub-card__status--live">Ao vivo</span>
+        {!activeAgent && (
+          <nav className="hub-tabs">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                className={`hub-tabs__item ${activeTab === tab ? 'hub-tabs__item--active' : ''}`}
+                onClick={() => handleTabChange(tab)}
+              >
+                {tab}
               </button>
-
-              <button className="hub-card" onClick={() => navigate('/seller-analysis')}>
-                <span className="hub-card__tag">B2C</span>
-                <div className="hub-card__icon hub-card__icon--b2c">👤</div>
-                <h3 className="hub-card__title">Análise dos Vendedores</h3>
-                <p className="hub-card__desc">Performance individual, atividades e metas dos vendedores.</p>
-                <span className="hub-card__status hub-card__status--live">Ao vivo</span>
-              </button>
-
-              <div className="hub-card hub-card--disabled">
-                <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
-                <div className="hub-card__icon">🏢</div>
-                <h3 className="hub-card__title">Comando B2B</h3>
-                <p className="hub-card__desc">Contas corporativas e pipeline enterprise.</p>
-                <span className="hub-card__status">Em breve</span>
-              </div>
-
-              <div className="hub-card hub-card--disabled">
-                <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
-                <div className="hub-card__icon">👤</div>
-                <h3 className="hub-card__title">Análise dos Vendedores</h3>
-                <p className="hub-card__desc">Performance individual, atividades e metas dos vendedores B2B.</p>
-                <span className="hub-card__status">Em breve</span>
-              </div>
-            </div>
-          </section>
+            ))}
+          </nav>
         )}
 
-        {activeTab === 'Comercial' && (
-          <>
+        <main className="hub-main">
+          {/* Banner — oculto quando agente aberto */}
+          {!activeAgent && (
+            <div className="hub-banner">
+              <div className="hub-banner__content">
+                <span className="hub-banner__badge">Central</span>
+                <h2 className="hub-banner__title">Pekatê Brasil · PKT-HUB</h2>
+                <p className="hub-banner__text">Acompanhe em tempo real os indicadores comerciais, de marketing e operacionais de toda a operação.</p>
+              </div>
+              <div className="hub-banner__art">
+                <img src="/pekate-logo.png" alt="Pekatê" className="hub-banner__seta" />
+              </div>
+            </div>
+          )}
+
+          {/* ── Agente aberto ── */}
+          {activeAgent === 'laura' && <LauraPage />}
+
+          {/* ── Conteúdo normal das abas ── */}
+          {!activeAgent && activeTab === 'Home' && (
             <section className="hub-main__section">
-              <h2 className="hub-main__section-title">Geral</h2>
+              <h2 className="hub-main__section-title">Agentes</h2>
+              <div className="hub-main__grid">
+                <button className="hub-agent-card" onClick={() => setActiveAgent('laura')}>
+                  <span className="hub-agent-card__tag">Comercial</span>
+                  <img src="/Laura-agent.png" alt="Laura Vieira" className="hub-agent-card__photo" />
+                  <h3 className="hub-agent-card__name">Laura Vieira</h3>
+                  <p className="hub-agent-card__role">Pré-qualificação B2C</p>
+                  <span className="hub-agent-card__status">Ativo</span>
+                </button>
+              </div>
+            </section>
+          )}
+
+          {!activeAgent && activeTab === 'Home' && (
+            <section className="hub-main__section">
+              <h2 className="hub-main__section-title">Comercial</h2>
               <div className="hub-main__grid">
                 <div className="hub-card hub-card--disabled">
                   <span className="hub-card__tag hub-card__tag--geral">Geral</span>
@@ -159,12 +281,6 @@ export function PktHub() {
                   <p className="hub-card__desc">Acompanhamento consolidado de metas de receita e conversão de todos os programas.</p>
                   <span className="hub-card__status">Em breve</span>
                 </div>
-              </div>
-            </section>
-
-            <section className="hub-main__section">
-              <h2 className="hub-main__section-title">B2C</h2>
-              <div className="hub-main__grid">
                 <button className="hub-card" onClick={() => navigate('/pekate-dash')}>
                   <span className="hub-card__tag">B2C</span>
                   <div className="hub-card__icon hub-card__icon--b2c">📊</div>
@@ -172,20 +288,13 @@ export function PktHub() {
                   <p className="hub-card__desc">Funil, metas, vendedores e alertas dos programas B2C em tempo real.</p>
                   <span className="hub-card__status hub-card__status--live">Ao vivo</span>
                 </button>
-
                 <button className="hub-card" onClick={() => navigate('/seller-analysis')}>
                   <span className="hub-card__tag">B2C</span>
                   <div className="hub-card__icon hub-card__icon--b2c">👤</div>
                   <h3 className="hub-card__title">Análise dos Vendedores</h3>
-                  <p className="hub-card__desc">Performance individual, atividades e metas dos vendedores B2C.</p>
+                  <p className="hub-card__desc">Performance individual, atividades e metas dos vendedores.</p>
                   <span className="hub-card__status hub-card__status--live">Ao vivo</span>
                 </button>
-              </div>
-            </section>
-
-            <section className="hub-main__section">
-              <h2 className="hub-main__section-title">B2B</h2>
-              <div className="hub-main__grid">
                 <div className="hub-card hub-card--disabled">
                   <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
                   <div className="hub-card__icon">🏢</div>
@@ -193,7 +302,6 @@ export function PktHub() {
                   <p className="hub-card__desc">Contas corporativas e pipeline enterprise.</p>
                   <span className="hub-card__status">Em breve</span>
                 </div>
-
                 <div className="hub-card hub-card--disabled">
                   <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
                   <div className="hub-card__icon">👤</div>
@@ -203,44 +311,112 @@ export function PktHub() {
                 </div>
               </div>
             </section>
-          </>
-        )}
+          )}
 
-        {(activeTab === 'Home' || activeTab === 'Marketing') && (
-          <section className="hub-main__section">
-            <h2 className="hub-main__section-title">Marketing</h2>
-            <div className="hub-main__grid">
-              <div className="hub-card hub-card--disabled">
-                <div className="hub-card__icon">📣</div>
-                <h3 className="hub-card__title">Comando Marketing</h3>
-                <p className="hub-card__desc">Análise META ADS.</p>
-                <span className="hub-card__status">Em breve</span>
-              </div>
-            </div>
-          </section>
-        )}
+          {!activeAgent && activeTab === 'Comercial' && (
+            <>
+              <section className="hub-main__section">
+                <h2 className="hub-main__section-title">Geral</h2>
+                <div className="hub-main__grid">
+                  <div className="hub-card hub-card--disabled">
+                    <span className="hub-card__tag hub-card__tag--geral">Geral</span>
+                    <div className="hub-card__icon hub-card__icon--geral">🎯</div>
+                    <h3 className="hub-card__title">Controle de Metas</h3>
+                    <p className="hub-card__desc">Acompanhamento consolidado de metas de receita e conversão de todos os programas.</p>
+                    <span className="hub-card__status">Em breve</span>
+                  </div>
+                </div>
+              </section>
+              <section className="hub-main__section">
+                <h2 className="hub-main__section-title">B2C</h2>
+                <div className="hub-main__grid">
+                  <button className="hub-card" onClick={() => navigate('/pekate-dash')}>
+                    <span className="hub-card__tag">B2C</span>
+                    <div className="hub-card__icon hub-card__icon--b2c">📊</div>
+                    <h3 className="hub-card__title">Comando B2C</h3>
+                    <p className="hub-card__desc">Funil, metas, vendedores e alertas dos programas B2C em tempo real.</p>
+                    <span className="hub-card__status hub-card__status--live">Ao vivo</span>
+                  </button>
+                  <button className="hub-card" onClick={() => navigate('/seller-analysis')}>
+                    <span className="hub-card__tag">B2C</span>
+                    <div className="hub-card__icon hub-card__icon--b2c">👤</div>
+                    <h3 className="hub-card__title">Análise dos Vendedores</h3>
+                    <p className="hub-card__desc">Performance individual, atividades e metas dos vendedores B2C.</p>
+                    <span className="hub-card__status hub-card__status--live">Ao vivo</span>
+                  </button>
+                </div>
+              </section>
+              <section className="hub-main__section">
+                <h2 className="hub-main__section-title">B2B</h2>
+                <div className="hub-main__grid">
+                  <div className="hub-card hub-card--disabled">
+                    <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
+                    <div className="hub-card__icon">🏢</div>
+                    <h3 className="hub-card__title">Comando B2B</h3>
+                    <p className="hub-card__desc">Contas corporativas e pipeline enterprise.</p>
+                    <span className="hub-card__status">Em breve</span>
+                  </div>
+                  <div className="hub-card hub-card--disabled">
+                    <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
+                    <div className="hub-card__icon">👤</div>
+                    <h3 className="hub-card__title">Análise dos Vendedores</h3>
+                    <p className="hub-card__desc">Performance individual, atividades e metas dos vendedores B2B.</p>
+                    <span className="hub-card__status">Em breve</span>
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
 
-        {(activeTab === 'Home' || activeTab === 'Operação') && (
-          <section className="hub-main__section">
-            <h2 className="hub-main__section-title">Operacional</h2>
-            <div className="hub-main__grid">
-              <div className="hub-card hub-card--disabled">
-                <div className="hub-card__icon">⚙️</div>
-                <h3 className="hub-card__title">Performance Operacional</h3>
-                <p className="hub-card__desc">Indicadores operacionais, entregas e performance das equipes.</p>
-                <span className="hub-card__status">Em breve</span>
+          {!activeAgent && (activeTab === 'Home' || activeTab === 'Marketing') && (
+            <section className="hub-main__section">
+              <h2 className="hub-main__section-title">Marketing</h2>
+              <div className="hub-main__grid">
+                <div className="hub-card hub-card--disabled">
+                  <div className="hub-card__icon">📣</div>
+                  <h3 className="hub-card__title">Comando Marketing</h3>
+                  <p className="hub-card__desc">Análise META ADS.</p>
+                  <span className="hub-card__status">Em breve</span>
+                </div>
               </div>
+            </section>
+          )}
 
-              <div className="hub-card hub-card--disabled">
-                <div className="hub-card__icon">📑</div>
-                <h3 className="hub-card__title">Relatórios</h3>
-                <p className="hub-card__desc">Relatórios consolidados e históricos de toda a operação.</p>
-                <span className="hub-card__status">Em breve</span>
+          {!activeAgent && activeTab === 'Agentes' && (
+            <section className="hub-main__section">
+              <h2 className="hub-main__section-title">Agentes Comerciais</h2>
+              <div className="hub-main__grid">
+                <button className="hub-agent-card" onClick={() => setActiveAgent('laura')}>
+                  <span className="hub-agent-card__tag">Comercial</span>
+                  <img src="/Laura-agent.png" alt="Laura Vieira" className="hub-agent-card__photo" />
+                  <h3 className="hub-agent-card__name">Laura Vieira</h3>
+                  <p className="hub-agent-card__role">Pré-qualificação B2C</p>
+                  <span className="hub-agent-card__status">Ativo</span>
+                </button>
               </div>
-            </div>
-          </section>
-        )}
-      </main>
+            </section>
+          )}
+
+          {!activeAgent && (activeTab === 'Home' || activeTab === 'Operação') && (
+            <section className="hub-main__section">
+              <h2 className="hub-main__section-title">Operacional</h2>
+              <div className="hub-main__grid">
+                <div className="hub-card hub-card--disabled">
+                  <div className="hub-card__icon">⚙️</div>
+                  <h3 className="hub-card__title">Performance Operacional</h3>
+                  <p className="hub-card__desc">Indicadores operacionais, entregas e performance das equipes.</p>
+                  <span className="hub-card__status">Em breve</span>
+                </div>
+                <div className="hub-card hub-card--disabled">
+                  <div className="hub-card__icon">📑</div>
+                  <h3 className="hub-card__title">Relatórios</h3>
+                  <p className="hub-card__desc">Relatórios consolidados e históricos de toda a operação.</p>
+                  <span className="hub-card__status">Em breve</span>
+                </div>
+              </div>
+            </section>
+          )}
+        </main>
       </div>
     </div>
   )

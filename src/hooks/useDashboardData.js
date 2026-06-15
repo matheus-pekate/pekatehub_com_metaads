@@ -26,7 +26,15 @@ function processProgramDeals(program, deals, userMap) {
 
   const stagesData = program.stages.map((s) => stageMap[s.id])
 
-  const wonDeals = filtered.filter((d) => d.status === 'won')
+  const currentYear = new Date().getFullYear()
+  const wonDeals = filtered.filter((d) => {
+    if (d.status !== 'won') return false
+    if (program.wonThisYear) {
+      const wonYear = d.won_time ? new Date(d.won_time).getFullYear() : null
+      return wonYear === currentYear
+    }
+    return true
+  })
   const converted = wonDeals.length
   const convertedValue = wonDeals.reduce((acc, d) => acc + (d.value || 0), 0)
 

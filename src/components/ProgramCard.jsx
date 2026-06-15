@@ -15,8 +15,21 @@ function daysUntil(dateStr) {
   return `${diff} dias`
 }
 
+const TURMA_LABELS = {
+  517: 'CPS-01', 518: 'CPS-02', 519: 'CPS-03', 520: 'CPS-04', 521: 'CPS-05',
+  522: 'CPS-06', 523: 'CPS-07', 524: 'CPS-08', 525: 'CPS-09', 526: 'CPS-10',
+  527: 'CPS-11', 528: 'CPS-12', 529: 'CPS-13', 530: 'CPS-14', 531: 'CPS-15',
+  532: 'CPS-16', 533: 'CPS-17', 534: 'CPS-18', 535: 'CPS-19', 536: 'CPS-20',
+  537: 'ONLINE',
+  540: 'PIRA-01', 541: 'PIRA-02',
+  538: 'SOR-01',  539: 'SOR-02',
+  542: 'CBV-01',  543: 'CBV-02', 544: 'CBV-03', 545: 'CBV-04', 546: 'CBV-05',
+  547: 'ATB-01',  548: 'ATB-02', 549: 'ATB-03', 550: 'ATB-04', 551: 'ATB-05',
+}
+
 export function ProgramCard({ program, isSelected, onClick }) {
-  const { name, shortName, startDate, goal, converted, totalActive, goalPercent, accentColor } = program
+  const { name, shortName, startDate, goal, converted, totalActive, goalPercent, accentColor, convertedFilter } = program
+  const turmaLabel = convertedFilter ? TURMA_LABELS[convertedFilter.value] : null
 
   const barWidth = `${goalPercent}%`
   const daysLeft = daysUntil(startDate)
@@ -46,6 +59,11 @@ export function ProgramCard({ program, isSelected, onClick }) {
         <div>
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 mb-1">{shortName}</p>
           <h3 className="font-display font-700 text-xl text-white leading-tight">{name}</h3>
+          {turmaLabel && (
+            <span className="inline-block mt-1.5 text-[9px] font-700 uppercase tracking-[0.15em] px-2 py-0.5 rounded-full bg-white/10 text-white/50">
+              {turmaLabel}
+            </span>
+          )}
         </div>
         <div className="text-right">
           <p

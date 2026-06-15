@@ -18,7 +18,12 @@ export const PROGRAMS = [
     price: 48900,
     revenueGoal: 1800000,
     pipelineId: 84,
+    pipelineName: '2026 - FDC - Pós-Negócios (T12)',
     winStageId: 421, // Efetivado
+    convertedFilter: {
+      customField: 'ceb81f259b83cf46c12f4acc7dfdc8ac97d057a8', // Turma
+      value: 528, // CPS-12
+    },
     stages: [
       { id: 416, name: 'Cliente Potencial', sub: 'Entrada do funil' },
       { id: 417, name: 'Qualificado',       sub: 'SQL · briefing feito',       verb: 'qualificam' },
@@ -38,6 +43,7 @@ export const PROGRAMS = [
     price: 6150,
     revenueGoal: 184500,
     pipelineId: 78,
+    pipelineName: 'FDC Abertos - Gestão Comercial (GECOM)',
     winStageId: 384, // Efetivado
     convertedFilter: {
       customField: 'ceb81f259b83cf46c12f4acc7dfdc8ac97d057a8', // Turma
@@ -61,6 +67,7 @@ export const PROGRAMS = [
     price: 33880,
     revenueGoal: 1185800,
     pipelineId: 42,
+    pipelineName: 'FDC Abertos - Jornada C-Level (C-Level)',
     winStageId: 216, // Inscrito
     convertedFilter: {
       customField: 'ceb81f259b83cf46c12f4acc7dfdc8ac97d057a8', // Turma
@@ -83,6 +90,7 @@ export const PROGRAMS = [
     price: 8340,
     revenueGoal: 291900,
     pipelineId: 73,
+    pipelineName: 'FDC Abertos - Gestão Financeira (GEF)',
     winStageId: 360, // Inscrito
     convertedFilter: {
       customField: 'ceb81f259b83cf46c12f4acc7dfdc8ac97d057a8', // Turma
@@ -95,5 +103,26 @@ export const PROGRAMS = [
       { id: 360, name: 'Inscrito',          sub: 'Matriculado · contado na meta', verb: 'inscrevem' },
     ],
     accentColor: '#7B61FF',
+  },
+  {
+    id: 'pdd',
+    name: 'PDD Avulso',
+    shortName: 'PDD',
+    startDate: '2026-12-18',
+    goal: 20,
+    price: 23700,
+    revenueGoal: 474000,
+    pipelineId: 43,
+    pipelineName: 'FDC - PDD Avulso (médias empresas)',
+    winStageId: 221, // Efetivado
+    wonThisYear: true,
+    stages: [
+      { id: 236, name: 'Cliente Potencial', sub: 'Entrada do funil' },
+      { id: 218, name: 'Qualificado',       sub: 'SQL · briefing feito',            verb: 'qualificam' },
+      { id: 219, name: 'Em Negociação',     sub: 'Proposta enviada',                verb: 'negociam' },
+      { id: 220, name: 'Inscrito',          sub: 'Boleto / contrato',               verb: 'inscrevem' },
+      { id: 221, name: 'Efetivado',         sub: 'Matriculado · contado na meta',   verb: 'efetivam' },
+    ],
+    accentColor: '#E84393',
   },
 ]
