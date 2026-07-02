@@ -54,7 +54,7 @@ function LauraPage() {
   const bottomRef = useRef(null)
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/chats')
+    fetch('/api/chats')
       .then(r => r.json())
       .then(data => {
         const c = data.chats || {}

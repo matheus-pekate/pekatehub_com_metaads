@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "ioredis": "^5.11.1",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.383.0",
     "react": "^18.2.0",
