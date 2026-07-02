@@ -372,12 +372,11 @@ export function PktHub() {
             <section className="hub-main__section">
               <h2 className="hub-main__section-title">Marketing</h2>
               <div className="hub-main__grid">
-                <div className="hub-card hub-card--disabled">
+                <button className="hub-card" onClick={() => navigate('/meta-ads')}>
                   <div className="hub-card__icon">📣</div>
                   <h3 className="hub-card__title">Comando Marketing</h3>
                   <p className="hub-card__desc">Análise META ADS.</p>
-                  <span className="hub-card__status">Em breve</span>
-                </div>
+                </button>
               </div>
             </section>
           )}
