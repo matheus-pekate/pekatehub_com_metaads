@@ -2,16 +2,18 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { fetchMetaAdsSnapshot } from '../services/metaAdsApi'
 import { PROGRAMS, REFRESH_INTERVAL_MINUTES } from '../config/metaAds'
 
-function toProgramView(program) {
-  const ads = program?.ads ?? []
+function toProgramView(apiProgram, configProgram) {
+  const ads = apiProgram?.ads ?? []
   return {
-    id: program.program_id,
-    name: program.program_name,
+    id: configProgram.id,
+    name: configProgram.name,
+    accentColor: configProgram.accentColor,
+    duration: configProgram.duration,
     hasActiveCampaigns: ads.length > 0,
-    totalLeads: program.totalLeads ?? 0,
-    totalSpend: program.totalSpend ?? 0,
-    cplMedio: program.cplMedio ?? null,
-    totalReach: program.totalReach ?? 0,
+    totalLeads: apiProgram.totalLeads ?? 0,
+    totalSpend: apiProgram.totalSpend ?? 0,
+    cplMedio: apiProgram.cplMedio ?? null,
+    totalReach: apiProgram.totalReach ?? 0,
     bestAd: ads[0] ?? null,
     ads,
   }
@@ -21,6 +23,8 @@ function emptyProgramView(program) {
   return {
     id: program.id,
     name: program.name,
+    accentColor: program.accentColor,
+    duration: program.duration,
     hasActiveCampaigns: false,
     totalLeads: 0,
     totalSpend: 0,
@@ -43,7 +47,7 @@ export function useMetaAdsData() {
       const payload = await fetchMetaAdsSnapshot()
       const byId = new Map(payload.map((p) => [p.program_id, p]))
       const next = PROGRAMS.map((program) =>
-        byId.has(program.id) ? toProgramView(byId.get(program.id)) : emptyProgramView(program)
+        byId.has(program.id) ? toProgramView(byId.get(program.id), program) : emptyProgramView(program)
       )
       dataRef.current = next
       setData(next)
