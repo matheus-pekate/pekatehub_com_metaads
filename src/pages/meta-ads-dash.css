@@ -376,6 +376,12 @@
 }
 
 .pkt-meta-ads__col--name {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.pkt-meta-ads__name-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -387,6 +393,22 @@
 
 .pkt-meta-ads__crown {
   margin-right: 6px;
+  flex: none;
+}
+
+.pkt-meta-ads__thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-right: 10px;
+  flex: none;
+  background: var(--off-white);
+}
+
+.pkt-meta-ads__row--best {
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .pkt-meta-ads__more {
