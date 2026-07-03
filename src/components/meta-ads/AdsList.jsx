@@ -22,8 +22,15 @@ export function AdsList({ ads }) {
       {visible.map((ad, i) => (
         <div key={ad.ad_id} className={`pkt-meta-ads__row ${i === 0 ? 'pkt-meta-ads__row--best' : ''}`}>
           <span className="pkt-meta-ads__col pkt-meta-ads__col--name" title={ad.ad_name}>
-            {i === 0 && <span className="pkt-meta-ads__crown">🏆</span>}
-            {ad.ad_name}
+            {i === 0 && (
+              <>
+                <span className="pkt-meta-ads__crown">🏆</span>
+                {ad.thumbnail_url && (
+                  <img className="pkt-meta-ads__thumb" src={ad.thumbnail_url} alt="" />
+                )}
+              </>
+            )}
+            <span className="pkt-meta-ads__name-text">{ad.ad_name}</span>
           </span>
           <span className="pkt-meta-ads__col pkt-meta-ads__col--num">{ad.leads}</span>
           <span className="pkt-meta-ads__col pkt-meta-ads__col--num">{formatBRL(ad.cpl)}</span>
