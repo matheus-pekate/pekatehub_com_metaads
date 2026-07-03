@@ -34,7 +34,7 @@ export function LauraChats() {
   const bottomRef = useRef(null)
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/chats')
+    fetch('/api/chats')
       .then((r) => r.json())
       .then((data) => {
         setChats(data.chats || {})
