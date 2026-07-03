@@ -373,6 +373,7 @@
 
 .pkt-meta-ads__row--best {
   background: color-mix(in srgb, var(--pgm-accent) 8%, var(--branco));
+  font-weight: 700;
 }
 
 .pkt-meta-ads__col--name {
@@ -404,11 +405,6 @@
   margin-right: 10px;
   flex: none;
   background: var(--off-white);
-}
-
-.pkt-meta-ads__row--best {
-  padding-top: 8px;
-  padding-bottom: 8px;
 }
 
 .pkt-meta-ads__more {
