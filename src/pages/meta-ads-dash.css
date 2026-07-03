@@ -29,6 +29,7 @@
   --linha-strong: rgba(48, 50, 51, .18);
   --positivo: #2d6a4f;
   --atencao: #cb5b36;
+  --pgm-accent: var(--laranja-vivo);
 
   position: absolute;
   top: 50%; left: 50%;
@@ -41,8 +42,9 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   display: grid;
-  grid-template-rows: 96px minmax(0, 1fr) 56px;
-  padding: 22px 36px 0;
+  grid-template-rows: 90px 6px 112px minmax(0, 1fr) 44px;
+  padding: 20px 36px 0;
+  row-gap: 14px;
 }
 
 /* ── Topbar ── */
@@ -87,7 +89,8 @@
 
 .pkt-meta-topbar__name em {
   font-style: normal;
-  color: var(--laranja-vivo);
+  color: var(--pgm-accent);
+  transition: color .4s ease;
 }
 
 .pkt-meta-topbar__spacer {
@@ -135,140 +138,231 @@
   margin-left: 2px;
 }
 
+.pkt-meta-pause-btn,
 .pkt-meta-refresh-btn {
   width: 40px; height: 40px;
   border-radius: 10px;
   border: 1px solid var(--linha-strong);
   background: var(--branco);
   color: var(--petroleo);
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
+  flex: none;
 }
 
-/* ── Grid de programas ── */
-.pkt-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  align-content: start;
-  padding-bottom: 10px;
+.pkt-meta-pause-btn { margin-right: 8px; }
+
+/* ── Barra de progresso do carrossel ── */
+.pkt-meta-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--linha);
   overflow: hidden;
 }
 
-.pkt-meta-card {
-  background: var(--branco);
-  border: 1px solid var(--linha);
-  border-radius: 16px;
-  padding: 20px 22px;
-  display: flex;
-  flex-direction: column;
+.pkt-meta-progress__fill {
+  height: 100%;
+  width: 0%;
+  background: var(--pgm-accent);
+  border-radius: 999px;
+  animation: pkt-meta-progress-fill linear forwards;
+}
+
+@keyframes pkt-meta-progress-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* ── Tira de programas (sempre visível) ── */
+.pkt-meta-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 14px;
 }
 
-.pkt-meta-card--empty {
-  opacity: .55;
-  filter: grayscale(.4);
+.pkt-meta-pill {
+  --pill-accent: var(--laranja-vivo);
+  background: var(--branco);
+  border: 2px solid transparent;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: border-color .25s ease, transform .2s ease;
 }
 
-.pkt-meta-card__header {
+.pkt-meta-pill--active {
+  border-color: var(--pill-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(8, 55, 63, .12);
+}
+
+.pkt-meta-pill--empty {
+  opacity: .5;
+  filter: grayscale(.35);
+}
+
+.pkt-meta-pill__name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--pill-accent);
+}
+
+.pkt-meta-pill__stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pkt-meta-pill__stats small {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--carvao-soft);
+  text-transform: uppercase;
+  margin-left: 3px;
+}
+
+.pkt-meta-pill__muted {
+  font-size: 12px;
+  color: var(--carvao-soft);
+}
+
+/* ── Painel de detalhe do programa ativo ── */
+.pkt-meta-detail {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: 18px;
+  padding: 26px 30px;
+  border-top: 5px solid var(--pgm-accent);
+}
+
+.pkt-meta-detail__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
 }
 
-.pkt-meta-card__title {
-  font-size: 20px;
-  font-weight: 700;
+.pkt-meta-detail__title {
+  font-size: 34px;
+  font-weight: 800;
   margin: 0;
+  color: var(--pgm-accent);
 }
 
-.pkt-meta-card__badge {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 10px;
+.pkt-meta-detail__badge {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 14px;
   border-radius: 999px;
   background: var(--petroleo-pale);
   color: var(--petroleo);
 }
 
-.pkt-meta-card__badge--muted {
+.pkt-meta-detail__badge--muted {
   background: var(--linha);
   color: var(--carvao-soft);
 }
 
-.pkt-meta-card__stats {
+.pkt-meta-detail__stats {
   display: flex;
-  gap: 16px;
+  gap: 40px;
 }
 
-.pkt-meta-card__stat {
+.pkt-meta-detail__stat {
   display: flex;
   flex-direction: column;
-  flex: 1;
 }
 
-.pkt-meta-card__stat-value {
-  font-size: 28px;
+.pkt-meta-detail__stat-value {
+  font-size: 44px;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
-.pkt-meta-card__stat-label {
-  font-size: 12px;
+.pkt-meta-detail__stat-label {
+  font-size: 13px;
   color: var(--petroleo-light);
   text-transform: uppercase;
   letter-spacing: .03em;
+  margin-top: 4px;
 }
 
-/* ── Best ad ── */
-.pkt-meta-bestad {
-  background: var(--off-white);
-  border: 1px solid var(--linha);
-  border-radius: 12px;
-  padding: 12px 14px;
+.pkt-meta-detail__empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--carvao-soft);
+  font-size: 16px;
+}
+
+/* ── Lista de anúncios ── */
+.pkt-meta-ads {
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  border: 1px solid var(--linha);
+  border-radius: 14px;
 }
 
-.pkt-meta-bestad__label {
+.pkt-meta-ads__header,
+.pkt-meta-ads__row {
+  display: grid;
+  grid-template-columns: 2.4fr repeat(6, 1fr);
+  align-items: center;
+  padding: 10px 18px;
+  gap: 10px;
+}
+
+.pkt-meta-ads__header {
+  background: var(--off-white);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .04em;
   color: var(--petroleo-light);
+  font-weight: 700;
 }
 
-.pkt-meta-bestad__name {
-  font-size: 15px;
-  font-weight: 700;
+.pkt-meta-ads__row {
+  font-size: 16px;
+  font-weight: 600;
+  border-top: 1px solid var(--linha);
+}
+
+.pkt-meta-ads__row--best {
+  background: color-mix(in srgb, var(--pgm-accent) 8%, var(--branco));
+}
+
+.pkt-meta-ads__col--name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.pkt-meta-bestad__stats {
-  display: flex;
-  gap: 14px;
+.pkt-meta-ads__col--num {
+  font-variant-numeric: tabular-nums;
 }
 
-.pkt-meta-bestad__stat {
-  display: flex;
-  flex-direction: column;
+.pkt-meta-ads__crown {
+  margin-right: 6px;
 }
 
-.pkt-meta-bestad__stat-value {
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.pkt-meta-bestad__stat-label {
-  font-size: 11px;
-  color: var(--petroleo-light);
-  text-transform: uppercase;
-}
-
-.pkt-meta-bestad__secondary {
-  font-size: 11px;
+.pkt-meta-ads__more {
+  padding: 8px 18px;
+  font-size: 12px;
   color: var(--carvao-soft);
+  border-top: 1px solid var(--linha);
+  background: var(--off-white);
 }
 
 /* ── Rodapé / aviso ── */

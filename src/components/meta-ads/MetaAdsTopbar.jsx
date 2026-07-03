@@ -8,7 +8,7 @@ function minutesAgo(date) {
   return Math.max(0, Math.floor((Date.now() - date.getTime()) / 60000))
 }
 
-export function MetaAdsTopbar({ lastUpdated, error, onRefresh }) {
+export function MetaAdsTopbar({ lastUpdated, error, onRefresh, paused, onTogglePause }) {
   const navigate = useNavigate()
   const [now, setNow] = useState(() => new Date())
 
@@ -48,6 +48,9 @@ export function MetaAdsTopbar({ lastUpdated, error, onRefresh }) {
         {hm}<span className="pkt-meta-clock__seconds">{ss}</span>
       </span>
 
+      <button className="pkt-meta-pause-btn" onClick={onTogglePause} title={paused ? 'Retomar rotação' : 'Pausar rotação'}>
+        {paused ? '▶' : '⏸'}
+      </button>
       <button className="pkt-meta-refresh-btn" onClick={onRefresh} title="Atualizar agora">
         ↻
       </button>
