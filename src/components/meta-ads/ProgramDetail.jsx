@@ -3,7 +3,7 @@ import { AdsList } from './AdsList'
 
 export function ProgramDetail({ program }) {
   if (!program) return null
-  const { name, hasActiveCampaigns, totalLeads, cplMedio, totalReach, ads, leadsLast1Day, leadsLast7Days } = program
+  const { id, name, hasActiveCampaigns, totalLeads, cplMedio, totalReach, ads, leadsLast1Day, leadsLast7Days } = program
 
   return (
     <div className="pkt-meta-detail">
@@ -33,7 +33,7 @@ export function ProgramDetail({ program }) {
 
       {hasActiveCampaigns ? (
         <>
-          <AdsList ads={ads} />
+          <AdsList ads={ads} groupByCampaign={id === 'outros'} />
           <div className="pkt-meta-recent">
             <div className="pkt-meta-recent__card">
               <span className="pkt-meta-recent__value">{leadsLast1Day}</span>
