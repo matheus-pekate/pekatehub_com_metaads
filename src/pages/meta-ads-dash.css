@@ -347,6 +347,32 @@
   border-radius: 14px;
 }
 
+.pkt-meta-ads--grouped {
+  border: none;
+  border-radius: 0;
+  gap: 14px;
+  overflow: visible;
+}
+
+.pkt-meta-ads-group {
+  border: 1px solid var(--linha);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pkt-meta-ads-group__title {
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  background: var(--pgm-accent);
+  color: var(--branco);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .pkt-meta-ads__header,
 .pkt-meta-ads__row {
   display: grid;
