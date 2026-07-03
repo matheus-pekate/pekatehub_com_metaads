@@ -305,6 +305,38 @@
   font-size: 16px;
 }
 
+/* ── Leads recentes (último dia / última semana) ── */
+.pkt-meta-recent {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.pkt-meta-recent__card {
+  background: var(--off-white);
+  border: 1px solid var(--linha);
+  border-left: 4px solid var(--pgm-accent);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pkt-meta-recent__value {
+  font-size: 32px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.pkt-meta-recent__label {
+  font-size: 12px;
+  color: var(--petroleo-light);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  margin-top: 4px;
+}
+
 /* ── Lista de anúncios ── */
 .pkt-meta-ads {
   min-height: 0;

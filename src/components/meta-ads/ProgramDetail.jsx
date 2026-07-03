@@ -3,7 +3,7 @@ import { AdsList } from './AdsList'
 
 export function ProgramDetail({ program }) {
   if (!program) return null
-  const { name, hasActiveCampaigns, totalLeads, cplMedio, totalReach, ads } = program
+  const { name, hasActiveCampaigns, totalLeads, cplMedio, totalReach, ads, leadsLast1Day, leadsLast7Days } = program
 
   return (
     <div className="pkt-meta-detail">
@@ -32,7 +32,19 @@ export function ProgramDetail({ program }) {
       </div>
 
       {hasActiveCampaigns ? (
-        <AdsList ads={ads} />
+        <>
+          <AdsList ads={ads} />
+          <div className="pkt-meta-recent">
+            <div className="pkt-meta-recent__card">
+              <span className="pkt-meta-recent__value">{leadsLast1Day}</span>
+              <span className="pkt-meta-recent__label">Leads no último dia</span>
+            </div>
+            <div className="pkt-meta-recent__card">
+              <span className="pkt-meta-recent__value">{leadsLast7Days}</span>
+              <span className="pkt-meta-recent__label">Leads na última semana</span>
+            </div>
+          </div>
+        </>
       ) : (
         <div className="pkt-meta-detail__empty">Nenhuma campanha ativa para este programa no momento.</div>
       )}

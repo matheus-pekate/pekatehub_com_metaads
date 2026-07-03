@@ -14,6 +14,8 @@ function toProgramView(apiProgram, configProgram) {
     totalSpend: apiProgram.totalSpend ?? 0,
     cplMedio: apiProgram.cplMedio ?? null,
     totalReach: apiProgram.totalReach ?? 0,
+    leadsLast1Day: apiProgram.leadsLast1Day ?? 0,
+    leadsLast7Days: apiProgram.leadsLast7Days ?? 0,
     bestAd: ads[0] ?? null,
     ads,
   }
@@ -30,6 +32,8 @@ function emptyProgramView(program) {
     totalSpend: 0,
     cplMedio: null,
     totalReach: 0,
+    leadsLast1Day: 0,
+    leadsLast7Days: 0,
     bestAd: null,
     ads: [],
   }
