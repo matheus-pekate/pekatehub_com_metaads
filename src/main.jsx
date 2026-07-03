@@ -6,6 +6,7 @@ import { PktHub } from './pages/PktHub.jsx'
 import { SellerAnalysis } from './pages/SellerAnalysis.jsx'
 import { SellerRanking } from './pages/SellerRanking.jsx'
 import { LauraChats } from './pages/LauraChats.jsx'
+import { MetaAdsDash } from './pages/MetaAdsDash.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -18,6 +19,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/seller-analysis" element={<SellerAnalysis />} />
         <Route path="/seller-ranking" element={<SellerRanking />} />
         <Route path="/laura-chats" element={<LauraChats />} />
+        <Route path="/meta-ads" element={<MetaAdsDash />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
