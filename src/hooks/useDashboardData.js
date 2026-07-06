@@ -41,8 +41,8 @@ function processProgramDeals(program, deals, userMap) {
   // Total de deals ativos no funil (apenas status open)
   const totalActive = filtered.filter((d) => d.status === 'open').length
 
-  // Total ganho em R$: conversões × preço do programa
-  const totalWonValue = converted * (program.price || 0)
+  // Total ganho em R$: soma do valor real de cada negócio fechado (nem todos fecham pelo mesmo preço)
+  const totalWonValue = convertedValue
 
   // Forecast: leads open de Em Negociação em diante
   const forecastCount = program.stages
