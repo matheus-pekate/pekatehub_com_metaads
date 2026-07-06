@@ -1,7 +1,7 @@
 import { formatBRL, formatCompactNumber } from './format'
 import { AdsList } from './AdsList'
 
-export function ProgramDetail({ program }) {
+export function ProgramDetail({ program, onSelectAd }) {
   if (!program) return null
   const { id, name, hasActiveCampaigns, totalLeads, cplMedio, totalReach, ads, leadsLast1Day, leadsLast7Days } = program
 
@@ -33,7 +33,7 @@ export function ProgramDetail({ program }) {
 
       {hasActiveCampaigns ? (
         <>
-          <AdsList ads={ads} groupByCampaign={id === 'outros'} />
+          <AdsList ads={ads} groupByCampaign={id === 'outros'} onSelectAd={onSelectAd} />
           <div className="pkt-meta-recent">
             <div className="pkt-meta-recent__card">
               <span className="pkt-meta-recent__value">{leadsLast1Day}</span>
