@@ -16,9 +16,12 @@ function AdsHeader() {
   )
 }
 
-function AdRow({ ad, showCrown }) {
+function AdRow({ ad, showCrown, onSelect }) {
   return (
-    <div className={`pkt-meta-ads__row ${showCrown ? 'pkt-meta-ads__row--best' : ''}`}>
+    <div
+      className={`pkt-meta-ads__row ${showCrown ? 'pkt-meta-ads__row--best' : ''} ${onSelect ? 'pkt-meta-ads__row--clickable' : ''}`}
+      onClick={onSelect ? () => onSelect(ad) : undefined}
+    >
       <span className="pkt-meta-ads__col pkt-meta-ads__col--name" title={ad.ad_name}>
         {showCrown && <span className="pkt-meta-ads__crown">🏆</span>}
         {ad.thumbnail_url && (
@@ -52,7 +55,7 @@ function groupByCampaign(ads) {
     .sort((a, b) => (b.ads[0]?.leads ?? 0) - (a.ads[0]?.leads ?? 0))
 }
 
-export function AdsList({ ads, groupByCampaign: shouldGroup = false }) {
+export function AdsList({ ads, groupByCampaign: shouldGroup = false, onSelectAd }) {
   if (!ads || ads.length === 0) return null
 
   if (shouldGroup) {
@@ -64,7 +67,7 @@ export function AdsList({ ads, groupByCampaign: shouldGroup = false }) {
             <div className="pkt-meta-ads-group__title" title={campaign.campaign_name}>{campaign.campaign_name}</div>
             <AdsHeader />
             {campaign.ads.map((ad, i) => (
-              <AdRow key={ad.ad_id} ad={ad} showCrown={i === 0} />
+              <AdRow key={ad.ad_id} ad={ad} showCrown={i === 0} onSelect={onSelectAd} />
             ))}
           </div>
         ))}
@@ -79,7 +82,7 @@ export function AdsList({ ads, groupByCampaign: shouldGroup = false }) {
     <div className="pkt-meta-ads">
       <AdsHeader />
       {visible.map((ad, i) => (
-        <AdRow key={ad.ad_id} ad={ad} showCrown={i === 0} />
+        <AdRow key={ad.ad_id} ad={ad} showCrown={i === 0} onSelect={onSelectAd} />
       ))}
       {remaining > 0 && (
         <div className="pkt-meta-ads__more">+{remaining} outro{remaining === 1 ? '' : 's'} anúncio{remaining === 1 ? '' : 's'} ativo{remaining === 1 ? '' : 's'}</div>

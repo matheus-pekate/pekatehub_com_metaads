@@ -5,6 +5,7 @@ import { MetaAdsTopbar } from '../components/meta-ads/MetaAdsTopbar'
 import { ProgramStrip } from '../components/meta-ads/ProgramStrip'
 import { ProgramDetail } from '../components/meta-ads/ProgramDetail'
 import { DisclaimerStrip } from '../components/meta-ads/DisclaimerStrip'
+import { AdDetailModal } from '../components/meta-ads/AdDetailModal'
 import './meta-ads-dash.css'
 
 export function MetaAdsDash() {
@@ -13,6 +14,7 @@ export function MetaAdsDash() {
   const [activeIdx, setActiveIdx] = useState(0)
   const [paused, setPaused] = useState(false)
   const [epoch, setEpoch] = useState(0)
+  const [selectedAd, setSelectedAd] = useState(null)
 
   const activeProgram = data[activeIdx]
   const duration = activeProgram?.duration ?? 20000
@@ -25,14 +27,19 @@ export function MetaAdsDash() {
     }
   }, [data])
 
+  const handleSelectAd = useCallback((ad) => {
+    setSelectedAd(ad)
+    setPaused(true)
+  }, [])
+
   useEffect(() => {
-    if (paused) return
+    if (paused || selectedAd) return
     const timer = setTimeout(() => {
       setActiveIdx((i) => (i + 1) % data.length)
       setEpoch((e) => e + 1)
     }, duration)
     return () => clearTimeout(timer)
-  }, [activeIdx, paused, duration, epoch, data.length])
+  }, [activeIdx, paused, selectedAd, duration, epoch, data.length])
 
   return (
     <div className="pkt-letterbox">
@@ -55,8 +62,15 @@ export function MetaAdsDash() {
           />
         </div>
         <ProgramStrip programs={data} activeId={activeProgram?.id} onSelect={handleManualSelect} />
-        <ProgramDetail program={activeProgram} />
+        <ProgramDetail program={activeProgram} onSelectAd={handleSelectAd} />
         <DisclaimerStrip />
+        {selectedAd && (
+          <AdDetailModal
+            ad={selectedAd}
+            accentColor={activeProgram?.accentColor}
+            onClose={() => setSelectedAd(null)}
+          />
+        )}
       </div>
     </div>
   )
