@@ -260,7 +260,7 @@ export function DocsWiki() {
                   {docLoading && <div className="wiki-docstate">Carregando…</div>}
                   {!docLoading && docError && <div className="wiki-docstate wiki-docstate--error">{docError}</div>}
                   {!docLoading && !docError && docHtml != null && (
-                    <iframe className="wiki-iframe" srcDoc={docHtml} sandbox="" title={active.name} />
+                    <iframe className="wiki-iframe" srcDoc={docHtml} sandbox="allow-scripts allow-popups" title={active.name} />
                   )}
                 </div>
               )}
