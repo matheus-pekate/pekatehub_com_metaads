@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { fetchWorkflows, fetchDocsIndex } from '../services/docsApi'
 
+const REFRESH_INTERVAL_MS = 2 * 60 * 1000 // 2 minutos — fluxos novos/removidos no n8n aparecem sozinhos
+
 function mergeWorkflowsWithDocs(workflows, docs) {
   const docsById = new Map(docs.map((d) => [d.workflowId, d]))
   return workflows
@@ -35,6 +37,8 @@ export function useDocsWiki() {
 
   useEffect(() => {
     refresh()
+    const interval = setInterval(refresh, REFRESH_INTERVAL_MS)
+    return () => clearInterval(interval)
   }, [refresh])
 
   return { items, loading, error, refresh }
