@@ -1,3 +1,4 @@
 /api/chats  /.netlify/functions/chats  200
 /api/docs  /.netlify/functions/docs  200
+/api/workflows  /.netlify/functions/workflows  200
 /*  /index.html  200
