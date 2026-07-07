@@ -1,5 +1,6 @@
 import { formatBRL, formatCompactNumber } from './format'
 import { AdsList } from './AdsList'
+import { ProgramDailyChart } from './ProgramDailyChart'
 
 export function ProgramDetail({ program, onSelectAd }) {
   if (!program) return null
@@ -44,6 +45,7 @@ export function ProgramDetail({ program, onSelectAd }) {
               <span className="pkt-meta-recent__label">Leads na última semana</span>
             </div>
           </div>
+          <ProgramDailyChart programId={id} accentColor={program.accentColor} />
         </>
       ) : (
         <div className="pkt-meta-detail__empty">Nenhuma campanha ativa para este programa no momento.</div>

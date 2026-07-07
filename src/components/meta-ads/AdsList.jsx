@@ -1,6 +1,6 @@
 import { formatBRL, formatCompactNumber, formatPercent } from './format'
 
-const MAX_VISIBLE = 6
+const MAX_VISIBLE = 4
 
 function AdsHeader() {
   return (
