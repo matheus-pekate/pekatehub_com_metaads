@@ -2,7 +2,7 @@ import Redis from 'ioredis'
 
 const MAX_HTML_SIZE = 5 * 1024 * 1024 // 5MB
 const INDEX_KEY = 'n8n_docs_index'
-const contentKey = (slug) => `n8n_doc_content_${slug}`
+const contentKey = (workflowId) => `n8n_doc_content_${workflowId}`
 
 let redis
 
@@ -19,22 +19,14 @@ function getRedis() {
   return redis
 }
 
-function slugify(title) {
-  return title
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
-
 export const handler = async (event) => {
   try {
     const client = getRedis()
 
     if (event.httpMethod === 'GET') {
-      const slug = event.queryStringParameters?.slug
-      if (slug) {
-        const html = await client.get(contentKey(slug))
+      const workflowId = event.queryStringParameters?.workflowId
+      if (workflowId) {
+        const html = await client.get(contentKey(workflowId))
         if (html == null) {
           return { statusCode: 404, body: JSON.stringify({ error: 'Documento não encontrado' }) }
         }
@@ -47,11 +39,10 @@ export const handler = async (event) => {
 
       const index = await client.hgetall(INDEX_KEY)
       const docs = Object.entries(index)
-        .map(([docSlug, raw]) => {
-          try { return { slug: docSlug, ...JSON.parse(raw) } } catch { return null }
+        .map(([id, raw]) => {
+          try { return { workflowId: id, ...JSON.parse(raw) } } catch { return null }
         })
         .filter(Boolean)
-        .sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))
 
       return {
         statusCode: 200,
@@ -61,7 +52,10 @@ export const handler = async (event) => {
     }
 
     if (event.httpMethod === 'POST') {
-      const { title, html } = JSON.parse(event.body || '{}')
+      const { workflowId, title, html } = JSON.parse(event.body || '{}')
+      if (!workflowId) {
+        return { statusCode: 400, body: JSON.stringify({ error: 'workflowId é obrigatório' }) }
+      }
       if (!title || !title.trim()) {
         return { statusCode: 400, body: JSON.stringify({ error: 'Título é obrigatório' }) }
       }
@@ -72,31 +66,26 @@ export const handler = async (event) => {
         return { statusCode: 400, body: JSON.stringify({ error: 'Arquivo muito grande (limite de 5MB)' }) }
       }
 
-      const slug = slugify(title)
-      if (!slug) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'Título inválido' }) }
-      }
-
       const updatedAt = new Date().toISOString()
       const meta = { title: title.trim(), updatedAt, size: html.length }
 
-      await client.set(contentKey(slug), html)
-      await client.hset(INDEX_KEY, slug, JSON.stringify(meta))
+      await client.set(contentKey(workflowId), html)
+      await client.hset(INDEX_KEY, workflowId, JSON.stringify(meta))
 
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, ...meta }),
+        body: JSON.stringify({ workflowId, ...meta }),
       }
     }
 
     if (event.httpMethod === 'DELETE') {
-      const slug = event.queryStringParameters?.slug
-      if (!slug) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'slug é obrigatório' }) }
+      const workflowId = event.queryStringParameters?.workflowId
+      if (!workflowId) {
+        return { statusCode: 400, body: JSON.stringify({ error: 'workflowId é obrigatório' }) }
       }
-      await client.del(contentKey(slug))
-      await client.hdel(INDEX_KEY, slug)
+      await client.del(contentKey(workflowId))
+      await client.hdel(INDEX_KEY, workflowId)
       return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true }) }
     }
 

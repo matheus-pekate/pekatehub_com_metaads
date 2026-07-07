@@ -7,7 +7,7 @@ import { SellerAnalysis } from './pages/SellerAnalysis.jsx'
 import { SellerRanking } from './pages/SellerRanking.jsx'
 import { LauraChats } from './pages/LauraChats.jsx'
 import { MetaAdsDash } from './pages/MetaAdsDash.jsx'
-import { DocViewer } from './pages/DocViewer.jsx'
+import { DocsWiki } from './pages/DocsWiki.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -21,7 +21,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/seller-ranking" element={<SellerRanking />} />
         <Route path="/laura-chats" element={<LauraChats />} />
         <Route path="/meta-ads" element={<MetaAdsDash />} />
-        <Route path="/documentacao/:slug" element={<DocViewer />} />
+        <Route path="/documentacao" element={<DocsWiki />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
