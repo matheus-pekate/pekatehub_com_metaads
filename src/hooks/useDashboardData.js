@@ -44,6 +44,11 @@ function processProgramDeals(program, deals, userMap) {
   // Total ganho em R$: soma do valor real de cada negócio fechado (nem todos fecham pelo mesmo preço)
   const totalWonValue = convertedValue
 
+  // Ticket médio real: total ganho dividido pelo número de conversões (não é o "price" configurado)
+  const avgTicket = converted > 0 ? totalWonValue / converted : 0
+  // Desconto médio: quanto o ticket médio real ficou abaixo do preço cheio do programa
+  const discountPct = program.price > 0 && avgTicket > 0 ? ((program.price - avgTicket) / program.price) * 100 : 0
+
   // Forecast: leads open de Em Negociação em diante
   const forecastCount = program.stages
     .slice(2)
@@ -54,11 +59,17 @@ function processProgramDeals(program, deals, userMap) {
   const totalDealsCount = filtered.length
   const conversionRate = totalDealsCount > 0 ? (converted / totalDealsCount) * 100 : 0
 
-  // Performance por vendedor — considera deals open (em andamento) e won (convertidos)
+  // --- Alertas ---
+  const now = new Date()
+  const msPerDay = 86400000
+  const openDeals = filtered.filter((d) => d.status === 'open')
+
+  // Performance por vendedor — considera deals open (em andamento) e won (convertidos).
+  // Usa wonDeals (já filtrado por program.wonThisYear) em vez de reaplicar status === 'won'
+  // sobre `filtered`, senão programas com wonThisYear (ex: PDD Avulso) somam anos anteriores
+  // no valor convertido do vendedor, inflando o total muito acima do totalWonValue do programa.
   const sellerMap = {}
-  filtered.forEach((deal) => {
-    if (deal.status !== 'open' && deal.status !== 'won') return
-    const sellerId = deal.owner_id
+  const ensureSeller = (sellerId) => {
     const user = userMap[sellerId]
     if (!sellerMap[sellerId]) {
       sellerMap[sellerId] = {
@@ -71,25 +82,26 @@ function processProgramDeals(program, deals, userMap) {
         lastActivity: null,
       }
     }
-    if (deal.status === 'open') {
-      sellerMap[sellerId].active++
-    } else if (deal.status === 'won') {
-      sellerMap[sellerId].converted++
-      sellerMap[sellerId].convertedValue += deal.value || 0
-    }
+    return sellerMap[sellerId]
+  }
+  const touchActivity = (seller, deal) => {
     const dealUpdate = deal.update_time || deal.add_time
-    if (
-      dealUpdate &&
-      (!sellerMap[sellerId].lastActivity || dealUpdate > sellerMap[sellerId].lastActivity)
-    ) {
-      sellerMap[sellerId].lastActivity = dealUpdate
+    if (dealUpdate && (!seller.lastActivity || dealUpdate > seller.lastActivity)) {
+      seller.lastActivity = dealUpdate
     }
-  })
+  }
 
-  // --- Alertas ---
-  const now = new Date()
-  const msPerDay = 86400000
-  const openDeals = filtered.filter((d) => d.status === 'open')
+  openDeals.forEach((deal) => {
+    const seller = ensureSeller(deal.owner_id)
+    seller.active++
+    touchActivity(seller, deal)
+  })
+  wonDeals.forEach((deal) => {
+    const seller = ensureSeller(deal.owner_id)
+    seller.converted++
+    seller.convertedValue += deal.value || 0
+    touchActivity(seller, deal)
+  })
 
   const idleDays = (deal) => {
     const last = deal.update_time || deal.add_time
@@ -134,6 +146,8 @@ function processProgramDeals(program, deals, userMap) {
     converted,
     convertedValue,
     totalWonValue,
+    avgTicket,
+    discountPct,
     forecast,
     forecastCount,
     conversionRate,

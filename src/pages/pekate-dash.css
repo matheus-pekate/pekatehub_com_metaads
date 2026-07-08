@@ -632,6 +632,10 @@
   color: var(--petroleo);
   font-weight: 700;
 }
+.pkt-kpi__discount {
+  color: var(--atencao);
+  font-weight: 700;
+}
 
 /* ---- Meta Card ---- */
 .pkt-meta-card {
