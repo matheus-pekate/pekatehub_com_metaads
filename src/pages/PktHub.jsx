@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { GeneralDocsGrid } from '../components/docs/GeneralDocsGrid'
 import './pkt-hub.css'
 
 const SIDEBAR_ITEMS = [
@@ -401,7 +402,7 @@ export function PktHub() {
 
           {!activeAgent && activeTab === 'Documentação' && (
             <section className="hub-main__section">
-              <h2 className="hub-main__section-title">Documentação dos fluxos</h2>
+              <h2 className="hub-main__section-title">Documentação</h2>
               <div className="hub-main__grid">
                 <button className="hub-card" onClick={() => navigate('/documentacao')}>
                   <div className="hub-card__icon">📄</div>
@@ -409,6 +410,7 @@ export function PktHub() {
                   <p className="hub-card__desc">Fluxos do n8n com documentação — atualiza sozinho conforme novos fluxos são criados.</p>
                   <span className="hub-card__status hub-card__status--live">Ao vivo</span>
                 </button>
+                <GeneralDocsGrid />
               </div>
             </section>
           )}
