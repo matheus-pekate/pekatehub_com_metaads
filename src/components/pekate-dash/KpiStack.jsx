@@ -6,6 +6,8 @@ export function KpiStack({ program }) {
     totalWonValue = 0,
     converted = 0,
     price = 0,
+    avgTicket = 0,
+    discountPct = 0,
     forecast = 0,
     forecastCount = 0,
     conversionRate = 0,
@@ -23,7 +25,10 @@ export function KpiStack({ program }) {
         <span className="pkt-kpi__label">Total ganho</span>
         <span className="pkt-kpi__value">{formatBRL(totalWonValue)}</span>
         <span className="pkt-kpi__sub">
-          <strong>{converted}</strong> {converted === 1 ? 'aluno convertido' : 'alunos convertidos'} · ticket médio <strong>{formatBRL(price)}</strong>
+          <strong>{converted}</strong> {converted === 1 ? 'aluno convertido' : 'alunos convertidos'} · ticket médio <strong>{formatBRL(avgTicket)}</strong>
+          {discountPct > 0.5 && (
+            <> · <span className="pkt-kpi__discount">{discountPct.toFixed(0)}% de desconto</span> vs. tabela ({formatBRL(price)})</>
+          )}
         </span>
       </div>
 
