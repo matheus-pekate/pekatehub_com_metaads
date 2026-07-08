@@ -16,6 +16,7 @@ export function GeneralDocsGrid() {
   const { docs, loading, error, refresh } = useGeneralDocs()
 
   const [uploadOpen, setUploadOpen] = useState(false)
+  const [replacingDoc, setReplacingDoc] = useState(null)
   const [title, setTitle] = useState('')
   const [file, setFile] = useState(null)
   const [protectDoc, setProtectDoc] = useState(false)
@@ -38,7 +39,23 @@ export function GeneralDocsGrid() {
     setFile(null)
     setProtectDoc(false)
     setUploadError(null)
+    setReplacingDoc(null)
     setUploadOpen(true)
+  }
+
+  function openReplace(doc, e) {
+    e.stopPropagation()
+    setTitle(doc.title)
+    setFile(null)
+    setProtectDoc(!!doc.protected)
+    setUploadError(null)
+    setReplacingDoc(doc)
+    setUploadOpen(true)
+  }
+
+  function closeUploadModal() {
+    setUploadOpen(false)
+    setReplacingDoc(null)
   }
 
   async function handleUploadSubmit(e) {
@@ -48,8 +65,13 @@ export function GeneralDocsGrid() {
     setUploadError(null)
     try {
       const html = await file.text()
-      await uploadGeneralDoc({ title: title.trim(), html, protected: protectDoc })
-      setUploadOpen(false)
+      await uploadGeneralDoc({
+        title: title.trim(),
+        html,
+        protected: protectDoc,
+        slug: replacingDoc ? replacingDoc.slug : undefined,
+      })
+      closeUploadModal()
       await refresh()
     } catch (err) {
       setUploadError(err.message || 'Falha ao enviar documento.')
@@ -126,6 +148,7 @@ export function GeneralDocsGrid() {
           <h3 className="hub-card__title">{doc.title}</h3>
           <p className="hub-card__desc">Atualizado em {formatDate(doc.updatedAt)}</p>
           <div className="hub-doc-card__actions">
+            <button type="button" className="hub-doc-card__icon-btn" title="Substituir por uma versão mais nova" onClick={(e) => openReplace(doc, e)}>⟳ Substituir</button>
             <button type="button" className="hub-doc-card__icon-btn" title="Baixar" onClick={(e) => handleDownload(doc, e)}>⬇ Baixar</button>
             {!doc.protected && (
               <button type="button" className="hub-doc-card__icon-btn hub-doc-card__icon-btn--danger" title="Apagar" onClick={(e) => askDelete(doc, e)}>🗑 Apagar</button>
@@ -145,9 +168,12 @@ export function GeneralDocsGrid() {
       {actionError && <p className="hub-doc-status hub-doc-status--error">{actionError}</p>}
 
       {uploadOpen && (
-        <div className="hub-modal-overlay" onClick={() => !sending && setUploadOpen(false)}>
+        <div className="hub-modal-overlay" onClick={() => !sending && closeUploadModal()}>
           <div className="hub-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 className="hub-modal__title">Novo documento</h3>
+            <h3 className="hub-modal__title">{replacingDoc ? 'Substituir documento' : 'Novo documento'}</h3>
+            {replacingDoc && (
+              <p className="hub-modal__text">Envie um novo arquivo .html para atualizar <strong>{replacingDoc.title}</strong>. A versão atual será substituída.</p>
+            )}
             <form className="hub-modal__form" onSubmit={handleUploadSubmit}>
               <input
                 type="text"
@@ -163,9 +189,9 @@ export function GeneralDocsGrid() {
               </label>
               {uploadError && <p className="hub-doc-status hub-doc-status--error">{uploadError}</p>}
               <div className="hub-modal__actions">
-                <button type="button" className="hub-modal__cancel" onClick={() => setUploadOpen(false)} disabled={sending}>Cancelar</button>
+                <button type="button" className="hub-modal__cancel" onClick={closeUploadModal} disabled={sending}>Cancelar</button>
                 <button type="submit" className="hub-modal__submit" disabled={sending || !file || !title.trim()}>
-                  {sending ? 'Enviando…' : 'Enviar'}
+                  {sending ? (replacingDoc ? 'Substituindo…' : 'Enviando…') : (replacingDoc ? 'Substituir' : 'Enviar')}
                 </button>
               </div>
             </form>

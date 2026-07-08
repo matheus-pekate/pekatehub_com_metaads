@@ -63,7 +63,7 @@ export const handler = async (event) => {
     }
 
     if (event.httpMethod === 'POST') {
-      const { title, html, protected: isProtected } = JSON.parse(event.body || '{}')
+      const { title, html, protected: isProtected, slug: targetSlug } = JSON.parse(event.body || '{}')
       if (!title || !title.trim()) {
         return { statusCode: 400, body: JSON.stringify({ error: 'Título é obrigatório' }) }
       }
@@ -75,13 +75,20 @@ export const handler = async (event) => {
       }
 
       const trimmedTitle = title.trim()
-      let slug = slugify(trimmedTitle)
-      const existingRaw = await client.hget(INDEX_KEY, slug)
-      if (existingRaw) {
-        let sameTitle = false
-        try { sameTitle = JSON.parse(existingRaw).title === trimmedTitle } catch { /* mantém sameTitle = false */ }
-        if (!sameTitle) slug = `${slug}-${Date.now().toString(36)}`
+      let slug = targetSlug
+
+      if (!slug) {
+        // upload novo — gera slug a partir do título, evitando colisão com documento de título diferente
+        slug = slugify(trimmedTitle)
+        const existingRaw = await client.hget(INDEX_KEY, slug)
+        if (existingRaw) {
+          let sameTitle = false
+          try { sameTitle = JSON.parse(existingRaw).title === trimmedTitle } catch { /* mantém sameTitle = false */ }
+          if (!sameTitle) slug = `${slug}-${Date.now().toString(36)}`
+        }
       }
+      // se targetSlug foi enviado, é uma substituição explícita — atualiza sempre o mesmo slug,
+      // mesmo que o título tenha mudado
 
       const updatedAt = new Date().toISOString()
       const meta = { title: trimmedTitle, updatedAt, size: html.length, protected: !!isProtected }

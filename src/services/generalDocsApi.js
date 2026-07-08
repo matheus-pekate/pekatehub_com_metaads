@@ -14,11 +14,11 @@ export async function fetchGeneralDocContent(slug) {
   return json.html
 }
 
-export async function uploadGeneralDoc({ title, html, protected: isProtected }) {
+export async function uploadGeneralDoc({ title, html, protected: isProtected, slug }) {
   const res = await fetch('/api/general-docs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, html, protected: !!isProtected }),
+    body: JSON.stringify({ title, html, protected: !!isProtected, slug }),
   })
   if (!res.ok) {
     const json = await res.json().catch(() => ({}))
