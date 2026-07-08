@@ -1,6 +1,7 @@
 import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, Cell } from 'recharts'
 import { useAdDailyBreakdown } from '../../hooks/useAdDailyBreakdown'
-import { formatBRL, formatCompactNumber } from './format'
+import { formatBRL, formatCompactNumber, getWeekdayAbbr } from './format'
+import { DayAxisTick } from './DayAxisTick'
 
 function formatDayLabel(dateStr) {
   if (!dateStr) return ''
@@ -26,6 +27,7 @@ export function AdDetailModal({ ad, accentColor, onClose }) {
   if (!ad) return null
 
   const chartData = days.map((d) => ({ ...d, label: formatDayLabel(d.date) }))
+  const weekdayMap = Object.fromEntries(chartData.map((d) => [d.label, getWeekdayAbbr(d.date)]))
 
   return (
     <div className="pkt-ad-detail-overlay" onClick={onClose}>
@@ -57,7 +59,8 @@ export function AdDetailModal({ ad, accentColor, onClose }) {
                   dataKey="label"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: 'rgba(48,50,51,0.5)', fontSize: 12, fontFamily: 'Lato' }}
+                  height={36}
+                  tick={(props) => <DayAxisTick {...props} weekdayMap={weekdayMap} />}
                 />
                 <YAxis
                   yAxisId="leads"

@@ -19,3 +19,12 @@ export function formatPercent(numerator, denominator) {
   if (!denominator) return '—'
   return `${((numerator / denominator) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`
 }
+
+const WEEKDAY_ABBR = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb']
+
+export function getWeekdayAbbr(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(`${dateStr}T00:00:00`)
+  if (isNaN(d.getTime())) return ''
+  return WEEKDAY_ABBR[d.getDay()]
+}

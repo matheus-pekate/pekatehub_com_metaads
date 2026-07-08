@@ -1,6 +1,7 @@
 import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, Cell } from 'recharts'
 import { useProgramDailyBreakdown } from '../../hooks/useProgramDailyBreakdown'
-import { formatBRL, formatCompactNumber } from './format'
+import { formatBRL, formatCompactNumber, getWeekdayAbbr } from './format'
+import { DayAxisTick } from './DayAxisTick'
 
 function formatDayLabel(dateStr) {
   if (!dateStr) return ''
@@ -25,6 +26,7 @@ export function ProgramDailyChart({ programId, accentColor }) {
   const { days, loading, error } = useProgramDailyBreakdown(programId)
   const chartData = days.map((d) => ({ ...d, label: formatDayLabel(d.date) }))
   const tickInterval = Math.max(0, Math.ceil(chartData.length / 12) - 1)
+  const weekdayMap = Object.fromEntries(chartData.map((d) => [d.label, getWeekdayAbbr(d.date)]))
 
   return (
     <div className="pkt-meta-progchart">
@@ -49,7 +51,8 @@ export function ProgramDailyChart({ programId, accentColor }) {
                 axisLine={false}
                 tickLine={false}
                 interval={tickInterval}
-                tick={{ fill: 'rgba(48,50,51,0.5)', fontSize: 10.5, fontFamily: 'Lato' }}
+                height={34}
+                tick={(props) => <DayAxisTick {...props} weekdayMap={weekdayMap} />}
               />
               <YAxis
                 yAxisId="leads"
