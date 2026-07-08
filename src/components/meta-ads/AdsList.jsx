@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { formatBRL, formatCompactNumber, formatPercent } from './format'
 
 const MAX_VISIBLE = 4
@@ -56,21 +57,44 @@ function groupByCampaign(ads) {
 }
 
 export function AdsList({ ads, groupByCampaign: shouldGroup = false, onSelectAd }) {
+  const [expandedId, setExpandedId] = useState(null)
+
   if (!ads || ads.length === 0) return null
 
   if (shouldGroup) {
     const campaigns = groupByCampaign(ads)
+
     return (
       <div className="pkt-meta-ads pkt-meta-ads--grouped">
-        {campaigns.map((campaign) => (
-          <div key={campaign.campaign_id} className="pkt-meta-ads-group">
-            <div className="pkt-meta-ads-group__title" title={campaign.campaign_name}>{campaign.campaign_name}</div>
-            <AdsHeader />
-            {campaign.ads.map((ad, i) => (
-              <AdRow key={ad.ad_id} ad={ad} showCrown={i === 0} onSelect={onSelectAd} />
-            ))}
-          </div>
-        ))}
+        {campaigns.map((campaign) => {
+          const isOpen = campaign.campaign_id === expandedId
+          const visible = isOpen ? campaign.ads.slice(0, MAX_VISIBLE) : []
+          const remaining = campaign.ads.length - visible.length
+          return (
+            <div key={campaign.campaign_id} className={`pkt-meta-ads-group ${isOpen ? 'pkt-meta-ads-group--open' : ''}`}>
+              <button
+                type="button"
+                className="pkt-meta-ads-group__title"
+                onClick={() => setExpandedId(isOpen ? null : campaign.campaign_id)}
+              >
+                <span className="pkt-meta-ads-group__title-text" title={campaign.campaign_name}>{campaign.campaign_name}</span>
+                <span className="pkt-meta-ads-group__count">{campaign.ads.length} anúncio{campaign.ads.length === 1 ? '' : 's'}</span>
+                <span className="pkt-meta-ads-group__chevron">▾</span>
+              </button>
+              {isOpen && (
+                <>
+                  <AdsHeader />
+                  {visible.map((ad, i) => (
+                    <AdRow key={ad.ad_id} ad={ad} showCrown={i === 0} onSelect={onSelectAd} />
+                  ))}
+                  {remaining > 0 && (
+                    <div className="pkt-meta-ads__more">+{remaining} outro{remaining === 1 ? '' : 's'} anúncio{remaining === 1 ? '' : 's'} ativo{remaining === 1 ? '' : 's'}</div>
+                  )}
+                </>
+              )}
+            </div>
+          )
+        })}
       </div>
     )
   }
