@@ -340,7 +340,7 @@
 /* ── Gráfico de performance diária do programa (30 dias, todos os anúncios) ── */
 .pkt-meta-progchart {
   flex: 1;
-  min-height: 0;
+  min-height: 110px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -406,6 +406,7 @@
 }
 
 .pkt-meta-ads--grouped {
+  flex-shrink: 0;
   border: none;
   border-radius: 0;
   gap: 14px;
@@ -413,6 +414,7 @@
 }
 
 .pkt-meta-ads-group {
+  flex-shrink: 0;
   border: 1px solid var(--linha);
   border-radius: 14px;
   overflow: hidden;
@@ -421,18 +423,54 @@
 }
 
 .pkt-meta-ads-group__title {
+  flex-shrink: 0;
+  width: 100%;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 9px 18px;
+  font-family: inherit;
   font-size: 14px;
   font-weight: 800;
   background: var(--pgm-accent);
   color: var(--branco);
+  cursor: pointer;
+  text-align: left;
+}
+
+.pkt-meta-ads-group__title:hover {
+  filter: brightness(1.08);
+}
+
+.pkt-meta-ads-group__title-text {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.pkt-meta-ads-group__count {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: .85;
+}
+
+.pkt-meta-ads-group__chevron {
+  flex-shrink: 0;
+  display: inline-block;
+  transition: transform .15s ease;
+}
+
+.pkt-meta-ads-group--open .pkt-meta-ads-group__chevron {
+  transform: rotate(180deg);
+}
+
 .pkt-meta-ads__header,
 .pkt-meta-ads__row {
+  flex-shrink: 0;
   display: grid;
   grid-template-columns: 2.4fr repeat(6, 1fr);
   align-items: center;
