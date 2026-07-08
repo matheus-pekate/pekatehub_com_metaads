@@ -548,15 +548,22 @@
 
 /* Documentos gerais (aba Documentação) */
 .hub-doc-card {
-  cursor: default;
+  cursor: pointer;
+  position: relative;
+}
+.hub-doc-card__lock {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 14px;
+  opacity: .55;
 }
 .hub-doc-card__actions {
   display: flex;
   gap: 8px;
   margin-top: 4px;
 }
-.hub-doc-card__open,
-.hub-doc-card__delete {
+.hub-doc-card__icon-btn {
   border: none;
   border-radius: 8px;
   padding: 7px 14px;
@@ -564,19 +571,17 @@
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
-}
-.hub-doc-card__open {
   background: #fde4cd;
   color: #cb5b36;
 }
-.hub-doc-card__open:hover {
+.hub-doc-card__icon-btn:hover {
   background: #fbd4ac;
 }
-.hub-doc-card__delete {
+.hub-doc-card__icon-btn--danger {
   background: #f8dcd8;
   color: #b3261e;
 }
-.hub-doc-card__delete:hover {
+.hub-doc-card__icon-btn--danger:hover {
   background: #f2c6c0;
 }
 
@@ -657,6 +662,14 @@
 .hub-modal__file {
   font-size: 13px;
   color: #4a4d4f;
+}
+.hub-modal__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #4a4d4f;
+  cursor: pointer;
 }
 .hub-modal__actions {
   display: flex;
@@ -747,6 +760,25 @@
   font-weight: 700;
   font-size: 14px;
   color: #08373f;
+}
+.hub-viewer__top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hub-viewer__download {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  background: #fde4cd;
+  color: #cb5b36;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.hub-viewer__download:hover {
+  background: #fbd4ac;
 }
 .hub-viewer__close {
   width: 32px;

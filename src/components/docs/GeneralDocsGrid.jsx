@@ -8,12 +8,17 @@ function formatDate(iso) {
   catch { return '' }
 }
 
+function safeFileName(title) {
+  return (title || 'documento').replace(/[^a-z0-9-_ ]+/gi, '').trim() || 'documento'
+}
+
 export function GeneralDocsGrid() {
   const { docs, loading, error, refresh } = useGeneralDocs()
 
   const [uploadOpen, setUploadOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [file, setFile] = useState(null)
+  const [protectDoc, setProtectDoc] = useState(false)
   const [sending, setSending] = useState(false)
   const [uploadError, setUploadError] = useState(null)
 
@@ -26,9 +31,12 @@ export function GeneralDocsGrid() {
   const [deleteBusy, setDeleteBusy] = useState(false)
   const [deleteError, setDeleteError] = useState(null)
 
+  const [actionError, setActionError] = useState(null)
+
   function openUpload() {
     setTitle('')
     setFile(null)
+    setProtectDoc(false)
     setUploadError(null)
     setUploadOpen(true)
   }
@@ -40,7 +48,7 @@ export function GeneralDocsGrid() {
     setUploadError(null)
     try {
       const html = await file.text()
-      await uploadGeneralDoc({ title: title.trim(), html })
+      await uploadGeneralDoc({ title: title.trim(), html, protected: protectDoc })
       setUploadOpen(false)
       await refresh()
     } catch (err) {
@@ -51,6 +59,7 @@ export function GeneralDocsGrid() {
   }
 
   function openViewer(doc) {
+    setActionError(null)
     setViewing(doc)
     setViewHtml(null)
     setViewError(null)
@@ -61,7 +70,27 @@ export function GeneralDocsGrid() {
       .finally(() => setViewLoading(false))
   }
 
-  function askDelete(doc) {
+  async function handleDownload(doc, e) {
+    e.stopPropagation()
+    setActionError(null)
+    try {
+      const html = await fetchGeneralDocContent(doc.slug)
+      const blob = new Blob([html], { type: 'text/html' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${safeFileName(doc.title)}.html`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      setActionError(err.message || 'Falha ao baixar documento.')
+    }
+  }
+
+  function askDelete(doc, e) {
+    e.stopPropagation()
     setDeleteError(null)
     setDeleting(doc)
   }
@@ -84,13 +113,23 @@ export function GeneralDocsGrid() {
   return (
     <>
       {docs.map((doc) => (
-        <div key={doc.slug} className="hub-card hub-doc-card">
+        <div
+          key={doc.slug}
+          className="hub-card hub-doc-card"
+          role="button"
+          tabIndex={0}
+          onClick={() => openViewer(doc)}
+          onKeyDown={(e) => { if (e.key === 'Enter') openViewer(doc) }}
+        >
+          {doc.protected && <span className="hub-doc-card__lock" title="Documento protegido — não pode ser apagado">🔒</span>}
           <div className="hub-card__icon">📄</div>
           <h3 className="hub-card__title">{doc.title}</h3>
           <p className="hub-card__desc">Atualizado em {formatDate(doc.updatedAt)}</p>
           <div className="hub-doc-card__actions">
-            <button type="button" className="hub-doc-card__open" onClick={() => openViewer(doc)}>Abrir</button>
-            <button type="button" className="hub-doc-card__delete" onClick={() => askDelete(doc)}>Apagar</button>
+            <button type="button" className="hub-doc-card__icon-btn" title="Baixar" onClick={(e) => handleDownload(doc, e)}>⬇ Baixar</button>
+            {!doc.protected && (
+              <button type="button" className="hub-doc-card__icon-btn hub-doc-card__icon-btn--danger" title="Apagar" onClick={(e) => askDelete(doc, e)}>🗑 Apagar</button>
+            )}
           </div>
         </div>
       ))}
@@ -103,6 +142,7 @@ export function GeneralDocsGrid() {
 
       {loading && <p className="hub-doc-status">Carregando documentos…</p>}
       {!loading && error && <p className="hub-doc-status hub-doc-status--error">{error}</p>}
+      {actionError && <p className="hub-doc-status hub-doc-status--error">{actionError}</p>}
 
       {uploadOpen && (
         <div className="hub-modal-overlay" onClick={() => !sending && setUploadOpen(false)}>
@@ -117,6 +157,10 @@ export function GeneralDocsGrid() {
                 onChange={(e) => setTitle(e.target.value)}
               />
               <input type="file" accept=".html,.htm" className="hub-modal__file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+              <label className="hub-modal__checkbox">
+                <input type="checkbox" checked={protectDoc} onChange={(e) => setProtectDoc(e.target.checked)} />
+                Proteger este documento (não poderá ser apagado)
+              </label>
               {uploadError && <p className="hub-doc-status hub-doc-status--error">{uploadError}</p>}
               <div className="hub-modal__actions">
                 <button type="button" className="hub-modal__cancel" onClick={() => setUploadOpen(false)} disabled={sending}>Cancelar</button>
@@ -134,7 +178,10 @@ export function GeneralDocsGrid() {
           <div className="hub-viewer" onClick={(e) => e.stopPropagation()}>
             <div className="hub-viewer__top">
               <span className="hub-viewer__title">{viewing.title}</span>
-              <button type="button" className="hub-viewer__close" onClick={() => setViewing(null)}>✕</button>
+              <div className="hub-viewer__top-actions">
+                <button type="button" className="hub-viewer__download" onClick={(e) => handleDownload(viewing, e)}>⬇ Baixar</button>
+                <button type="button" className="hub-viewer__close" onClick={() => setViewing(null)}>✕</button>
+              </div>
             </div>
             <div className="hub-viewer__body">
               {viewLoading && <div className="hub-doc-status">Carregando…</div>}

@@ -63,7 +63,7 @@ export const handler = async (event) => {
     }
 
     if (event.httpMethod === 'POST') {
-      const { title, html } = JSON.parse(event.body || '{}')
+      const { title, html, protected: isProtected } = JSON.parse(event.body || '{}')
       if (!title || !title.trim()) {
         return { statusCode: 400, body: JSON.stringify({ error: 'Título é obrigatório' }) }
       }
@@ -84,7 +84,7 @@ export const handler = async (event) => {
       }
 
       const updatedAt = new Date().toISOString()
-      const meta = { title: trimmedTitle, updatedAt, size: html.length }
+      const meta = { title: trimmedTitle, updatedAt, size: html.length, protected: !!isProtected }
 
       await client.set(contentKey(slug), html)
       await client.hset(INDEX_KEY, slug, JSON.stringify(meta))
@@ -100,6 +100,14 @@ export const handler = async (event) => {
       const slug = event.queryStringParameters?.slug
       if (!slug) {
         return { statusCode: 400, body: JSON.stringify({ error: 'slug é obrigatório' }) }
+      }
+      const existingRaw = await client.hget(INDEX_KEY, slug)
+      if (existingRaw) {
+        try {
+          if (JSON.parse(existingRaw).protected) {
+            return { statusCode: 403, body: JSON.stringify({ error: 'Documento protegido — não pode ser apagado' }) }
+          }
+        } catch { /* índice corrompido, segue com a exclusão */ }
       }
       await client.del(contentKey(slug))
       await client.hdel(INDEX_KEY, slug)
