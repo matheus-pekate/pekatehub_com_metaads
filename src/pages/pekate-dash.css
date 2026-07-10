@@ -2012,8 +2012,8 @@
 .pkt-alert-modal {
   background: var(--branco);
   border-radius: 12px;
-  width: 520px;
-  max-height: 640px;
+  width: min(760px, 92vw);
+  max-height: 720px;
   overflow-y: auto;
   position: relative;
   padding: 32px 32px 28px;
@@ -2080,9 +2080,8 @@
 .pkt-alert-modal__deal-title {
   font-weight: 700;
   color: var(--petroleo);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  line-height: 1.3;
 }
 .pkt-alert-modal__deal-stage {
   font-size: 10.5px; font-weight: 700;
