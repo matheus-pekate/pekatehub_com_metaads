@@ -557,6 +557,14 @@
 .pkt-alert--hot {
   background: color-mix(in srgb, var(--alert-c) 4%, var(--branco));
 }
+.pkt-alert--clickable {
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+.pkt-alert--clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -8px rgba(8,55,63,.25);
+}
 
 /* ==================== FOCUS ROW ==================== */
 .pkt-focus {
@@ -1989,5 +1997,119 @@
 .pkt-report__send--sent {
   background: var(--positivo);
   box-shadow: 0 4px 16px -4px rgba(45,138,90,.4);
+}
+
+/* ==================== ALERT DEALS MODAL ==================== */
+.pkt-alert-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 55, 63, .85);
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  animation: pktFadeIn .3s ease;
+}
+.pkt-alert-modal {
+  background: var(--branco);
+  border-radius: 12px;
+  width: 520px;
+  max-height: 640px;
+  overflow-y: auto;
+  position: relative;
+  padding: 32px 32px 28px;
+  box-shadow: 0 40px 80px -20px rgba(0,0,0,.4);
+  animation: pktSlideUp .4s cubic-bezier(.2,.7,.2,1);
+}
+.pkt-alert-modal__close {
+  position: sticky;
+  top: 0; float: right;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--linha);
+  background: var(--branco);
+  color: var(--petroleo-light);
+  font-size: 14px;
+  cursor: pointer;
+  display: grid; place-items: center;
+  z-index: 2;
+  transition: background .2s;
+}
+.pkt-alert-modal__close:hover {
+  background: var(--bege);
+  color: var(--petroleo);
+}
+.pkt-alert-modal__header {
+  clear: both;
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--laranja-vivo);
+  margin-bottom: 18px;
+}
+.pkt-alert-modal__eyebrow {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--petroleo-light);
+}
+.pkt-alert-modal__title {
+  font-style: italic; font-weight: 900;
+  font-size: 24px;
+  color: var(--petroleo);
+  letter-spacing: -.02em;
+  margin: 4px 0 4px;
+}
+.pkt-alert-modal__hint {
+  font-size: 12.5px;
+  color: var(--carvao-soft);
+  margin: 0;
+}
+.pkt-alert-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pkt-alert-modal__deal {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--laranja) 5%, var(--branco));
+  border: 1px solid var(--laranja-pale);
+  border-radius: 8px;
+  font-size: 13px;
+}
+.pkt-alert-modal__deal-title {
+  font-weight: 700;
+  color: var(--petroleo);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pkt-alert-modal__deal-stage {
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: .05em; text-transform: uppercase;
+  color: var(--petroleo-light);
+  background: var(--off-white);
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.pkt-alert-modal__deal-idle {
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--laranja);
+  white-space: nowrap;
+}
+.pkt-alert-modal__empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--carvao-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.pkt-alert-modal__empty-icon {
+  font-size: 32px;
+  color: var(--positivo);
 }
 
