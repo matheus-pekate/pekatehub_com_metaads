@@ -7,6 +7,7 @@ import { FocusRow } from '../components/pekate-dash/FocusRow.jsx'
 import { FunnelRow } from '../components/pekate-dash/FunnelRow.jsx'
 import { Roulette } from '../components/pekate-dash/Roulette.jsx'
 import { ReportPreview } from '../components/pekate-dash/ReportPreview.jsx'
+import { AlertDealsModal } from '../components/pekate-dash/AlertDealsModal.jsx'
 import { useReportData } from '../hooks/useReportData.js'
 import './pekate-dash.css'
 
@@ -25,6 +26,7 @@ export function PekateDash() {
   const [epoch, setEpoch] = useState(0)
   const [rouletteOpen, setRouletteOpen] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
+  const [activeAlertKey, setActiveAlertKey] = useState(null)
   const { report, loading: reportLoading, generate: generateReport } = useReportData()
   const stageRef = useRef(null)
 
@@ -40,13 +42,13 @@ export function PekateDash() {
   }, [])
 
   useEffect(() => {
-    if (paused) return
+    if (paused || activeAlertKey) return
     const timer = setTimeout(() => {
       setActiveIdx((i) => (i + 1) % CAROUSEL.length)
       setEpoch((e) => e + 1)
     }, duration)
     return () => clearTimeout(timer)
-  }, [activeIdx, paused, duration, epoch])
+  }, [activeIdx, paused, duration, epoch, activeAlertKey])
 
   useEffect(() => {
     function fit() {
@@ -90,7 +92,7 @@ export function PekateDash() {
             />
           </div>
           {data?.programs && <PulseRow programs={data.programs} activeId={activeId} onSelect={handleManualSelect} />}
-          <AlertsStrip lastUpdated={lastUpdated} program={activeProgram} />
+          <AlertsStrip lastUpdated={lastUpdated} program={activeProgram} onSelectAlert={(key) => setActiveAlertKey(key)} />
           {data?.programs && (
             <>
               <FocusRow
@@ -110,6 +112,12 @@ export function PekateDash() {
             onGenerate={() => data?.programs && generateReport(data.programs, data.sellers)}
           />
         )}
+        <AlertDealsModal
+          open={activeAlertKey != null}
+          alertKey={activeAlertKey}
+          alert={activeProgram?.alerts?.[activeAlertKey]}
+          onClose={() => setActiveAlertKey(null)}
+        />
       </div>
     </div>
   )

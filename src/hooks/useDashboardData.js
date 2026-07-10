@@ -118,6 +118,20 @@ function processProgramDeals(program, deals, userMap) {
   })
   const oportunidade = openDeals.filter((d) => advancedStageIds.has(d.stage_id))
 
+  // Detalhe dos leads por trás de cada alerta (usado no modal ao clicar num alerta)
+  const stageNameMap = new Map(program.stages.map((s) => [s.id, s.name]))
+  const toAlertDeal = (deal) => ({
+    id: deal.id,
+    title: deal.title,
+    idle: idleDays(deal),
+    stageId: deal.stage_id,
+    stageName: stageNameMap.get(deal.stage_id) || '—',
+    value: deal.value || 0,
+  })
+  const criticoDeals = critico.map(toAlertDeal).sort((a, b) => b.idle - a.idle)
+  const pendenciaDeals = pendencia.map(toAlertDeal).sort((a, b) => b.idle - a.idle)
+  const oportunidadeDeals = oportunidade.map(toAlertDeal).sort((a, b) => b.value - a.value)
+
   const daysToStart = program.startDate
     ? Math.ceil((new Date(program.startDate + 'T00:00:00') - now) / msPerDay)
     : null
@@ -135,9 +149,9 @@ function processProgramDeals(program, deals, userMap) {
   }
 
   const alerts = {
-    critico: { count: critico.length, text: critico.length > 0 ? `${critico.length} ${critico.length === 1 ? 'lead' : 'leads'} sem movimentação há +14 dias` : 'Nenhum lead crítico' },
-    pendencia: { count: pendencia.length, text: pendencia.length > 0 ? `${pendencia.length} ${pendencia.length === 1 ? 'lead aguarda' : 'leads aguardam'} follow-up` : 'Nenhuma pendência' },
-    oportunidade: { count: oportunidade.length, text: oportunidade.length > 0 ? `${oportunidade.length} ${oportunidade.length === 1 ? 'lead pronto' : 'leads prontos'} para fechar` : 'Nenhuma oportunidade avançada' },
+    critico: { count: critico.length, text: critico.length > 0 ? `${critico.length} ${critico.length === 1 ? 'lead' : 'leads'} sem movimentação há +14 dias` : 'Nenhum lead crítico', deals: criticoDeals },
+    pendencia: { count: pendencia.length, text: pendencia.length > 0 ? `${pendencia.length} ${pendencia.length === 1 ? 'lead aguarda' : 'leads aguardam'} follow-up` : 'Nenhuma pendência', deals: pendenciaDeals },
+    oportunidade: { count: oportunidade.length, text: oportunidade.length > 0 ? `${oportunidade.length} ${oportunidade.length === 1 ? 'lead pronto' : 'leads prontos'} para fechar` : 'Nenhuma oportunidade avançada', deals: oportunidadeDeals },
     marco: { text: marcoText || 'Sem marcos próximos' },
   }
 
