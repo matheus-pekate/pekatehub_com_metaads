@@ -49,6 +49,13 @@ function processProgramDeals(program, deals, userMap) {
   // Desconto médio: quanto o ticket médio real ficou abaixo do preço cheio do programa
   const discountPct = program.price > 0 && avgTicket > 0 ? ((program.price - avgTicket) / program.price) * 100 : 0
 
+  // Meta de alunos dinâmica: antes da 1ª venda usa o goal fixo configurado (estimativa inicial).
+  // A partir da 1ª venda, recalcula quantos alunos são necessários pra bater a meta financeira
+  // usando o ticket médio REAL (já reflete o desconto dado) em vez do price de tabela.
+  const dynamicGoal = (converted > 0 && avgTicket > 0 && program.revenueGoal > 0)
+    ? Math.ceil(program.revenueGoal / avgTicket)
+    : program.goal
+
   // Forecast: leads open de Em Negociação em diante
   const forecastCount = program.stages
     .slice(2)
@@ -136,7 +143,7 @@ function processProgramDeals(program, deals, userMap) {
     ? Math.ceil((new Date(program.startDate + 'T00:00:00') - now) / msPerDay)
     : null
 
-  const goalPct = program.goal > 0 ? Math.round((converted / program.goal) * 100) : 0
+  const goalPct = dynamicGoal > 0 ? Math.round((converted / dynamicGoal) * 100) : 0
   let marcoText = null
   if (goalPct >= 100) marcoText = 'Meta batida!'
   else if (goalPct >= 90) marcoText = `${goalPct}% da meta · quase lá`
@@ -162,6 +169,7 @@ function processProgramDeals(program, deals, userMap) {
     totalWonValue,
     avgTicket,
     discountPct,
+    dynamicGoal,
     forecast,
     forecastCount,
     conversionRate,

@@ -30,13 +30,13 @@ function deriveBadge(goalPercent, goal, converted) {
 }
 
 function PulseCard({ program, color, active, onSelect }) {
-  const { shortName, name, converted, goal, totalActive, startDate, convertedFilter, pipelineName } = program
+  const { shortName, name, converted, dynamicGoal, totalActive, startDate, convertedFilter, pipelineName } = program
   const turmaLabel = convertedFilter ? TURMA_LABELS[convertedFilter.value] : null
-  const rawPct = goal > 0 ? (converted / goal) * 100 : 0
+  const rawPct = dynamicGoal > 0 ? (converted / dynamicGoal) * 100 : 0
   const overflow = rawPct > 100
   const fillPct = overflow ? 100 : rawPct
   const pctDisplay = Math.min(100, Math.round(rawPct))
-  const badge = deriveBadge(rawPct, goal, converted)
+  const badge = deriveBadge(rawPct, dynamicGoal, converted)
   const days = daysUntil(startDate)
 
   return (
@@ -61,7 +61,7 @@ function PulseCard({ program, color, active, onSelect }) {
           {pctDisplay}<sup>%</sup>
         </div>
         <div className="pkt-pgm__count">
-          <div className="pkt-pgm__count-num">{converted}<small> / {goal}</small></div>
+          <div className="pkt-pgm__count-num">{converted}<small> / {dynamicGoal}</small></div>
           <div className="pkt-pgm__count-label">Convertidos</div>
         </div>
       </div>
