@@ -21,19 +21,22 @@ export function MetaCard({ program }) {
 
   const {
     revenueGoal,
-    goal = 0,
+    dynamicGoal = 0,
     totalWonValue = 0,
     forecast = 0,
     converted = 0,
     price = 0,
+    avgTicket = 0,
     forecastCount = 0,
     startDate,
   } = program
 
   const days = Math.max(0, daysUntilDate(startDate))
   const remaining = Math.max(0, revenueGoal - totalWonValue)
-  const remainingStudentsByMoney = price ? Math.ceil(remaining / price) : 0
-  const studentsGoalGap = Math.max(0, goal - converted)
+  // Usa o ticket médio real (já reflete desconto) quando disponível; cai pro price de tabela antes da 1ª venda
+  const effectiveTicket = avgTicket > 0 ? avgTicket : price
+  const remainingStudentsByMoney = effectiveTicket ? Math.ceil(remaining / effectiveTicket) : 0
+  const studentsGoalGap = Math.max(0, dynamicGoal - converted)
   const ganhoPct = Math.min(100, (totalWonValue / revenueGoal) * 100)
   const ganhoPctRound = Math.round(ganhoPct)
   const remainingPct = Math.max(0, 100 - ganhoPctRound)
@@ -43,7 +46,7 @@ export function MetaCard({ program }) {
     <article className="pkt-meta-card">
       <header className="pkt-meta-card__head">
         <span className="pkt-meta-card__eyebrow">
-          Meta de receita · <strong>{formatCompactBRL(revenueGoal)}</strong> · {goal} alunos
+          Meta de receita · <strong>{formatCompactBRL(revenueGoal)}</strong> · {dynamicGoal} alunos
         </span>
         <div className="pkt-meta-card__legend">
           <span><i className="pkt-meta-card__legend-dot pkt-meta-card__legend-dot--ganho"></i> Ganho</span>
