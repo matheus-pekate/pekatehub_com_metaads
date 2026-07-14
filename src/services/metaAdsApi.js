@@ -1,6 +1,7 @@
 const WEBHOOK_URL = import.meta.env.VITE_META_ADS_WEBHOOK_URL
 const AD_DETAIL_WEBHOOK_URL = import.meta.env.VITE_META_ADS_AD_DETAIL_WEBHOOK_URL
 const PROGRAM_DAILY_WEBHOOK_URL = import.meta.env.VITE_META_ADS_PROGRAM_DAILY_WEBHOOK_URL
+const WON_DEALS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_WON_DEALS_WEBHOOK_URL
 
 export async function fetchMetaAdsSnapshot() {
   if (!WEBHOOK_URL) throw new Error('VITE_META_ADS_WEBHOOK_URL não configurado')
@@ -29,4 +30,13 @@ export async function fetchProgramDailyBreakdown(programId) {
   const json = await res.json()
   if (!json || !Array.isArray(json.days)) throw new Error('Meta Ads program-daily webhook: formato inesperado')
   return json.days
+}
+
+export async function fetchWonDeals() {
+  if (!WON_DEALS_WEBHOOK_URL) throw new Error('VITE_META_ADS_WON_DEALS_WEBHOOK_URL não configurado')
+  const res = await fetch(WON_DEALS_WEBHOOK_URL)
+  if (!res.ok) throw new Error(`Meta Ads won-deals webhook falhou: ${res.status}`)
+  const json = await res.json()
+  if (!json || !Array.isArray(json.programs)) throw new Error('Meta Ads won-deals webhook: formato inesperado')
+  return json.programs
 }
