@@ -28,3 +28,10 @@ export function getWeekdayAbbr(dateStr) {
   if (isNaN(d.getTime())) return ''
   return WEEKDAY_ABBR[d.getDay()]
 }
+
+export function formatDate(isoStr) {
+  if (!isoStr) return '—'
+  const d = new Date(isoStr)
+  if (isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}

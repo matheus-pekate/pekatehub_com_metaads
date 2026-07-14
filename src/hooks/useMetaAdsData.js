@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { fetchMetaAdsSnapshot } from '../services/metaAdsApi'
+import { fetchMetaAdsSnapshot, fetchWonDeals } from '../services/metaAdsApi'
 import { PROGRAMS, REFRESH_INTERVAL_MINUTES } from '../config/metaAds'
 
-function toProgramView(apiProgram, configProgram) {
+function toProgramView(apiProgram, configProgram, wonProgram) {
   const ads = apiProgram?.ads ?? []
   return {
     id: configProgram.id,
@@ -18,10 +18,12 @@ function toProgramView(apiProgram, configProgram) {
     leadsLast7Days: apiProgram.leadsLast7Days ?? 0,
     bestAd: ads[0] ?? null,
     ads,
+    totalWon: wonProgram?.totalWon ?? 0,
+    wonDeals: wonProgram?.deals ?? [],
   }
 }
 
-function emptyProgramView(program) {
+function emptyProgramView(program, wonProgram) {
   return {
     id: program.id,
     name: program.name,
@@ -36,6 +38,8 @@ function emptyProgramView(program) {
     leadsLast7Days: 0,
     bestAd: null,
     ads: [],
+    totalWon: wonProgram?.totalWon ?? 0,
+    wonDeals: wonProgram?.deals ?? [],
   }
 }
 
@@ -49,10 +53,17 @@ export function useMetaAdsData() {
   const load = useCallback(async () => {
     try {
       const payload = await fetchMetaAdsSnapshot()
+      // Convertidos/Ganhos é um dado complementar (fonte separada) — se esse
+      // webhook falhar, não pode derrubar o resto do dashboard que já funciona.
+      const wonPrograms = await fetchWonDeals().catch(() => [])
+      const wonById = new Map(wonPrograms.map((p) => [p.program_id, p]))
       const byId = new Map(payload.map((p) => [p.program_id, p]))
-      const next = PROGRAMS.map((program) =>
-        byId.has(program.id) ? toProgramView(byId.get(program.id), program) : emptyProgramView(program)
-      )
+      const next = PROGRAMS.map((program) => {
+        const wonProgram = wonById.get(program.id)
+        return byId.has(program.id)
+          ? toProgramView(byId.get(program.id), program, wonProgram)
+          : emptyProgramView(program, wonProgram)
+      })
       dataRef.current = next
       setData(next)
       setLastUpdated(new Date())
