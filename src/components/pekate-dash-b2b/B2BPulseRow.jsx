@@ -30,11 +30,13 @@ function B2BPulseCard({ program, active, onSelect }) {
         <div className="pktb2b-pgm__pct-label">da meta</div>
       </div>
 
-      <div className="pktb2b-pgm__bar">
-        <div className="pktb2b-pgm__bar-fill" style={{ width: `${Math.min(100, goalPercent)}%` }}></div>
-      </div>
-      <div className="pktb2b-pgm__foot">
-        <strong>{totalOpenCount}</strong> leads no funil
+      <div>
+        <div className="pktb2b-pgm__bar">
+          <div className="pktb2b-pgm__bar-fill" style={{ width: `${Math.min(100, goalPercent)}%` }}></div>
+        </div>
+        <div className="pktb2b-pgm__foot">
+          <strong>{totalOpenCount}</strong> leads no funil
+        </div>
       </div>
     </article>
   )
