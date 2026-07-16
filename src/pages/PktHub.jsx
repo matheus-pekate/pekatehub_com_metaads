@@ -298,13 +298,13 @@ export function PktHub() {
                   <p className="hub-card__desc">Performance individual, atividades e metas dos vendedores.</p>
                   <span className="hub-card__status hub-card__status--live">Ao vivo</span>
                 </button>
-                <div className="hub-card hub-card--disabled">
+                <button className="hub-card" onClick={() => navigate('/comando-b2b')}>
                   <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
                   <div className="hub-card__icon">🏢</div>
                   <h3 className="hub-card__title">Comando B2B</h3>
                   <p className="hub-card__desc">Contas corporativas e pipeline enterprise.</p>
-                  <span className="hub-card__status">Em breve</span>
-                </div>
+                  <span className="hub-card__status hub-card__status--live">Ao vivo</span>
+                </button>
                 <div className="hub-card hub-card--disabled">
                   <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
                   <div className="hub-card__icon">👤</div>
@@ -352,13 +352,13 @@ export function PktHub() {
               <section className="hub-main__section">
                 <h2 className="hub-main__section-title">B2B</h2>
                 <div className="hub-main__grid">
-                  <div className="hub-card hub-card--disabled">
+                  <button className="hub-card" onClick={() => navigate('/comando-b2b')}>
                     <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
                     <div className="hub-card__icon">🏢</div>
                     <h3 className="hub-card__title">Comando B2B</h3>
                     <p className="hub-card__desc">Contas corporativas e pipeline enterprise.</p>
-                    <span className="hub-card__status">Em breve</span>
-                  </div>
+                    <span className="hub-card__status hub-card__status--live">Ao vivo</span>
+                  </button>
                   <div className="hub-card hub-card--disabled">
                     <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
                     <div className="hub-card__icon">👤</div>
