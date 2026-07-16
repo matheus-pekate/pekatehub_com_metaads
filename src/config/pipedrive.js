@@ -14,6 +14,12 @@ export function buildPipedriveDealUrl(dealId) {
 // Intervalo de atualização automática dos dados (em minutos)
 export const REFRESH_INTERVAL_MINUTES = 30
 
+// Contas de sistema/administrativas do Pipedrive que não são vendedores de
+// verdade — não entram nos rankings de vendedores mesmo que algum deal fique
+// com o owner_id delas. Não usar o campo is_admin pra isso: vendedores reais
+// também podem ter permissão de admin no CRM (ex.: Leonardo Ramos Teixeira).
+export const EXCLUDED_SELLER_IDS = [14821606] // Admin Pekatê
+
 export const PROGRAMS = [
   {
     id: 'pos',
