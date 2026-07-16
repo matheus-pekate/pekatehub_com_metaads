@@ -2082,6 +2082,12 @@
   color: var(--petroleo);
   overflow-wrap: break-word;
   line-height: 1.3;
+  text-decoration: none;
+  cursor: pointer;
+}
+.pkt-alert-modal__deal-title:hover {
+  color: var(--laranja);
+  text-decoration: underline;
 }
 .pkt-alert-modal__deal-stage {
   font-size: 10.5px; font-weight: 700;

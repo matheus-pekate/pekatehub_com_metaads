@@ -5,6 +5,12 @@
 
 export const PIPEDRIVE_BASE_URL = 'https://api.pipedrive.com'
 
+export const PIPEDRIVE_COMPANY_DOMAIN = 'pekate'
+
+export function buildPipedriveDealUrl(dealId) {
+  return `https://${PIPEDRIVE_COMPANY_DOMAIN}.pipedrive.com/deal/${dealId}`
+}
+
 // Intervalo de atualização automática dos dados (em minutos)
 export const REFRESH_INTERVAL_MINUTES = 30
 
