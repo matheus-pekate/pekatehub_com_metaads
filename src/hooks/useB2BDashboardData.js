@@ -110,6 +110,7 @@ function processB2BProgram(program, deals, range, userMap) {
         id: sellerId,
         name: user?.name || 'Sem responsável',
         avatarUrl: user?.avatarUrl || null,
+        isAdmin: user?.isAdmin || false,
         converted: 0,
         convertedValue: 0,
         active: 0,
@@ -151,7 +152,11 @@ function processB2BProgram(program, deals, range, userMap) {
     goalPercent,
     remaining,
     alerts,
-    sellers: Object.values(sellerMap).sort((a, b) => b.converted - a.converted),
+    // Contas administrativas (ex.: "Admin Pekatê") não são vendedores de verdade —
+    // não entram no ranking mesmo que algum deal tenha ficado com o owner_id delas.
+    sellers: Object.values(sellerMap)
+      .filter((s) => !s.isAdmin)
+      .sort((a, b) => b.converted - a.converted),
   }
 }
 
@@ -177,7 +182,7 @@ export function useB2BDashboardData(year) {
       ;(users || []).forEach((u) => {
         const pics = u.picture_id?.pictures
         const avatarUrl = pics?.['128'] || pics?.['512'] || pics?.['original'] || u.icon_url || null
-        map[u.id] = { name: u.name, avatarUrl }
+        map[u.id] = { name: u.name, avatarUrl, isAdmin: !!u.is_admin }
       })
       setRawDeals(byId)
       setUserMap(map)
