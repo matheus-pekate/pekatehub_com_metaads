@@ -1,3 +1,5 @@
+import { buildPipedriveDealUrl } from '../../config/pipedrive'
+
 const ALERT_META = {
   critico: { title: 'Leads críticos', hint: 'Sem movimentação há mais de 14 dias' },
   pendencia: { title: 'Pendências de follow-up', hint: 'Estágio inicial, 3 a 14 dias sem contato' },
@@ -30,7 +32,14 @@ export function AlertDealsModal({ open, alertKey, alert, onClose }) {
           <div className="pkt-alert-modal__list">
             {deals.map((d) => (
               <div key={d.id} className="pkt-alert-modal__deal">
-                <span className="pkt-alert-modal__deal-title">{d.title}</span>
+                <a
+                  className="pkt-alert-modal__deal-title"
+                  href={buildPipedriveDealUrl(d.id)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {d.title}
+                </a>
                 <span className="pkt-alert-modal__deal-stage">{d.stageName}</span>
                 <span className="pkt-alert-modal__deal-idle">
                   {d.idle} {d.idle === 1 ? 'dia' : 'dias'} parado
