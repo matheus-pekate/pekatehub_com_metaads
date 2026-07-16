@@ -132,3 +132,88 @@ export const PROGRAMS = [
     accentColor: '#E84393',
   },
 ]
+
+// ============================================================
+// COMANDO B2B — PAEX, GE, Customizados e Consultoria
+// Deals B2B carregam valor próprio (sem preço fixo de turma),
+// por isso não há price/revenueGoal/convertedFilter aqui.
+// ============================================================
+
+export const PROGRAMS_B2B = [
+  {
+    id: 'paex',
+    name: 'PAEX',
+    pipelineId: 3,
+    pipelineName: 'FDC ME - PAEX',
+    accentColor: '#08373F',
+    goal: 16, // contratos (anual 2026)
+    revenueGoal: 5_700_000, // anual 2026
+    stages: [
+      { id: 12,  name: 'Cliente potencial' },
+      { id: 14,  name: 'Oportunidade Qualificada' },
+      { id: 15,  name: 'Proposta Enviada' },
+      { id: 202, name: 'Em Negociação' },
+      { id: 342, name: 'Negócio - Stand-by' },
+      { id: 16,  name: 'Negócio Provável' },
+      { id: 201, name: 'Ficha Enviada' },
+    ],
+  },
+  {
+    id: 'ge',
+    name: 'GE',
+    pipelineId: 63,
+    pipelineName: 'FDC - Programas GE',
+    accentColor: '#2DA8A8',
+    revenueGoal: 1_100_000, // anual 2026
+    stages: [
+      { id: 306, name: 'Cliente Potencial' },
+      { id: 307, name: 'Oportunidade Qualificada' },
+      { id: 308, name: 'Proposta Enviada' },
+      { id: 309, name: 'Em Negociação' },
+      { id: 310, name: 'Negócio Provável' },
+      { id: 311, name: 'Ficha Enviada' },
+    ],
+  },
+  {
+    id: 'customizados',
+    name: 'Customizados',
+    pipelineId: 65,
+    pipelineName: 'FDC ME - Customizados',
+    accentColor: '#CB5B36',
+    revenueGoal: 1_600_000, // anual 2026
+    stages: [
+      { id: 317, name: 'Cliente Potencial' },
+      { id: 318, name: 'Oportunidade Qualificada' },
+      { id: 319, name: 'Proposta Enviada' },
+      { id: 320, name: 'Em Negociação' },
+      { id: 343, name: 'Negócio - Stand-by' },
+      { id: 321, name: 'Negócio Provável' },
+      { id: 322, name: 'Ficha Enviada' },
+    ],
+  },
+  {
+    id: 'consultoria',
+    name: 'Consultoria',
+    pipelineId: 7,
+    pipelineName: 'PKT - Consultorias',
+    accentColor: '#7B61FF',
+    revenueGoal: 1_000_000, // anual 2026
+    stages: [
+      { id: 37,  name: 'Cliente potencial' },
+      { id: 38,  name: 'Contato Realizado' },
+      { id: 39,  name: 'Oportunidade Qualificada' },
+      { id: 40,  name: 'Proposta Enviada' },
+      { id: 41,  name: 'Negócio Provável' },
+      { id: 275, name: 'Assinatura de Contrato' },
+    ],
+  },
+]
+
+const B2B_YEAR_RANGE_START = 2024
+
+export const B2B_YEAR_OPTIONS = (() => {
+  const currentYear = new Date().getFullYear()
+  const years = []
+  for (let y = currentYear; y >= B2B_YEAR_RANGE_START; y--) years.push(y)
+  return years
+})()

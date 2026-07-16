@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { PekateDash } from './pages/PekateDash.jsx'
+import { PekateB2BDash } from './pages/PekateB2BDash.jsx'
 import { PktHub } from './pages/PktHub.jsx'
 import { SellerAnalysis } from './pages/SellerAnalysis.jsx'
 import { SellerRanking } from './pages/SellerRanking.jsx'
@@ -17,6 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/" element={<Navigate to="/pkt-hub" replace />} />
         <Route path="/pkt-hub" element={<PktHub />} />
         <Route path="/pekate-dash" element={<PekateDash />} />
+        <Route path="/comando-b2b" element={<PekateB2BDash />} />
         <Route path="/seller-analysis" element={<SellerAnalysis />} />
         <Route path="/seller-ranking" element={<SellerRanking />} />
         <Route path="/laura-chats" element={<LauraChats />} />
