@@ -1,7 +1,5 @@
 import { formatCompactBRL } from '../pekate-dash/format.js'
 
-const HALF_LABEL = { S1: 'do 1º semestre', S2: 'do 2º semestre', ANO: 'do ano' }
-
 function EmptyState({ programName }) {
   return (
     <article className="pktb2b-meta-card pktb2b-meta-card--empty">
@@ -18,7 +16,7 @@ function EmptyState({ programName }) {
   )
 }
 
-export function B2BMetaCard({ program, half }) {
+export function B2BMetaCard({ program }) {
   if (!program?.periodRevenueGoal) return <EmptyState programName={program?.name} />
 
   const {
@@ -34,7 +32,6 @@ export function B2BMetaCard({ program, half }) {
   const ganhoPct = Math.min(100, goalPercent)
   const ganhoPctRound = Math.round(ganhoPct)
   const forecastWidth = (forecastValue / periodRevenueGoal) * 100
-  const halfLabel = HALF_LABEL[half] || 'do período'
   const contractsGoalGap = periodGoal != null ? Math.max(0, Math.round(periodGoal) - wonCount) : null
 
   return (
@@ -55,7 +52,7 @@ export function B2BMetaCard({ program, half }) {
         <h2 className="pktb2b-meta-card__headline">
           Faltam <em>{formatCompactBRL(remaining)}</em>
           {contractsGoalGap != null && <> e <em>{contractsGoalGap} {contractsGoalGap === 1 ? 'contrato' : 'contratos'}</em></>}<br />
-          <span className="pktb2b-meta-card__lead-time">para bater a meta {halfLabel}.</span>
+          <span className="pktb2b-meta-card__lead-time">para bater a meta do ano.</span>
         </h2>
         <div className="pktb2b-meta-card__pct">
           <div className="pktb2b-meta-card__pct-num">{ganhoPctRound}<sup>%</sup></div>

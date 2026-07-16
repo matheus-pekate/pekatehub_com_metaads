@@ -143,6 +143,7 @@ export const PROGRAMS_B2B = [
   {
     id: 'paex',
     name: 'PAEX',
+    shortName: 'PAEX',
     pipelineId: 3,
     pipelineName: 'FDC ME - PAEX',
     accentColor: '#08373F',
@@ -161,6 +162,7 @@ export const PROGRAMS_B2B = [
   {
     id: 'ge',
     name: 'GE',
+    shortName: 'GE',
     pipelineId: 63,
     pipelineName: 'FDC - Programas GE',
     accentColor: '#2DA8A8',
@@ -177,6 +179,7 @@ export const PROGRAMS_B2B = [
   {
     id: 'customizados',
     name: 'Customizados',
+    shortName: 'Customizados',
     pipelineId: 65,
     pipelineName: 'FDC ME - Customizados',
     accentColor: '#CB5B36',
@@ -194,6 +197,7 @@ export const PROGRAMS_B2B = [
   {
     id: 'consultoria',
     name: 'Consultoria',
+    shortName: 'Consultoria',
     pipelineId: 7,
     pipelineName: 'PKT - Consultorias',
     accentColor: '#7B61FF',

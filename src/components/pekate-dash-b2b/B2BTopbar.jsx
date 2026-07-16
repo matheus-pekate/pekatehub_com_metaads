@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { PeriodSelector } from './PeriodSelector.jsx'
 
 const pad = (n) => (n < 10 ? '0' + n : '' + n)
 
-export function B2BTopbar() {
+export function B2BTopbar({ year, yearOptions, onChangeYear, paused, onTogglePause }) {
   const navigate = useNavigate()
   const [now, setNow] = useState(() => new Date())
 
@@ -42,9 +43,14 @@ export function B2BTopbar() {
         </span>
       </div>
 
+      <PeriodSelector year={year} yearOptions={yearOptions} onChangeYear={onChangeYear} />
+
       <div className="pktb2b-live-pill">
         <span>Ao vivo</span>
       </div>
+      <button className="pkt-pause-btn" onClick={onTogglePause} title={paused ? 'Retomar' : 'Pausar'}>
+        {paused ? '▶' : '⏸'}
+      </button>
     </header>
   )
 }
