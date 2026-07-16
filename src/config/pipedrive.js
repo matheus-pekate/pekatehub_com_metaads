@@ -146,6 +146,8 @@ export const PROGRAMS_B2B = [
     pipelineId: 3,
     pipelineName: 'FDC ME - PAEX',
     accentColor: '#08373F',
+    goal: 16, // contratos (anual 2026)
+    revenueGoal: 5_700_000, // anual 2026
     stages: [
       { id: 12,  name: 'Cliente potencial' },
       { id: 14,  name: 'Oportunidade Qualificada' },
@@ -162,6 +164,7 @@ export const PROGRAMS_B2B = [
     pipelineId: 63,
     pipelineName: 'FDC - Programas GE',
     accentColor: '#2DA8A8',
+    revenueGoal: 1_100_000, // anual 2026
     stages: [
       { id: 306, name: 'Cliente Potencial' },
       { id: 307, name: 'Oportunidade Qualificada' },
@@ -177,6 +180,7 @@ export const PROGRAMS_B2B = [
     pipelineId: 65,
     pipelineName: 'FDC ME - Customizados',
     accentColor: '#CB5B36',
+    revenueGoal: 1_600_000, // anual 2026
     stages: [
       { id: 317, name: 'Cliente Potencial' },
       { id: 318, name: 'Oportunidade Qualificada' },
@@ -193,6 +197,7 @@ export const PROGRAMS_B2B = [
     pipelineId: 7,
     pipelineName: 'PKT - Consultorias',
     accentColor: '#7B61FF',
+    revenueGoal: 1_000_000, // anual 2026
     stages: [
       { id: 37,  name: 'Cliente potencial' },
       { id: 38,  name: 'Contato Realizado' },

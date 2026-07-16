@@ -17,7 +17,7 @@ function inRange(dateStr, [start, end]) {
 
 // Processa os deals de um programa B2B: funil sempre no estado atual,
 // receita/conversão filtradas pelo período de calendário selecionado.
-function processB2BProgram(program, deals, range) {
+function processB2BProgram(program, deals, range, half) {
   const stageMap = {}
   program.stages.forEach((s) => {
     stageMap[s.id] = { ...s, count: 0, value: 0 }
@@ -52,6 +52,14 @@ function processB2BProgram(program, deals, range) {
   const totalOpenCount = openDeals.length
   const totalOpenValue = openDeals.reduce((acc, d) => acc + (d.value || 0), 0)
 
+  // Metas são configuradas anualmente; em S1/S2 usamos a metade proporcional
+  // (ainda não há metas semestrais específicas por programa).
+  const periodFactor = half === 'ANO' ? 1 : 2
+  const periodRevenueGoal = program.revenueGoal ? program.revenueGoal / periodFactor : 0
+  const periodGoal = program.goal ? program.goal / periodFactor : null
+  const goalPercent = periodRevenueGoal > 0 ? Math.min(100, (totalWonValue / periodRevenueGoal) * 100) : 0
+  const remaining = Math.max(0, periodRevenueGoal - totalWonValue)
+
   return {
     stagesData,
     wonCount,
@@ -62,6 +70,10 @@ function processB2BProgram(program, deals, range) {
     forecastCount,
     totalOpenCount,
     totalOpenValue,
+    periodRevenueGoal,
+    periodGoal,
+    goalPercent,
+    remaining,
   }
 }
 
@@ -108,7 +120,7 @@ export function useB2BDashboardData(period) {
     const range = getPeriodRange(period)
     const programs = PROGRAMS_B2B.map((program) => {
       const deals = rawDeals[program.id] || []
-      const metrics = processB2BProgram(program, deals, range)
+      const metrics = processB2BProgram(program, deals, range, period.half)
       return { ...program, ...metrics }
     })
 
