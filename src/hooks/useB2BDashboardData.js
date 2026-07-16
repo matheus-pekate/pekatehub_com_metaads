@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchAllDealsByPipeline, fetchUsers } from '../services/pipedriveApi.js'
-import { PROGRAMS_B2B, REFRESH_INTERVAL_MINUTES } from '../config/pipedrive.js'
+import { PROGRAMS_B2B, REFRESH_INTERVAL_MINUTES, EXCLUDED_SELLER_IDS } from '../config/pipedrive.js'
 
 // Calcula o intervalo [início, fim) do ano de calendário
 export function getPeriodRange(year) {
@@ -110,7 +110,6 @@ function processB2BProgram(program, deals, range, userMap) {
         id: sellerId,
         name: user?.name || 'Sem responsável',
         avatarUrl: user?.avatarUrl || null,
-        isAdmin: user?.isAdmin || false,
         converted: 0,
         convertedValue: 0,
         active: 0,
@@ -152,10 +151,10 @@ function processB2BProgram(program, deals, range, userMap) {
     goalPercent,
     remaining,
     alerts,
-    // Contas administrativas (ex.: "Admin Pekatê") não são vendedores de verdade —
+    // Contas de sistema (ex.: "Admin Pekatê") não são vendedores de verdade —
     // não entram no ranking mesmo que algum deal tenha ficado com o owner_id delas.
     sellers: Object.values(sellerMap)
-      .filter((s) => !s.isAdmin)
+      .filter((s) => !EXCLUDED_SELLER_IDS.includes(s.id))
       .sort((a, b) => b.converted - a.converted),
   }
 }
@@ -182,7 +181,7 @@ export function useB2BDashboardData(year) {
       ;(users || []).forEach((u) => {
         const pics = u.picture_id?.pictures
         const avatarUrl = pics?.['128'] || pics?.['512'] || pics?.['original'] || u.icon_url || null
-        map[u.id] = { name: u.name, avatarUrl, isAdmin: !!u.is_admin }
+        map[u.id] = { name: u.name, avatarUrl }
       })
       setRawDeals(byId)
       setUserMap(map)
