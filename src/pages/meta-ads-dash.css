@@ -758,6 +758,79 @@
   text-align: right;
 }
 
+/* ── Modal de Perdidos (mesma base do modal de Convertidos e Ganhos, + resumo de motivos) ── */
+.pkt-lost-deals {
+  background: var(--branco);
+  border-radius: 16px;
+  width: 900px;
+  height: 640px;
+  padding: 28px 32px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  animation: pktMetaSlideUp .35s cubic-bezier(.2,.7,.2,1);
+}
+.pkt-lost-deals__reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--off-white);
+  flex-shrink: 0;
+}
+.pkt-lost-deals__reasons-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--petroleo-light);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.pkt-lost-deals__reason-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 32px;
+  align-items: center;
+  gap: 12px;
+}
+.pkt-lost-deals__reason-label {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pkt-lost-deals__reason-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--linha);
+  overflow: hidden;
+}
+.pkt-lost-deals__reason-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--pgm-accent);
+}
+.pkt-lost-deals__reason-count {
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+  color: var(--carvao-soft);
+}
+.pkt-lost-deals__row--header,
+.pkt-lost-deals__row {
+  grid-template-columns: 1.2fr 1.6fr 1.2fr .9fr;
+}
+.pkt-lost-deals__reason-cell {
+  font-size: 13px;
+  color: var(--carvao-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ── Rodapé / aviso ── */
 .pkt-meta-footer {
   display: flex;

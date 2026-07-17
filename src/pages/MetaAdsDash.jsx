@@ -7,6 +7,7 @@ import { ProgramDetail } from '../components/meta-ads/ProgramDetail'
 import { DisclaimerStrip } from '../components/meta-ads/DisclaimerStrip'
 import { AdDetailModal } from '../components/meta-ads/AdDetailModal'
 import { WonDealsModal } from '../components/meta-ads/WonDealsModal'
+import { LostDealsModal } from '../components/meta-ads/LostDealsModal'
 import './meta-ads-dash.css'
 
 export function MetaAdsDash() {
@@ -17,6 +18,7 @@ export function MetaAdsDash() {
   const [epoch, setEpoch] = useState(0)
   const [selectedAd, setSelectedAd] = useState(null)
   const [wonDealsProgram, setWonDealsProgram] = useState(null)
+  const [lostDealsProgram, setLostDealsProgram] = useState(null)
 
   const activeProgram = data[activeIdx]
   const duration = activeProgram?.duration ?? 20000
@@ -39,14 +41,19 @@ export function MetaAdsDash() {
     setPaused(true)
   }, [])
 
+  const handleOpenLostDeals = useCallback((program) => {
+    setLostDealsProgram(program)
+    setPaused(true)
+  }, [])
+
   useEffect(() => {
-    if (paused || selectedAd || wonDealsProgram) return
+    if (paused || selectedAd || wonDealsProgram || lostDealsProgram) return
     const timer = setTimeout(() => {
       setActiveIdx((i) => (i + 1) % data.length)
       setEpoch((e) => e + 1)
     }, duration)
     return () => clearTimeout(timer)
-  }, [activeIdx, paused, selectedAd, wonDealsProgram, duration, epoch, data.length])
+  }, [activeIdx, paused, selectedAd, wonDealsProgram, lostDealsProgram, duration, epoch, data.length])
 
   return (
     <div className="pkt-letterbox">
@@ -69,7 +76,7 @@ export function MetaAdsDash() {
           />
         </div>
         <ProgramStrip programs={data} activeId={activeProgram?.id} onSelect={handleManualSelect} />
-        <ProgramDetail program={activeProgram} onSelectAd={handleSelectAd} onOpenWonDeals={handleOpenWonDeals} />
+        <ProgramDetail program={activeProgram} onSelectAd={handleSelectAd} onOpenWonDeals={handleOpenWonDeals} onOpenLostDeals={handleOpenLostDeals} />
         <DisclaimerStrip />
         {selectedAd && (
           <AdDetailModal
@@ -82,6 +89,12 @@ export function MetaAdsDash() {
           <WonDealsModal
             program={wonDealsProgram}
             onClose={() => setWonDealsProgram(null)}
+          />
+        )}
+        {lostDealsProgram && (
+          <LostDealsModal
+            program={lostDealsProgram}
+            onClose={() => setLostDealsProgram(null)}
           />
         )}
       </div>

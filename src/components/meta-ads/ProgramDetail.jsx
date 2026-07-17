@@ -2,9 +2,9 @@ import { formatBRL, formatCompactNumber } from './format'
 import { AdsList } from './AdsList'
 import { ProgramDailyChart } from './ProgramDailyChart'
 
-export function ProgramDetail({ program, onSelectAd, onOpenWonDeals }) {
+export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostDeals }) {
   if (!program) return null
-  const { id, name, hasActiveCampaigns, totalLeads, cplMedio, totalReach, ads, leadsLast1Day, leadsLast7Days, totalWon } = program
+  const { id, name, hasActiveCampaigns, totalLeads, cplMedio, totalReach, ads, leadsLast1Day, leadsLast7Days, totalWon, totalLost } = program
 
   return (
     <div className="pkt-meta-detail">
@@ -36,6 +36,13 @@ export function ProgramDetail({ program, onSelectAd, onOpenWonDeals }) {
         >
           <span className="pkt-meta-detail__stat-value">{totalWon}</span>
           <span className="pkt-meta-detail__stat-label">Convertidos e Ganhos</span>
+        </div>
+        <div
+          className={`pkt-meta-detail__stat ${totalLost > 0 ? 'pkt-meta-detail__stat--clickable' : ''}`}
+          onClick={totalLost > 0 ? () => onOpenLostDeals(program) : undefined}
+        >
+          <span className="pkt-meta-detail__stat-value">{totalLost}</span>
+          <span className="pkt-meta-detail__stat-label">Perdidos</span>
         </div>
       </div>
 
