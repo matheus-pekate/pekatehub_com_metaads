@@ -273,7 +273,35 @@
 
 .pkt-meta-detail__stats {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+}
+
+.pkt-meta-detail__stats-left {
+  display: flex;
   gap: 40px;
+}
+
+.pkt-meta-detail__stats-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.pkt-meta-detail__stats-right-caption {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--carvao-soft);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.pkt-meta-detail__stats-right-row {
+  display: flex;
+  gap: 32px;
 }
 
 .pkt-meta-detail__stat {
@@ -775,7 +803,7 @@
 .pkt-lost-deals__reasons {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   padding: 14px 18px;
   border-radius: 12px;
   background: var(--off-white);
@@ -787,33 +815,46 @@
   letter-spacing: .04em;
   color: var(--petroleo-light);
   font-weight: 700;
-  margin-bottom: 2px;
 }
-.pkt-lost-deals__reason-row {
-  display: grid;
-  grid-template-columns: 200px 1fr 32px;
+.pkt-lost-deals__reasons-body {
+  display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
 }
-.pkt-lost-deals__reason-label {
+.pkt-lost-deals__pie {
+  width: 150px;
+  height: 150px;
+  flex-shrink: 0;
+}
+.pkt-lost-deals__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  max-height: 150px;
+  overflow-y: auto;
+}
+.pkt-lost-deals__legend-row {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+.pkt-lost-deals__legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.pkt-lost-deals__legend-label {
   font-size: 13px;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.pkt-lost-deals__reason-bar-track {
-  height: 8px;
-  border-radius: 999px;
-  background: var(--linha);
-  overflow: hidden;
-}
-.pkt-lost-deals__reason-bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: var(--pgm-accent);
-}
-.pkt-lost-deals__reason-count {
+.pkt-lost-deals__legend-count {
   font-size: 13px;
   font-weight: 700;
   text-align: right;
