@@ -16,7 +16,7 @@ function EmptyState({ programName }) {
   )
 }
 
-export function B2BMetaCard({ program }) {
+export function B2BMetaCard({ program, isClosedYear }) {
   if (!program?.periodRevenueGoal) return <EmptyState programName={program?.name} />
 
   const {
@@ -33,6 +33,9 @@ export function B2BMetaCard({ program }) {
   const ganhoPctRound = Math.round(ganhoPct)
   const forecastWidth = (forecastValue / periodRevenueGoal) * 100
   const contractsGoalGap = periodGoal != null ? Math.max(0, Math.round(periodGoal) - wonCount) : null
+  const metaBatida = goalPercent >= 100
+  // Ano encerrado e meta não batida: fala no passado, sem sugerir que ainda dá pra bater.
+  const showAsClosed = isClosedYear && !metaBatida
 
   return (
     <article className="pktb2b-meta-card">
@@ -50,9 +53,19 @@ export function B2BMetaCard({ program }) {
 
       <div className="pktb2b-meta-card__body">
         <h2 className="pktb2b-meta-card__headline">
-          Faltam <em>{formatCompactBRL(remaining)}</em>
-          {contractsGoalGap != null && <> e <em>{contractsGoalGap} {contractsGoalGap === 1 ? 'contrato' : 'contratos'}</em></>}<br />
-          <span className="pktb2b-meta-card__lead-time">para bater a meta do ano.</span>
+          {showAsClosed ? (
+            <>
+              Faltaram <em>{formatCompactBRL(remaining)}</em>
+              {contractsGoalGap != null && <> e <em>{contractsGoalGap} {contractsGoalGap === 1 ? 'contrato' : 'contratos'}</em></>}<br />
+              <span className="pktb2b-meta-card__lead-time">a meta do ano não foi batida.</span>
+            </>
+          ) : (
+            <>
+              Faltam <em>{formatCompactBRL(remaining)}</em>
+              {contractsGoalGap != null && <> e <em>{contractsGoalGap} {contractsGoalGap === 1 ? 'contrato' : 'contratos'}</em></>}<br />
+              <span className="pktb2b-meta-card__lead-time">para bater a meta do ano.</span>
+            </>
+          )}
         </h2>
         <div className="pktb2b-meta-card__pct">
           <div className="pktb2b-meta-card__pct-num">{ganhoPctRound}<sup>%</sup></div>
