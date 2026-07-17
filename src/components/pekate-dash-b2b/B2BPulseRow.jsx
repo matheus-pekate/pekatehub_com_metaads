@@ -1,13 +1,15 @@
-function deriveBadge(goalPercent) {
+function deriveBadge(goalPercent, isClosedYear) {
   if (goalPercent >= 100) return { label: 'Meta batida', variant: 'batida' }
+  // Ano já encerrado e meta não batida: não tem mais "ritmo" correndo, só o resultado final.
+  if (isClosedYear) return { label: 'Meta não batida', variant: 'perdida' }
   if (goalPercent >= 90) return { label: 'Quase lá', variant: 'quase' }
   return { label: 'Em ritmo', variant: 'ativo' }
 }
 
-function B2BPulseCard({ program, active, onSelect }) {
+function B2BPulseCard({ program, active, onSelect, isClosedYear }) {
   const { name, pipelineName, goalPercent = 0, totalOpenCount = 0, accentColor } = program
   const pctDisplay = Math.round(goalPercent)
-  const badge = deriveBadge(goalPercent)
+  const badge = deriveBadge(goalPercent, isClosedYear)
 
   return (
     <article
@@ -42,7 +44,7 @@ function B2BPulseCard({ program, active, onSelect }) {
   )
 }
 
-export function B2BPulseRow({ programs, activeId, onSelect }) {
+export function B2BPulseRow({ programs, activeId, onSelect, isClosedYear }) {
   return (
     <section className="pktb2b-pulse-row">
       {programs.map((program) => (
@@ -51,6 +53,7 @@ export function B2BPulseRow({ programs, activeId, onSelect }) {
           program={program}
           active={program.id === activeId}
           onSelect={() => onSelect?.(program.id)}
+          isClosedYear={isClosedYear}
         />
       ))}
     </section>

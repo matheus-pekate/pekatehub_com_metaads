@@ -247,6 +247,8 @@
 .pktb2b-pgm__badge--batida::before { background: var(--positivo); }
 .pktb2b-pgm__badge--quase  { color: var(--fdc-roxo); border-color: #e2cfee; background: #f3e8f8; }
 .pktb2b-pgm__badge--quase::before  { background: var(--fdc-roxo); }
+.pktb2b-pgm__badge--perdida { color: var(--carvao-soft); border-color: var(--linha-strong); background: var(--off-white); }
+.pktb2b-pgm__badge--perdida::before { background: var(--carvao-soft); }
 
 .pktb2b-pgm__hero {
   display: flex; align-items: baseline; gap: 12px;

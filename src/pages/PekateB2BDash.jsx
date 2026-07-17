@@ -46,6 +46,7 @@ export function PekateB2BDash() {
 
   const activeProgram = data?.programs?.find((p) => p.id === activeId)
   const accent = activeProgram?.accentColor || '#08373F'
+  const isClosedYear = year < new Date().getFullYear()
 
   return (
     <div className="pktb2b-letterbox">
@@ -72,11 +73,11 @@ export function PekateB2BDash() {
 
           {data?.programs && (
             <>
-              <B2BPulseRow programs={data.programs} activeId={activeId} onSelect={handleManualSelect} />
+              <B2BPulseRow programs={data.programs} activeId={activeId} onSelect={handleManualSelect} isClosedYear={isClosedYear} />
               <AlertsStrip lastUpdated={lastUpdated} program={activeProgram} onSelectAlert={(key) => setActiveAlertKey(key)} />
               <section className="pktb2b-focus">
                 <B2BKpiStack program={activeProgram} />
-                <B2BMetaCard program={activeProgram} />
+                <B2BMetaCard program={activeProgram} isClosedYear={isClosedYear} />
                 <TeamCard program={activeProgram} allSellers={data.sellers} />
               </section>
               <B2BFunnelRow program={activeProgram} />
