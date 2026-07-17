@@ -18,31 +18,39 @@ export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostD
       </div>
 
       <div className="pkt-meta-detail__stats">
-        <div className="pkt-meta-detail__stat">
-          <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? totalLeads : '—'}</span>
-          <span className="pkt-meta-detail__stat-label">Leads</span>
+        <div className="pkt-meta-detail__stats-left">
+          <div className="pkt-meta-detail__stat">
+            <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? totalLeads : '—'}</span>
+            <span className="pkt-meta-detail__stat-label">Leads</span>
+          </div>
+          <div className="pkt-meta-detail__stat">
+            <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatBRL(cplMedio) : '—'}</span>
+            <span className="pkt-meta-detail__stat-label">CPL médio</span>
+          </div>
+          <div className="pkt-meta-detail__stat">
+            <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatCompactNumber(totalReach) : '—'}</span>
+            <span className="pkt-meta-detail__stat-label">Alcance</span>
+          </div>
         </div>
-        <div className="pkt-meta-detail__stat">
-          <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatBRL(cplMedio) : '—'}</span>
-          <span className="pkt-meta-detail__stat-label">CPL médio</span>
-        </div>
-        <div className="pkt-meta-detail__stat">
-          <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatCompactNumber(totalReach) : '—'}</span>
-          <span className="pkt-meta-detail__stat-label">Alcance</span>
-        </div>
-        <div
-          className={`pkt-meta-detail__stat ${totalWon > 0 ? 'pkt-meta-detail__stat--clickable' : ''}`}
-          onClick={totalWon > 0 ? () => onOpenWonDeals(program) : undefined}
-        >
-          <span className="pkt-meta-detail__stat-value">{totalWon}</span>
-          <span className="pkt-meta-detail__stat-label">Convertidos e Ganhos</span>
-        </div>
-        <div
-          className={`pkt-meta-detail__stat ${totalLost > 0 ? 'pkt-meta-detail__stat--clickable' : ''}`}
-          onClick={totalLost > 0 ? () => onOpenLostDeals(program) : undefined}
-        >
-          <span className="pkt-meta-detail__stat-value">{totalLost}</span>
-          <span className="pkt-meta-detail__stat-label">Perdidos</span>
+
+        <div className="pkt-meta-detail__stats-right">
+          <span className="pkt-meta-detail__stats-right-caption">Desde o início da campanha</span>
+          <div className="pkt-meta-detail__stats-right-row">
+            <div
+              className={`pkt-meta-detail__stat ${totalWon > 0 ? 'pkt-meta-detail__stat--clickable' : ''}`}
+              onClick={totalWon > 0 ? () => onOpenWonDeals(program) : undefined}
+            >
+              <span className="pkt-meta-detail__stat-value">{totalWon}</span>
+              <span className="pkt-meta-detail__stat-label">Convertidos e Ganhos</span>
+            </div>
+            <div
+              className={`pkt-meta-detail__stat ${totalLost > 0 ? 'pkt-meta-detail__stat--clickable' : ''}`}
+              onClick={totalLost > 0 ? () => onOpenLostDeals(program) : undefined}
+            >
+              <span className="pkt-meta-detail__stat-value">{totalLost}</span>
+              <span className="pkt-meta-detail__stat-label">Perdidos</span>
+            </div>
+          </div>
         </div>
       </div>
 
