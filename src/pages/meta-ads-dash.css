@@ -849,6 +849,20 @@
   grid-template-columns: 12px 1fr auto;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
+  padding: 3px 6px;
+  margin: 0 -6px;
+  border-radius: 6px;
+  transition: background .15s ease;
+}
+.pkt-lost-deals__legend-row:hover {
+  background: var(--linha);
+}
+.pkt-lost-deals__legend-row--active {
+  background: color-mix(in srgb, var(--pgm-accent) 12%, transparent);
+}
+.pkt-lost-deals__legend-row--active .pkt-lost-deals__legend-label {
+  color: var(--pgm-accent);
 }
 .pkt-lost-deals__legend-swatch {
   width: 12px;
@@ -879,6 +893,36 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.pkt-lost-deals__filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--pgm-accent) 10%, transparent);
+  font-size: 13px;
+  color: var(--petroleo);
+  flex-shrink: 0;
+}
+.pkt-lost-deals__filter-bar strong {
+  color: var(--pgm-accent);
+}
+.pkt-lost-deals__filter-clear {
+  border: none;
+  background: var(--branco);
+  color: var(--petroleo);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .15s ease;
+}
+.pkt-lost-deals__filter-clear:hover {
+  background: var(--off-white);
 }
 
 /* ── Rodapé / aviso ── */
