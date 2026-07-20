@@ -757,6 +757,15 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.pkt-lost-deals__person-link {
+  color: var(--petroleo);
+  text-decoration: none;
+  cursor: pointer;
+}
+.pkt-lost-deals__person-link:hover {
+  color: var(--pgm-accent);
+  text-decoration: underline;
+}
 .pkt-won-deals__ad {
   display: flex;
   flex-direction: column;
