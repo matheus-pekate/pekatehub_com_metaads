@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { formatDate } from './format'
 import { buildPipedriveDealUrl } from '../../config/pipedrive'
@@ -18,9 +19,16 @@ function ReasonTooltip({ active, payload }) {
 }
 
 export function LostDealsModal({ program, onClose }) {
+  const [selectedReason, setSelectedReason] = useState(null)
   if (!program) return null
+
   const deals = program.lostDeals ?? []
   const reasons = program.lostReasons ?? []
+  const filteredDeals = selectedReason ? deals.filter((d) => d.lost_reason === selectedReason) : deals
+
+  const toggleReason = (reason) => {
+    setSelectedReason((current) => (current === reason ? null : reason))
+  }
 
   return (
     <div className="pkt-ad-detail-overlay" onClick={onClose}>
@@ -37,7 +45,7 @@ export function LostDealsModal({ program, onClose }) {
 
         {reasons.length > 0 && (
           <div className="pkt-lost-deals__reasons">
-            <span className="pkt-lost-deals__reasons-title">Maiores motivos de perda</span>
+            <span className="pkt-lost-deals__reasons-title">Maiores motivos de perda · clique pra filtrar</span>
             <div className="pkt-lost-deals__reasons-body">
               <div className="pkt-lost-deals__pie">
                 <ResponsiveContainer width="100%" height="100%">
@@ -52,9 +60,17 @@ export function LostDealsModal({ program, onClose }) {
                       outerRadius={60}
                       paddingAngle={2}
                       isAnimationActive={false}
+                      onClick={(entry) => toggleReason(entry.reason)}
                     >
                       {reasons.map((r, i) => (
-                        <Cell key={r.reason} fill={REASON_COLORS[i % REASON_COLORS.length]} />
+                        <Cell
+                          key={r.reason}
+                          fill={REASON_COLORS[i % REASON_COLORS.length]}
+                          opacity={selectedReason && selectedReason !== r.reason ? 0.35 : 1}
+                          stroke={selectedReason === r.reason ? '#08373f' : undefined}
+                          strokeWidth={selectedReason === r.reason ? 2 : 0}
+                          style={{ cursor: 'pointer' }}
+                        />
                       ))}
                     </Pie>
                     <Tooltip content={<ReasonTooltip />} />
@@ -63,7 +79,11 @@ export function LostDealsModal({ program, onClose }) {
               </div>
               <div className="pkt-lost-deals__legend">
                 {reasons.map((r, i) => (
-                  <div key={r.reason} className="pkt-lost-deals__legend-row">
+                  <div
+                    key={r.reason}
+                    className={`pkt-lost-deals__legend-row${selectedReason === r.reason ? ' pkt-lost-deals__legend-row--active' : ''}`}
+                    onClick={() => toggleReason(r.reason)}
+                  >
                     <i className="pkt-lost-deals__legend-swatch" style={{ background: REASON_COLORS[i % REASON_COLORS.length] }} />
                     <span className="pkt-lost-deals__legend-label" title={r.reason}>{r.reason}</span>
                     <span className="pkt-lost-deals__legend-count">{r.count}</span>
@@ -74,11 +94,26 @@ export function LostDealsModal({ program, onClose }) {
           </div>
         )}
 
+        {selectedReason && (
+          <div className="pkt-lost-deals__filter-bar">
+            <span>
+              Filtrando por <strong>{selectedReason}</strong> · {filteredDeals.length} negóci{filteredDeals.length === 1 ? 'o' : 'os'}
+            </span>
+            <button className="pkt-lost-deals__filter-clear" onClick={() => setSelectedReason(null)}>
+              Tirar filtro ✕
+            </button>
+          </div>
+        )}
+
         <div className="pkt-won-deals__body">
-          {deals.length === 0 && (
-            <div className="pkt-ad-detail__state">Nenhum negócio perdido do Meta Ads para este programa ainda.</div>
+          {filteredDeals.length === 0 && (
+            <div className="pkt-ad-detail__state">
+              {selectedReason
+                ? 'Nenhum negócio perdido com esse motivo.'
+                : 'Nenhum negócio perdido do Meta Ads para este programa ainda.'}
+            </div>
           )}
-          {deals.length > 0 && (
+          {filteredDeals.length > 0 && (
             <div className="pkt-won-deals__list">
               <div className="pkt-won-deals__row pkt-won-deals__row--header pkt-lost-deals__row--header">
                 <span>Pessoa</span>
@@ -86,7 +121,7 @@ export function LostDealsModal({ program, onClose }) {
                 <span>Motivo</span>
                 <span>Perdido em</span>
               </div>
-              {deals.map((deal) => (
+              {filteredDeals.map((deal) => (
                 <div key={deal.deal_id} className="pkt-won-deals__row pkt-lost-deals__row">
                   <a
                     className="pkt-won-deals__person pkt-lost-deals__person-link"
