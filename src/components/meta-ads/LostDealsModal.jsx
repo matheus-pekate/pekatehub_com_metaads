@@ -1,5 +1,6 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { formatDate } from './format'
+import { buildPipedriveDealUrl } from '../../config/pipedrive'
 
 // Paleta categórica validada (CVD-safe, ordem fixa — ver skill de dataviz).
 // Sempre atribuída na mesma ordem, nunca ciclada por valor.
@@ -87,7 +88,15 @@ export function LostDealsModal({ program, onClose }) {
               </div>
               {deals.map((deal) => (
                 <div key={deal.deal_id} className="pkt-won-deals__row pkt-lost-deals__row">
-                  <span className="pkt-won-deals__person" title={deal.deal_title}>{deal.person_name || deal.deal_title}</span>
+                  <a
+                    className="pkt-won-deals__person pkt-lost-deals__person-link"
+                    href={buildPipedriveDealUrl(deal.deal_id)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={deal.deal_title}
+                  >
+                    {deal.person_name || deal.deal_title}
+                  </a>
                   <span className="pkt-won-deals__ad">
                     {deal.ad_name ? (
                       <>
