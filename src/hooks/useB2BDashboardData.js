@@ -31,8 +31,11 @@ function processB2BProgram(program, deals, range, userMap) {
   })
   const stagesData = program.stages.map((s) => stageMap[s.id])
 
-  const wonInPeriod = deals.filter((d) => d.status === 'won' && inRange(d.won_time, range))
-  const lostInPeriod = deals.filter((d) => d.status === 'lost' && inRange(d.lost_time, range))
+  // Contas de sistema (ex.: "Admin Pekatê") não são vendedores de verdade — negócios
+  // fechados por elas não contam como receita/conversão real do programa.
+  const isRealSeller = (d) => !EXCLUDED_SELLER_IDS.includes(d.owner_id)
+  const wonInPeriod = deals.filter((d) => d.status === 'won' && inRange(d.won_time, range) && isRealSeller(d))
+  const lostInPeriod = deals.filter((d) => d.status === 'lost' && inRange(d.lost_time, range) && isRealSeller(d))
 
   const wonCount = wonInPeriod.length
   const totalWonValue = wonInPeriod.reduce((acc, d) => acc + (d.value || 0), 0)
@@ -151,8 +154,8 @@ function processB2BProgram(program, deals, range, userMap) {
     goalPercent,
     remaining,
     alerts,
-    // Contas de sistema (ex.: "Admin Pekatê") não são vendedores de verdade —
-    // não entram no ranking mesmo que algum deal tenha ficado com o owner_id delas.
+    // Rede de segurança: se a conta de sistema aparecer só como dona de um lead
+    // aberto (sem ganho/perda), ainda assim não deve aparecer no ranking.
     sellers: Object.values(sellerMap)
       .filter((s) => !EXCLUDED_SELLER_IDS.includes(s.id))
       .sort((a, b) => b.converted - a.converted),
