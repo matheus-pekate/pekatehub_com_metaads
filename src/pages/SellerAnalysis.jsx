@@ -343,9 +343,8 @@ export function SellerAnalysis() {
                 <button type="button" className="hub-nav-sub__item" onClick={() => navigate('/seller-ranking')}>
                   B2C
                 </button>
-                <button type="button" className="hub-nav-sub__item hub-nav-sub__item--disabled" disabled>
+                <button type="button" className="hub-nav-sub__item" onClick={() => navigate('/seller-ranking?segment=b2b')}>
                   B2B
-                  <span className="hub-nav-item__badge">Em breve</span>
                 </button>
               </div>
             </div>
