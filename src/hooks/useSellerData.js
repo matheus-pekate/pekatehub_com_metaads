@@ -258,7 +258,7 @@ export function computeSellerMetrics(sellerId, allDeals, activities, periodDays,
 
 // Fábrica: gera um hook de análise de vendedores para um conjunto de
 // vendedores + programas (usada tanto pelo B2C quanto pelo espelho B2B).
-export function createSellerDataHook(sellers, programs) {
+export function createSellerDataHook(sellers, programs, defaultPeriodDays = 30) {
   // `enabled` permite adiar o carregamento (evita estourar rate limit do
   // Pipedrive quando dois segmentos — B2C e B2B — usam o mesmo hook na
   // mesma página e um deles ainda não foi visitado pelo usuário).
@@ -271,7 +271,7 @@ export function createSellerDataHook(sellers, programs) {
     const [everEnabled, setEverEnabled] = useState(enabled)
     const [selectedSeller, setSelectedSeller] = useState(sellers[0].id)
     const [selectedProgram, setSelectedProgram] = useState('')
-    const [periodDays, setPeriodDays] = useState(30)
+    const [periodDays, setPeriodDays] = useState(defaultPeriodDays)
 
     const loadData = useCallback(async () => {
       setLoading(true)

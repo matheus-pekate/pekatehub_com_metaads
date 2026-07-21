@@ -408,6 +408,7 @@ export function SellerAnalysis() {
                 <option value={30}>Últimos 30 dias</option>
                 <option value={90}>Últimos 90 dias</option>
                 <option value={180}>Últimos 6 meses</option>
+                <option value={365}>Últimos 12 meses</option>
               </select>
             </div>
           </div>
