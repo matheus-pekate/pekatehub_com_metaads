@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { fetchAllDealsByPipeline, fetchUserActivities, fetchUsers, fetchDealDetails } from '../services/pipedriveApi.js'
+import { fetchAllDealsByPipeline, fetchUserActivities, fetchUserActivitiesInRange, fetchUsers, fetchDealDetails } from '../services/pipedriveApi.js'
 import { PROGRAMS } from '../config/pipedrive.js'
 
 export const SELLERS = [
@@ -31,10 +31,16 @@ function filterDealsByProgram(deals, program, programs) {
   return filterDealsBySingleProgram(deals, cfg)
 }
 
-export function computeSellerMetrics(sellerId, allDeals, activities, periodDays, programFilter, stageTimesMap, programs = PROGRAMS) {
+export function computeSellerMetrics(sellerId, allDeals, activities, periodDays, programFilter, stageTimesMap, programs = PROGRAMS, dateRange = null) {
   const now = new Date()
-  const periodStart = new Date(now.getTime() - periodDays * MS_PER_DAY)
-  const prevPeriodStart = new Date(now.getTime() - 2 * periodDays * MS_PER_DAY)
+  // dateRange (opcional) representa um recorte fixo [start, end) — usado pelo
+  // modo "ano-calendário" do B2B. Sem ele, o período é uma janela rolante dos
+  // últimos `periodDays` dias contados de hoje pra trás (modo padrão/B2C).
+  const periodEnd = dateRange ? dateRange.end : now
+  const periodStart = dateRange ? dateRange.start : new Date(now.getTime() - periodDays * MS_PER_DAY)
+  const rangeMs = periodEnd.getTime() - periodStart.getTime()
+  const prevPeriodEnd = periodStart
+  const prevPeriodStart = new Date(periodStart.getTime() - rangeMs)
   const weekAgo = new Date(now.getTime() - 7 * MS_PER_DAY)
 
   const deals = filterDealsByProgram(allDeals, programFilter, programs)
@@ -44,14 +50,14 @@ export function computeSellerMetrics(sellerId, allDeals, activities, periodDays,
     if (d.status !== 'won') return false
     if (!d.won_time && !d.close_time) return true
     const wonDate = new Date(d.won_time || d.close_time)
-    return wonDate >= periodStart
+    return wonDate >= periodStart && wonDate < periodEnd
   })
 
   const lostDeals = deals.filter((d) => {
     if (d.status !== 'lost') return false
     if (!d.lost_time && !d.close_time) return true
     const lostDate = new Date(d.lost_time || d.close_time)
-    return lostDate >= periodStart
+    return lostDate >= periodStart && lostDate < periodEnd
   })
 
   const openDeals = deals.filter((d) => d.status === 'open')
@@ -60,13 +66,13 @@ export function computeSellerMetrics(sellerId, allDeals, activities, periodDays,
     if (d.status !== 'won') return false
     if (!d.won_time && !d.close_time) return false
     const dt = new Date(d.won_time || d.close_time)
-    return dt >= prevPeriodStart && dt < periodStart
+    return dt >= prevPeriodStart && dt < prevPeriodEnd
   })
   const prevLostDeals = deals.filter((d) => {
     if (d.status !== 'lost') return false
     if (!d.lost_time && !d.close_time) return false
     const dt = new Date(d.lost_time || d.close_time)
-    return dt >= prevPeriodStart && dt < periodStart
+    return dt >= prevPeriodStart && dt < prevPeriodEnd
   })
 
   const newThisWeek = openDeals.filter((d) => d.add_time && new Date(d.add_time) >= weekAgo).length
@@ -97,9 +103,14 @@ export function computeSellerMetrics(sellerId, allDeals, activities, periodDays,
     else if (t.includes('meeting') || t.includes('reunião') || t.includes('reuniao')) actSummary.meetings++
   })
 
+  // O gráfico nunca avança além de "hoje" — num ano-calendário corrente isso
+  // evita desenhar dias futuros; num ano passado, o range já termina antes.
+  const chartEnd = periodEnd.getTime() < now.getTime() ? periodEnd : now
+  const isCurrentPeriod = chartEnd.getTime() === now.getTime()
+  const rangeDays = Math.max(0, Math.round((chartEnd.getTime() - periodStart.getTime()) / MS_PER_DAY))
   const dailyVolume = []
-  for (let i = periodDays; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * MS_PER_DAY)
+  for (let i = rangeDays; i >= 0; i--) {
+    const d = new Date(chartEnd.getTime() - i * MS_PER_DAY)
     dailyVolume.push({ date: d.toISOString().slice(0, 10), count: 0, daysAgo: -i })
   }
   acts.forEach((a) => {
@@ -239,6 +250,8 @@ export function computeSellerMetrics(sellerId, allDeals, activities, periodDays,
     pipelineValue: openDeals.reduce((sum, d) => sum + (d.value || 0), 0),
     activities: actSummary,
     dailyVolume,
+    rangeDays,
+    isCurrentPeriod,
     concentration,
     cadence: { frequency: cadenceFrequency, lastActivityDaysAgo, leadsNoContact7d },
     funnelData: programCfg
@@ -258,10 +271,11 @@ export function computeSellerMetrics(sellerId, allDeals, activities, periodDays,
 
 // Fábrica: gera um hook de análise de vendedores para um conjunto de
 // vendedores + programas (usada tanto pelo B2C quanto pelo espelho B2B).
-export function createSellerDataHook(sellers, programs, defaultPeriodDays = 30) {
-  // `enabled` permite adiar o carregamento (evita estourar rate limit do
-  // Pipedrive quando dois segmentos — B2C e B2B — usam o mesmo hook na
-  // mesma página e um deles ainda não foi visitado pelo usuário).
+// Em `yearMode`, `periodDays`/`setPeriodDays` (mantidos com esse nome por
+// compatibilidade com quem consome o hook) passam a representar um ANO-
+// CALENDÁRIO (ex.: 2026), não uma janela rolante de dias — mesma semântica
+// usada no Comando B2B, onde o ciclo de venda é longo e metas são anuais.
+export function createSellerDataHook(sellers, programs, { defaultPeriodDays = 30, yearMode = false } = {}) {
   return function useSellerDataHook({ enabled = true } = {}) {
     const [allDeals, setAllDeals] = useState([])
     const [activitiesMap, setActivitiesMap] = useState({})
@@ -271,7 +285,13 @@ export function createSellerDataHook(sellers, programs, defaultPeriodDays = 30) 
     const [everEnabled, setEverEnabled] = useState(enabled)
     const [selectedSeller, setSelectedSeller] = useState(sellers[0].id)
     const [selectedProgram, setSelectedProgram] = useState('')
-    const [periodDays, setPeriodDays] = useState(defaultPeriodDays)
+    const [periodDays, setPeriodDays] = useState(
+      yearMode ? new Date().getFullYear() : defaultPeriodDays
+    )
+
+    const dateRange = yearMode
+      ? { start: new Date(periodDays, 0, 1), end: new Date(periodDays + 1, 0, 1) }
+      : null
 
     const loadData = useCallback(async () => {
       setLoading(true)
@@ -292,7 +312,13 @@ export function createSellerDataHook(sellers, programs, defaultPeriodDays = 30) 
 
         const actResults = await Promise.all(
           sellers.map(async (s) => {
-            const acts = await fetchUserActivities(s.id, periodDays)
+            const acts = yearMode
+              ? await fetchUserActivitiesInRange(
+                  s.id,
+                  `${periodDays}-01-01`,
+                  `${periodDays}-12-31`
+                )
+              : await fetchUserActivities(s.id, periodDays)
             return { id: s.id, acts: acts || [] }
           })
         )
@@ -338,12 +364,12 @@ export function createSellerDataHook(sellers, programs, defaultPeriodDays = 30) 
     const seller = sellers.find((s) => s.id === selectedSeller)
     const avatarUrl = seller ? avatarMap[seller.id] || null : null
     const metrics = !loading && seller
-      ? computeSellerMetrics(selectedSeller, allDeals, activitiesMap[selectedSeller], periodDays, selectedProgram || null, stageTimesMap, programs)
+      ? computeSellerMetrics(selectedSeller, allDeals, activitiesMap[selectedSeller], periodDays, selectedProgram || null, stageTimesMap, programs, dateRange)
       : null
 
     const rankingData = !loading
       ? sellers.map((s) => {
-          const m = computeSellerMetrics(s.id, allDeals, activitiesMap[s.id], periodDays, selectedProgram || null, stageTimesMap, programs)
+          const m = computeSellerMetrics(s.id, allDeals, activitiesMap[s.id], periodDays, selectedProgram || null, stageTimesMap, programs, dateRange)
           return { ...s, converted: m.converted, revenue: m.revenue, conversionRate: m.conversionRate, cadenceFreq: m.cadence.frequency, avgConvDays: m.velocity.avgConversionDays }
         }).sort((a, b) => b.converted - a.converted)
       : []

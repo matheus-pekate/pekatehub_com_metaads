@@ -4,6 +4,7 @@ import { AreaChart, Area, XAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Ce
 import { useSellerData } from '../hooks/useSellerData.js'
 import { useSellerDataB2B } from '../hooks/useSellerDataB2B.js'
 import { useSellerInsights } from '../hooks/useSellerInsights.js'
+import { B2B_YEAR_OPTIONS } from '../config/pipedrive.js'
 import './pkt-hub.css'
 import './seller-analysis.css'
 
@@ -245,8 +246,10 @@ export function SellerAnalysis() {
     periodDays, setPeriodDays,
   } = isB2B ? dataB2B : dataB2C
 
+  // Em modo ano (B2B), `periodDays` guarda o ano selecionado (ex.: 2026), não
+  // uma contagem de dias — os textos dos insights precisam do range real.
   const { insights, counts, total: insightsTotal } = useSellerInsights(
-    metrics, teamBenchmark, teamCadence, teamConversionDays, periodDays, selectedProgram, programs
+    metrics, teamBenchmark, teamCadence, teamConversionDays, metrics?.rangeDays ?? periodDays, selectedProgram, programs
   )
 
   const stageColorMap = useMemo(() => {
@@ -398,17 +401,23 @@ export function SellerAnalysis() {
             </div>
 
             <div className="sa-filter">
-              <label className="sa-filter__label">Período</label>
+              <label className="sa-filter__label">{isB2B ? 'Ano' : 'Período'}</label>
               <select
                 className="sa-filter__select"
                 value={periodDays}
                 onChange={(e) => setPeriodDays(Number(e.target.value))}
               >
-                <option value={7}>Últimos 7 dias</option>
-                <option value={30}>Últimos 30 dias</option>
-                <option value={90}>Últimos 90 dias</option>
-                <option value={180}>Últimos 6 meses</option>
-                <option value={365}>Últimos 12 meses</option>
+                {isB2B ? (
+                  B2B_YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}</option>)
+                ) : (
+                  <>
+                    <option value={7}>Últimos 7 dias</option>
+                    <option value={30}>Últimos 30 dias</option>
+                    <option value={90}>Últimos 90 dias</option>
+                    <option value={180}>Últimos 6 meses</option>
+                    <option value={365}>Últimos 12 meses</option>
+                  </>
+                )}
               </select>
             </div>
           </div>
@@ -514,7 +523,7 @@ export function SellerAnalysis() {
               {/* ── Atividade e cadência ── */}
               <div className="sa-section" id="sa-activity">
                 <h3 className="sa-section__title">
-                  Atividade e cadência <span className="sa-section__title-sub">· últimos {periodDays} dias</span>
+                  Atividade e cadência <span className="sa-section__title-sub">· {isB2B ? `ano de ${periodDays}` : `últimos ${periodDays} dias`}</span>
                 </h3>
                 <div className="sa-act-grid">
                   {/* Card 1 — Volume diário */}
@@ -523,7 +532,9 @@ export function SellerAnalysis() {
                       <span className="sa-vol__title">VOLUME DIÁRIO · TOTAL</span>
                       <div className="sa-vol__legend">
                         <span className="sa-vol__legend-item"><span className="sa-vol__dot sa-vol__dot--vol" />Volume</span>
-                        <span className="sa-vol__legend-item"><span className="sa-vol__dot sa-vol__dot--today" />Hoje</span>
+                        {metrics.isCurrentPeriod && (
+                          <span className="sa-vol__legend-item"><span className="sa-vol__dot sa-vol__dot--today" />Hoje</span>
+                        )}
                       </div>
                     </div>
                     <div className="sa-vol__total">
@@ -542,15 +553,18 @@ export function SellerAnalysis() {
                           <XAxis
                             dataKey="daysAgo"
                             type="number"
-                            domain={[-periodDays, 0]}
-                            ticks={[-periodDays, -Math.round(periodDays * 2 / 3), -Math.round(periodDays / 3), 0]}
-                            tickFormatter={(v) => v === 0 ? 'hoje' : `D${v}`}
+                            domain={[-(metrics.rangeDays ?? periodDays), 0]}
+                            ticks={(() => {
+                              const r = metrics.rangeDays ?? periodDays
+                              return [-r, -Math.round(r * 2 / 3), -Math.round(r / 3), 0]
+                            })()}
+                            tickFormatter={(v) => v === 0 ? (metrics.isCurrentPeriod ? 'hoje' : 'fim') : `D${v}`}
                             tick={{ fontSize: 10, fill: '#366368' }}
                             axisLine={false}
                             tickLine={false}
                           />
                           <Tooltip
-                            labelFormatter={(v) => v === 0 ? 'Hoje' : `${Math.abs(v)} dias atrás`}
+                            labelFormatter={(v) => v === 0 && metrics.isCurrentPeriod ? 'Hoje' : `${Math.abs(v)} dias antes do fim do período`}
                             formatter={(v) => [v, 'Atividades']}
                             contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid rgba(48,50,51,.12)' }}
                           />
@@ -561,7 +575,7 @@ export function SellerAnalysis() {
                             strokeWidth={2}
                             fill="url(#volGrad)"
                             dot={(props) =>
-                              props.payload.daysAgo === 0
+                              props.payload.daysAgo === 0 && metrics.isCurrentPeriod
                                 ? <circle key="today" cx={props.cx} cy={props.cy} r={4} fill="#08373f" />
                                 : null
                             }

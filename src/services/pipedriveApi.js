@@ -58,22 +58,19 @@ export async function fetchDealDetails(dealId) {
   return pipedriveGet(`/api/v1/deals/${dealId}`)
 }
 
-// Busca atividades recentes (últimos N dias) de um usuário — pagina por
-// `start`/`next_start`, pois vendedores com maior volume passam de 500
-// atividades em janelas mais largas (ex.: 180+ dias) e a API limita a
-// resposta a 500 itens por página.
-export async function fetchUserActivities(userId, sinceDays = 7) {
-  const since = new Date()
-  since.setDate(since.getDate() - sinceDays)
-  const sinceStr = since.toISOString().slice(0, 10)
-
+// Busca atividades "done" de um usuário num intervalo [startDate, endDate)
+// (formato YYYY-MM-DD) — pagina por `start`/`next_start`, pois vendedores com
+// maior volume passam de 500 atividades em janelas mais largas (ex.: 180+
+// dias / ano inteiro) e a API limita a resposta a 500 itens por página.
+async function fetchActivitiesInDateRange(userId, startDate, endDate) {
   const all = []
   let start = 0
   while (true) {
     const url = new URL(`${PIPEDRIVE_BASE_URL}/api/v1/activities`)
     url.searchParams.set('api_token', TOKEN)
     url.searchParams.set('user_id', userId)
-    url.searchParams.set('start_date', sinceStr)
+    url.searchParams.set('start_date', startDate)
+    if (endDate) url.searchParams.set('end_date', endDate)
     url.searchParams.set('done', 1)
     url.searchParams.set('limit', 500)
     url.searchParams.set('start', start)
@@ -89,4 +86,17 @@ export async function fetchUserActivities(userId, sinceDays = 7) {
     start = pagination.next_start
   }
   return all
+}
+
+// Busca atividades recentes (últimos N dias, contados de hoje) de um usuário.
+export async function fetchUserActivities(userId, sinceDays = 7) {
+  const since = new Date()
+  since.setDate(since.getDate() - sinceDays)
+  return fetchActivitiesInDateRange(userId, since.toISOString().slice(0, 10), null)
+}
+
+// Busca atividades de um usuário num intervalo fixo — usado pelo modo
+// "ano-calendário" (ex.: Comando B2B), onde o período não é relativo a hoje.
+export async function fetchUserActivitiesInRange(userId, startDate, endDate) {
+  return fetchActivitiesInDateRange(userId, startDate, endDate)
 }
