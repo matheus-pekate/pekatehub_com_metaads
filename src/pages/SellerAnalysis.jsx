@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AreaChart, Area, XAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts'
 import { useSellerData } from '../hooks/useSellerData.js'
+import { useSellerDataB2B } from '../hooks/useSellerDataB2B.js'
 import { useSellerInsights } from '../hooks/useSellerInsights.js'
 import './pkt-hub.css'
 import './seller-analysis.css'
@@ -31,6 +32,15 @@ const STAGE_COLORS = {
   'Inscrito': '#08373f',
   'Entrevista': '#2d6a4f',
   'Efetivado': '#1a2a36',
+}
+
+// Programas B2B têm listas de stages distintas por pipeline (sem nome canônico
+// compartilhado) — paleta categórica validada (dataviz), atribuída por posição.
+const STAGE_COLORS_B2B = ['#2a78d6', '#008300', '#e87ba4', '#eda100', '#1baf7a', '#eb6834', '#4a3aa7', '#e34948']
+
+function stageColorAt(name, index, isB2B) {
+  if (isB2B) return STAGE_COLORS_B2B[index % STAGE_COLORS_B2B.length]
+  return STAGE_COLORS[name] || '#ccc'
 }
 
 const DEALS_PER_PAGE = 8
@@ -222,17 +232,28 @@ function DealsTable({ deals, nav }) {
 
 export function SellerAnalysis() {
   const navigate = useNavigate()
-  const [segment, setSegment] = useState('b2c')
+  const [searchParams] = useSearchParams()
+  const [segment, setSegment] = useState(searchParams.get('segment') === 'b2b' ? 'b2b' : 'b2c')
+  const isB2B = segment === 'b2b'
+
+  const dataB2C = useSellerData({ enabled: !isB2B })
+  const dataB2B = useSellerDataB2B({ enabled: isB2B })
   const {
     sellers, programs, loading, seller, avatarUrl, metrics, currentRank, teamBenchmark, teamCadence, teamConversionDays,
     selectedSeller, setSelectedSeller,
     selectedProgram, setSelectedProgram,
     periodDays, setPeriodDays,
-  } = useSellerData()
+  } = isB2B ? dataB2B : dataB2C
 
   const { insights, counts, total: insightsTotal } = useSellerInsights(
-    metrics, teamBenchmark, teamCadence, teamConversionDays, periodDays, selectedProgram
+    metrics, teamBenchmark, teamCadence, teamConversionDays, periodDays, selectedProgram, programs
   )
+
+  const stageColorMap = useMemo(() => {
+    const map = {}
+    ;(metrics?.portfolio?.stages || []).forEach((s, i) => { map[s.name] = stageColorAt(s.name, i, isB2B) })
+    return map
+  }, [metrics, isB2B])
 
   const [dealsNav, setDealsNav] = useState(null)
 
@@ -299,9 +320,12 @@ export function SellerAnalysis() {
                 >
                   B2C
                 </button>
-                <button type="button" className="hub-nav-sub__item hub-nav-sub__item--disabled" disabled>
+                <button
+                  type="button"
+                  className={`hub-nav-sub__item ${segment === 'b2b' ? 'hub-nav-sub__item--active' : ''}`}
+                  onClick={() => setSegment('b2b')}
+                >
                   B2B
-                  <span className="hub-nav-item__badge">Em breve</span>
                 </button>
               </div>
             </div>
@@ -338,7 +362,7 @@ export function SellerAnalysis() {
             <span className="hub-strip__page">Análise dos Vendedores</span>
           </div>
           <div className="hub-strip__right">
-            <span className="hub-strip__status">Comercial B2C</span>
+            <span className="hub-strip__status">Comercial {isB2B ? 'B2B' : 'B2C'}</span>
           </div>
         </div>
 
@@ -404,7 +428,7 @@ export function SellerAnalysis() {
                 </div>
                 <div className="sa-header__info">
                   <h2 className="sa-header__name">{seller.name}</h2>
-                  <span className="sa-header__sub">Vendedor · Comercial</span>
+                  <span className="sa-header__sub">Vendedor · Comercial {isB2B ? 'B2B' : 'B2C'}</span>
                 </div>
                 {currentRank > 0 && (
                   <div className="sa-header__rank">
@@ -729,7 +753,7 @@ export function SellerAnalysis() {
                                 endAngle={-270}
                               >
                                 {metrics.portfolio.stages.filter((s) => s.count > 0).map((s) => (
-                                  <Cell key={s.name} fill={STAGE_COLORS[s.name] || '#ccc'} />
+                                  <Cell key={s.name} fill={stageColorMap[s.name] || '#ccc'} />
                                 ))}
                               </Pie>
                             </PieChart>
@@ -742,7 +766,7 @@ export function SellerAnalysis() {
                         <div className="sa-port-dist__legend">
                           {metrics.portfolio.stages.map((s) => (
                             <div key={s.name} className="sa-port-dist__legend-row">
-                              <span className="sa-port-dist__legend-dot" style={{ background: STAGE_COLORS[s.name] || '#ccc' }} />
+                              <span className="sa-port-dist__legend-dot" style={{ background: stageColorMap[s.name] || '#ccc' }} />
                               <span className="sa-port-dist__legend-name">{s.name}</span>
                               <span className="sa-port-dist__legend-pct">{s.pctCount}%</span>
                               <span className="sa-port-dist__legend-count">{s.count} leads</span>
@@ -767,7 +791,7 @@ export function SellerAnalysis() {
                                 className="sa-port-pipe__bar"
                                 style={{
                                   width: `${Math.max(s.pctValue, 4)}%`,
-                                  background: STAGE_COLORS[s.name] || '#ccc',
+                                  background: stageColorMap[s.name] || '#ccc',
                                 }}
                               >
                                 <span className="sa-port-pipe__bar-label">{s.pctValue}%</span>

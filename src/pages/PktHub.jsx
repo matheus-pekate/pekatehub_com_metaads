@@ -305,13 +305,13 @@ export function PktHub() {
                   <p className="hub-card__desc">Contas corporativas e pipeline enterprise.</p>
                   <span className="hub-card__status hub-card__status--live">Ao vivo</span>
                 </button>
-                <div className="hub-card hub-card--disabled">
+                <button className="hub-card" onClick={() => navigate('/seller-analysis?segment=b2b')}>
                   <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
                   <div className="hub-card__icon">👤</div>
                   <h3 className="hub-card__title">Análise dos Vendedores</h3>
                   <p className="hub-card__desc">Performance individual, atividades e metas dos vendedores B2B.</p>
-                  <span className="hub-card__status">Em breve</span>
-                </div>
+                  <span className="hub-card__status hub-card__status--live">Ao vivo</span>
+                </button>
               </div>
             </section>
           )}
@@ -359,13 +359,13 @@ export function PktHub() {
                     <p className="hub-card__desc">Contas corporativas e pipeline enterprise.</p>
                     <span className="hub-card__status hub-card__status--live">Ao vivo</span>
                   </button>
-                  <div className="hub-card hub-card--disabled">
+                  <button className="hub-card" onClick={() => navigate('/seller-analysis?segment=b2b')}>
                     <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
                     <div className="hub-card__icon">👤</div>
                     <h3 className="hub-card__title">Análise dos Vendedores</h3>
                     <p className="hub-card__desc">Performance individual, atividades e metas dos vendedores B2B.</p>
-                    <span className="hub-card__status">Em breve</span>
-                  </div>
+                    <span className="hub-card__status hub-card__status--live">Ao vivo</span>
+                  </button>
                 </div>
               </section>
             </>

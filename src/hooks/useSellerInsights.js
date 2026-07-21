@@ -14,11 +14,11 @@ function fmtFull(v) {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 })
 }
 
-function generateInsights(metrics, teamBenchmark, teamCadence, teamConversionDays, periodDays, selectedProgram) {
+function generateInsights(metrics, teamBenchmark, teamCadence, teamConversionDays, periodDays, selectedProgram, programs = PROGRAMS) {
   if (!metrics) return []
 
   const insights = []
-  const programCfg = selectedProgram ? PROGRAMS.find((p) => p.id === selectedProgram) : null
+  const programCfg = selectedProgram ? programs.find((p) => p.id === selectedProgram) : null
 
   // ── 1. INATIVIDADE — leads sem contato >7d (critical) ──
   if (metrics.cadence.leadsNoContact7d > 0) {
@@ -185,10 +185,10 @@ function generateInsights(metrics, teamBenchmark, teamCadence, teamConversionDay
   return insights.sort((a, b) => (SEVERITY_ORDER[a.severity] ?? 99) - (SEVERITY_ORDER[b.severity] ?? 99))
 }
 
-export function useSellerInsights(metrics, teamBenchmark, teamCadence, teamConversionDays, periodDays, selectedProgram) {
+export function useSellerInsights(metrics, teamBenchmark, teamCadence, teamConversionDays, periodDays, selectedProgram, programs = PROGRAMS) {
   const insights = useMemo(
-    () => generateInsights(metrics, teamBenchmark, teamCadence, teamConversionDays, periodDays, selectedProgram),
-    [metrics, teamBenchmark, teamCadence, teamConversionDays, periodDays, selectedProgram]
+    () => generateInsights(metrics, teamBenchmark, teamCadence, teamConversionDays, periodDays, selectedProgram, programs),
+    [metrics, teamBenchmark, teamCadence, teamConversionDays, periodDays, selectedProgram, programs]
   )
 
   const counts = useMemo(() => {

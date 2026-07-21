@@ -22,22 +22,22 @@ function filterDealsBySingleProgram(deals, cfg) {
   return filtered
 }
 
-function filterDealsByProgram(deals, program) {
+function filterDealsByProgram(deals, program, programs) {
   if (!program) {
-    return PROGRAMS.flatMap((cfg) => filterDealsBySingleProgram(deals, cfg))
+    return programs.flatMap((cfg) => filterDealsBySingleProgram(deals, cfg))
   }
-  const cfg = PROGRAMS.find((p) => p.id === program)
+  const cfg = programs.find((p) => p.id === program)
   if (!cfg) return deals
   return filterDealsBySingleProgram(deals, cfg)
 }
 
-export function computeSellerMetrics(sellerId, allDeals, activities, periodDays, programFilter, stageTimesMap) {
+export function computeSellerMetrics(sellerId, allDeals, activities, periodDays, programFilter, stageTimesMap, programs = PROGRAMS) {
   const now = new Date()
   const periodStart = new Date(now.getTime() - periodDays * MS_PER_DAY)
   const prevPeriodStart = new Date(now.getTime() - 2 * periodDays * MS_PER_DAY)
   const weekAgo = new Date(now.getTime() - 7 * MS_PER_DAY)
 
-  const deals = filterDealsByProgram(allDeals, programFilter)
+  const deals = filterDealsByProgram(allDeals, programFilter, programs)
     .filter((d) => d.owner_id === sellerId || d.user_id === sellerId)
 
   const wonDeals = deals.filter((d) => {
@@ -136,8 +136,8 @@ export function computeSellerMetrics(sellerId, allDeals, activities, periodDays,
     return Math.floor((now - new Date(lastAct)) / MS_PER_DAY) > 7
   }).length
 
-  const programCfg = programFilter ? PROGRAMS.find((p) => p.id === programFilter) : null
-  const stages = programCfg ? programCfg.stages : PROGRAMS.flatMap((p) => p.stages)
+  const programCfg = programFilter ? programs.find((p) => p.id === programFilter) : null
+  const stages = programCfg ? programCfg.stages : programs.flatMap((p) => p.stages)
   const stageMap = {}
   stages.forEach((s) => { if (!stageMap[s.id]) stageMap[s.id] = { name: s.name, count: 0, value: 0 } })
   openDeals.forEach((d) => {
@@ -256,112 +256,129 @@ export function computeSellerMetrics(sellerId, allDeals, activities, periodDays,
   }
 }
 
-export function useSellerData() {
-  const [allDeals, setAllDeals] = useState([])
-  const [activitiesMap, setActivitiesMap] = useState({})
-  const [avatarMap, setAvatarMap] = useState({})
-  const [stageTimesMap, setStageTimesMap] = useState({})
-  const [loading, setLoading] = useState(true)
-  const [selectedSeller, setSelectedSeller] = useState(SELLERS[0].id)
-  const [selectedProgram, setSelectedProgram] = useState('')
-  const [periodDays, setPeriodDays] = useState(30)
+// Fábrica: gera um hook de análise de vendedores para um conjunto de
+// vendedores + programas (usada tanto pelo B2C quanto pelo espelho B2B).
+export function createSellerDataHook(sellers, programs) {
+  // `enabled` permite adiar o carregamento (evita estourar rate limit do
+  // Pipedrive quando dois segmentos — B2C e B2B — usam o mesmo hook na
+  // mesma página e um deles ainda não foi visitado pelo usuário).
+  return function useSellerDataHook({ enabled = true } = {}) {
+    const [allDeals, setAllDeals] = useState([])
+    const [activitiesMap, setActivitiesMap] = useState({})
+    const [avatarMap, setAvatarMap] = useState({})
+    const [stageTimesMap, setStageTimesMap] = useState({})
+    const [loading, setLoading] = useState(enabled)
+    const [everEnabled, setEverEnabled] = useState(enabled)
+    const [selectedSeller, setSelectedSeller] = useState(sellers[0].id)
+    const [selectedProgram, setSelectedProgram] = useState('')
+    const [periodDays, setPeriodDays] = useState(30)
 
-  const loadData = useCallback(async () => {
-    setLoading(true)
-    try {
-      const [dealsByPipeline, users] = await Promise.all([
-        Promise.all(PROGRAMS.map((p) => fetchAllDealsByPipeline(p.pipelineId))),
-        fetchUsers(),
-      ])
-      const deals = dealsByPipeline.flat()
-      setAllDeals(deals)
+    const loadData = useCallback(async () => {
+      setLoading(true)
+      try {
+        const [dealsByPipeline, users] = await Promise.all([
+          Promise.all(programs.map((p) => fetchAllDealsByPipeline(p.pipelineId))),
+          fetchUsers(),
+        ])
+        const deals = dealsByPipeline.flat()
+        setAllDeals(deals)
 
-      const avatars = {}
-      ;(users || []).forEach((u) => {
-        const pics = u.picture_id?.pictures
-        avatars[u.id] = pics?.['128'] || pics?.['512'] || pics?.['original'] || u.icon_url || null
-      })
-      setAvatarMap(avatars)
-
-      const actResults = await Promise.all(
-        SELLERS.map(async (s) => {
-          const acts = await fetchUserActivities(s.id, periodDays)
-          return { id: s.id, acts: acts || [] }
+        const avatars = {}
+        ;(users || []).forEach((u) => {
+          const pics = u.picture_id?.pictures
+          avatars[u.id] = pics?.['128'] || pics?.['512'] || pics?.['original'] || u.icon_url || null
         })
-      )
-      const map = {}
-      actResults.forEach(({ id, acts }) => { map[id] = acts })
-      setActivitiesMap(map)
+        setAvatarMap(avatars)
 
-      const wonDealIds = deals
-        .filter((d) => d.status === 'won' && d.won_time)
-        .sort((a, b) => new Date(b.won_time) - new Date(a.won_time))
-        .slice(0, 40)
-        .map((d) => d.id)
-      const stMap = {}
-      for (let i = 0; i < wonDealIds.length; i += 10) {
-        const batch = wonDealIds.slice(i, i + 10)
-        const batchRes = await Promise.all(
-          batch.map(async (id) => {
-            try {
-              const detail = await fetchDealDetails(id)
-              return { id, times: detail?.stay_in_pipeline_stages?.times_in_stages || {} }
-            } catch { return { id, times: {} } }
+        const actResults = await Promise.all(
+          sellers.map(async (s) => {
+            const acts = await fetchUserActivities(s.id, periodDays)
+            return { id: s.id, acts: acts || [] }
           })
         )
-        batchRes.forEach(({ id, times }) => { stMap[id] = times })
+        const map = {}
+        actResults.forEach(({ id, acts }) => { map[id] = acts })
+        setActivitiesMap(map)
+
+        const wonDealIds = deals
+          .filter((d) => d.status === 'won' && d.won_time)
+          .sort((a, b) => new Date(b.won_time) - new Date(a.won_time))
+          .slice(0, 40)
+          .map((d) => d.id)
+        const stMap = {}
+        for (let i = 0; i < wonDealIds.length; i += 10) {
+          const batch = wonDealIds.slice(i, i + 10)
+          const batchRes = await Promise.all(
+            batch.map(async (id) => {
+              try {
+                const detail = await fetchDealDetails(id)
+                return { id, times: detail?.stay_in_pipeline_stages?.times_in_stages || {} }
+              } catch { return { id, times: {} } }
+            })
+          )
+          batchRes.forEach(({ id, times }) => { stMap[id] = times })
+        }
+        setStageTimesMap(stMap)
+      } catch (err) {
+        console.error('[useSellerData] Erro:', err)
+      } finally {
+        setLoading(false)
       }
-      setStageTimesMap(stMap)
-    } catch (err) {
-      console.error('[useSellerData] Erro:', err)
-    } finally {
-      setLoading(false)
+    }, [periodDays])
+
+    useEffect(() => {
+      if (enabled && !everEnabled) setEverEnabled(true)
+    }, [enabled, everEnabled])
+
+    useEffect(() => {
+      if (!everEnabled) return
+      loadData()
+    }, [loadData, everEnabled])
+
+    const seller = sellers.find((s) => s.id === selectedSeller)
+    const avatarUrl = seller ? avatarMap[seller.id] || null : null
+    const metrics = !loading && seller
+      ? computeSellerMetrics(selectedSeller, allDeals, activitiesMap[selectedSeller], periodDays, selectedProgram || null, stageTimesMap, programs)
+      : null
+
+    const rankingData = !loading
+      ? sellers.map((s) => {
+          const m = computeSellerMetrics(s.id, allDeals, activitiesMap[s.id], periodDays, selectedProgram || null, stageTimesMap, programs)
+          return { ...s, converted: m.converted, revenue: m.revenue, conversionRate: m.conversionRate, cadenceFreq: m.cadence.frequency, avgConvDays: m.velocity.avgConversionDays }
+        }).sort((a, b) => b.converted - a.converted)
+      : []
+
+    const currentRank = rankingData.findIndex((s) => s.id === selectedSeller) + 1
+    const teamBenchmark = rankingData.length > 0
+      ? Math.round((rankingData.reduce((sum, s) => sum + s.conversionRate, 0) / rankingData.length) * 10) / 10
+      : 0
+    const teamCadence = rankingData.length > 0
+      ? Math.round((rankingData.reduce((sum, s) => sum + s.cadenceFreq, 0) / rankingData.length) * 10) / 10
+      : 0
+    const teamConvDaysArr = rankingData.filter((s) => s.avgConvDays != null).map((s) => s.avgConvDays)
+    const teamConversionDays = teamConvDaysArr.length > 0
+      ? Math.round(teamConvDaysArr.reduce((a, b) => a + b, 0) / teamConvDaysArr.length)
+      : null
+
+    return {
+      sellers,
+      programs,
+      loading,
+      seller,
+      avatarUrl,
+      metrics,
+      currentRank,
+      teamBenchmark,
+      teamCadence,
+      teamConversionDays,
+      selectedSeller,
+      setSelectedSeller,
+      selectedProgram,
+      setSelectedProgram,
+      periodDays,
+      setPeriodDays,
     }
-  }, [periodDays])
-
-  useEffect(() => { loadData() }, [loadData])
-
-  const seller = SELLERS.find((s) => s.id === selectedSeller)
-  const avatarUrl = seller ? avatarMap[seller.id] || null : null
-  const metrics = !loading && seller
-    ? computeSellerMetrics(selectedSeller, allDeals, activitiesMap[selectedSeller], periodDays, selectedProgram || null, stageTimesMap)
-    : null
-
-  const rankingData = !loading
-    ? SELLERS.map((s) => {
-        const m = computeSellerMetrics(s.id, allDeals, activitiesMap[s.id], periodDays, selectedProgram || null, stageTimesMap)
-        return { ...s, converted: m.converted, revenue: m.revenue, conversionRate: m.conversionRate, cadenceFreq: m.cadence.frequency, avgConvDays: m.velocity.avgConversionDays }
-      }).sort((a, b) => b.converted - a.converted)
-    : []
-
-  const currentRank = rankingData.findIndex((s) => s.id === selectedSeller) + 1
-  const teamBenchmark = rankingData.length > 0
-    ? Math.round((rankingData.reduce((sum, s) => sum + s.conversionRate, 0) / rankingData.length) * 10) / 10
-    : 0
-  const teamCadence = rankingData.length > 0
-    ? Math.round((rankingData.reduce((sum, s) => sum + s.cadenceFreq, 0) / rankingData.length) * 10) / 10
-    : 0
-  const teamConvDaysArr = rankingData.filter((s) => s.avgConvDays != null).map((s) => s.avgConvDays)
-  const teamConversionDays = teamConvDaysArr.length > 0
-    ? Math.round(teamConvDaysArr.reduce((a, b) => a + b, 0) / teamConvDaysArr.length)
-    : null
-
-  return {
-    sellers: SELLERS,
-    programs: PROGRAMS,
-    loading,
-    seller,
-    avatarUrl,
-    metrics,
-    currentRank,
-    teamBenchmark,
-    teamCadence,
-    teamConversionDays,
-    selectedSeller,
-    setSelectedSeller,
-    selectedProgram,
-    setSelectedProgram,
-    periodDays,
-    setPeriodDays,
   }
 }
+
+export const useSellerData = createSellerDataHook(SELLERS, PROGRAMS)
