@@ -2,7 +2,7 @@ import { formatBRL, formatCompactNumber } from './format'
 import { AdsList } from './AdsList'
 import { ProgramDailyChart } from './ProgramDailyChart'
 
-export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostDeals }) {
+export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostDeals, onOpenLeadsList }) {
   if (!program) return null
   const { id, name, hasActiveCampaigns, totalLeads, cplMedio, totalReach, ads, leadsLast1Day, leadsLast7Days, totalWon, totalLost } = program
 
@@ -19,7 +19,10 @@ export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostD
 
       <div className="pkt-meta-detail__stats">
         <div className="pkt-meta-detail__stats-left">
-          <div className="pkt-meta-detail__stat">
+          <div
+            className={`pkt-meta-detail__stat ${hasActiveCampaigns ? 'pkt-meta-detail__stat--clickable' : ''}`}
+            onClick={hasActiveCampaigns ? () => onOpenLeadsList(program, 'all') : undefined}
+          >
             <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? totalLeads : '—'}</span>
             <span className="pkt-meta-detail__stat-label">Leads</span>
           </div>
@@ -58,11 +61,11 @@ export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostD
         <>
           <AdsList ads={ads} groupByCampaign={id === 'outros'} onSelectAd={onSelectAd} />
           <div className="pkt-meta-recent">
-            <div className="pkt-meta-recent__card">
+            <div className="pkt-meta-recent__card pkt-meta-recent__card--clickable" onClick={() => onOpenLeadsList(program, '1d')}>
               <span className="pkt-meta-recent__value">{leadsLast1Day}</span>
               <span className="pkt-meta-recent__label">Leads no último dia</span>
             </div>
-            <div className="pkt-meta-recent__card">
+            <div className="pkt-meta-recent__card pkt-meta-recent__card--clickable" onClick={() => onOpenLeadsList(program, '7d')}>
               <span className="pkt-meta-recent__value">{leadsLast7Days}</span>
               <span className="pkt-meta-recent__label">Leads na última semana</span>
             </div>

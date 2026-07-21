@@ -376,6 +376,49 @@
   margin-top: 4px;
 }
 
+.pkt-meta-recent__card--clickable {
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+.pkt-meta-recent__card--clickable:hover {
+  background: color-mix(in srgb, var(--pgm-accent) 8%, var(--off-white));
+  transform: translateY(-1px);
+}
+
+/* ── Abas de período no modal de Leads ── */
+.pkt-leads-list__tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 24px;
+  margin-bottom: 12px;
+}
+.pkt-leads-list__tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--linha);
+  background: var(--branco);
+  color: var(--petroleo-light);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.pkt-leads-list__tab:hover {
+  border-color: var(--pgm-accent);
+}
+.pkt-leads-list__tab--active {
+  background: var(--pgm-accent);
+  border-color: var(--pgm-accent);
+  color: var(--branco);
+}
+.pkt-leads-list__tab-count {
+  font-variant-numeric: tabular-nums;
+  opacity: .85;
+}
+
 /* ── Gráfico de performance diária do programa (30 dias, todos os anúncios) ── */
 .pkt-meta-progchart {
   flex: 1;

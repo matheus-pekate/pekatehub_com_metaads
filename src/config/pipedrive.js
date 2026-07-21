@@ -11,6 +11,12 @@ export function buildPipedriveDealUrl(dealId) {
   return `https://${PIPEDRIVE_COMPANY_DOMAIN}.pipedrive.com/deal/${dealId}`
 }
 
+// Leads (ainda não convertidos em negócio) usam a "Caixa de entrada de leads",
+// um recurso e uma URL diferentes dos deals — confirmado navegando direto no Pipedrive.
+export function buildPipedriveLeadUrl(leadId) {
+  return `https://${PIPEDRIVE_COMPANY_DOMAIN}.pipedrive.com/leads/inbox/${leadId}`
+}
+
 // Intervalo de atualização automática dos dados (em minutos)
 export const REFRESH_INTERVAL_MINUTES = 30
 

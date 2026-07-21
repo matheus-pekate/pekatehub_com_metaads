@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { fetchMetaAdsSnapshot, fetchWonDeals, fetchLostDeals } from '../services/metaAdsApi'
+import { fetchMetaAdsSnapshot, fetchWonDeals, fetchLostDeals, fetchLeadsList } from '../services/metaAdsApi'
 import { PROGRAMS, REFRESH_INTERVAL_MINUTES } from '../config/metaAds'
 
-function toProgramView(apiProgram, configProgram, wonProgram, lostProgram) {
+function toProgramView(apiProgram, configProgram, wonProgram, lostProgram, leadsProgram) {
   const ads = apiProgram?.ads ?? []
   return {
     id: configProgram.id,
@@ -23,10 +23,11 @@ function toProgramView(apiProgram, configProgram, wonProgram, lostProgram) {
     totalLost: lostProgram?.totalLost ?? 0,
     lostDeals: lostProgram?.deals ?? [],
     lostReasons: lostProgram?.reasonBreakdown ?? [],
+    leadsList: leadsProgram?.leads ?? [],
   }
 }
 
-function emptyProgramView(program, wonProgram, lostProgram) {
+function emptyProgramView(program, wonProgram, lostProgram, leadsProgram) {
   return {
     id: program.id,
     name: program.name,
@@ -46,6 +47,7 @@ function emptyProgramView(program, wonProgram, lostProgram) {
     totalLost: lostProgram?.totalLost ?? 0,
     lostDeals: lostProgram?.deals ?? [],
     lostReasons: lostProgram?.reasonBreakdown ?? [],
+    leadsList: leadsProgram?.leads ?? [],
   }
 }
 
@@ -59,21 +61,24 @@ export function useMetaAdsData() {
   const load = useCallback(async () => {
     try {
       const payload = await fetchMetaAdsSnapshot()
-      // Convertidos/Ganhos e Perdidos são dados complementares (fonte separada) —
+      // Convertidos/Ganhos, Perdidos e Leads são dados complementares (fonte separada) —
       // se esses webhooks falharem, não pode derrubar o resto do dashboard que já funciona.
-      const [wonPrograms, lostPrograms] = await Promise.all([
+      const [wonPrograms, lostPrograms, leadsPrograms] = await Promise.all([
         fetchWonDeals().catch(() => []),
         fetchLostDeals().catch(() => []),
+        fetchLeadsList().catch(() => []),
       ])
       const wonById = new Map(wonPrograms.map((p) => [p.program_id, p]))
       const lostById = new Map(lostPrograms.map((p) => [p.program_id, p]))
+      const leadsById = new Map(leadsPrograms.map((p) => [p.program_id, p]))
       const byId = new Map(payload.map((p) => [p.program_id, p]))
       const next = PROGRAMS.map((program) => {
         const wonProgram = wonById.get(program.id)
         const lostProgram = lostById.get(program.id)
+        const leadsProgram = leadsById.get(program.id)
         return byId.has(program.id)
-          ? toProgramView(byId.get(program.id), program, wonProgram, lostProgram)
-          : emptyProgramView(program, wonProgram, lostProgram)
+          ? toProgramView(byId.get(program.id), program, wonProgram, lostProgram, leadsProgram)
+          : emptyProgramView(program, wonProgram, lostProgram, leadsProgram)
       })
       dataRef.current = next
       setData(next)
