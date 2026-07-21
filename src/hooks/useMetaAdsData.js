@@ -2,20 +2,35 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { fetchMetaAdsSnapshot, fetchWonDeals, fetchLostDeals, fetchLeadsList } from '../services/metaAdsApi'
 import { PROGRAMS, REFRESH_INTERVAL_MINUTES } from '../config/metaAds'
 
+const MS_PER_DAY = 86400000
+
+// Total/último dia/última semana derivam da MESMA lista de leads que o modal
+// mostra ao clicar (Pipedrive) — não do agregado do Facebook Ads, que mede
+// outra coisa (submissões de formulário na plataforma do Meta) e nunca bate
+// 1:1 com o que de fato virou um registro no Pipedrive.
+function computeLeadCounts(leads) {
+  const now = Date.now()
+  const last1Day = leads.filter((l) => l.add_time && now - new Date(l.add_time).getTime() <= MS_PER_DAY).length
+  const last7Days = leads.filter((l) => l.add_time && now - new Date(l.add_time).getTime() <= 7 * MS_PER_DAY).length
+  return { total: leads.length, last1Day, last7Days }
+}
+
 function toProgramView(apiProgram, configProgram, wonProgram, lostProgram, leadsProgram) {
   const ads = apiProgram?.ads ?? []
+  const leads = leadsProgram?.leads ?? []
+  const leadCounts = computeLeadCounts(leads)
   return {
     id: configProgram.id,
     name: configProgram.name,
     accentColor: configProgram.accentColor,
     duration: configProgram.duration,
     hasActiveCampaigns: ads.length > 0,
-    totalLeads: apiProgram.totalLeads ?? 0,
+    totalLeads: leadCounts.total,
     totalSpend: apiProgram.totalSpend ?? 0,
     cplMedio: apiProgram.cplMedio ?? null,
     totalReach: apiProgram.totalReach ?? 0,
-    leadsLast1Day: apiProgram.leadsLast1Day ?? 0,
-    leadsLast7Days: apiProgram.leadsLast7Days ?? 0,
+    leadsLast1Day: leadCounts.last1Day,
+    leadsLast7Days: leadCounts.last7Days,
     bestAd: ads[0] ?? null,
     ads,
     totalWon: wonProgram?.totalWon ?? 0,
@@ -23,23 +38,25 @@ function toProgramView(apiProgram, configProgram, wonProgram, lostProgram, leads
     totalLost: lostProgram?.totalLost ?? 0,
     lostDeals: lostProgram?.deals ?? [],
     lostReasons: lostProgram?.reasonBreakdown ?? [],
-    leadsList: leadsProgram?.leads ?? [],
+    leadsList: leads,
   }
 }
 
 function emptyProgramView(program, wonProgram, lostProgram, leadsProgram) {
+  const leads = leadsProgram?.leads ?? []
+  const leadCounts = computeLeadCounts(leads)
   return {
     id: program.id,
     name: program.name,
     accentColor: program.accentColor,
     duration: program.duration,
     hasActiveCampaigns: false,
-    totalLeads: 0,
+    totalLeads: leadCounts.total,
     totalSpend: 0,
     cplMedio: null,
     totalReach: 0,
-    leadsLast1Day: 0,
-    leadsLast7Days: 0,
+    leadsLast1Day: leadCounts.last1Day,
+    leadsLast7Days: leadCounts.last7Days,
     bestAd: null,
     ads: [],
     totalWon: wonProgram?.totalWon ?? 0,
@@ -47,7 +64,7 @@ function emptyProgramView(program, wonProgram, lostProgram, leadsProgram) {
     totalLost: lostProgram?.totalLost ?? 0,
     lostDeals: lostProgram?.deals ?? [],
     lostReasons: lostProgram?.reasonBreakdown ?? [],
-    leadsList: leadsProgram?.leads ?? [],
+    leadsList: leads,
   }
 }
 

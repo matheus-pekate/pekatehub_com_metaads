@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { formatDate } from './format'
-import { buildPipedriveLeadUrl } from '../../config/pipedrive'
+import { buildPipedriveLeadUrl, buildPipedriveDealUrl } from '../../config/pipedrive'
+
+function buildRecordUrl(lead) {
+  return lead.record_type === 'deal' ? buildPipedriveDealUrl(lead.record_id) : buildPipedriveLeadUrl(lead.record_id)
+}
 
 const MS_PER_DAY = 86400000
 
@@ -64,10 +68,10 @@ export function LeadsListModal({ program, initialFilter = 'all', onClose }) {
                 <span>Capturado em</span>
               </div>
               {sorted.map((lead) => (
-                <div key={lead.lead_id} className="pkt-won-deals__row">
+                <div key={lead.record_id} className="pkt-won-deals__row">
                   <a
                     className="pkt-won-deals__person pkt-lost-deals__person-link"
-                    href={buildPipedriveLeadUrl(lead.lead_id)}
+                    href={buildRecordUrl(lead)}
                     target="_blank"
                     rel="noopener noreferrer"
                     title={lead.person_name}
