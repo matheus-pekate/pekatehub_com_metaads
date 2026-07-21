@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend } from 'recharts'
 import { useRankingData } from '../hooks/useRankingData.js'
+import { useRankingDataB2B } from '../hooks/useRankingDataB2B.js'
+import { B2B_YEAR_OPTIONS } from '../config/pipedrive.js'
 import './pkt-hub.css'
 import './seller-analysis.css'
 import './seller-ranking.css'
@@ -47,12 +49,17 @@ function CustomBarTooltip({ active, payload, label, formatter }) {
 
 export function SellerRanking() {
   const navigate = useNavigate()
-  const [segment, setSegment] = useState('b2c')
+  const [searchParams] = useSearchParams()
+  const [segment, setSegment] = useState(searchParams.get('segment') === 'b2b' ? 'b2b' : 'b2c')
+  const isB2B = segment === 'b2b'
+
+  const dataB2C = useRankingData({ enabled: !isB2B })
+  const dataB2B = useRankingDataB2B({ enabled: isB2B })
   const {
     sellers, programs, loading, sellersData, teamAvg,
     selectedProgram, setSelectedProgram,
     periodDays, setPeriodDays,
-  } = useRankingData()
+  } = isB2B ? dataB2B : dataB2C
 
   // Build chart data arrays
   const revenueData = sellersData.map((s, i) => ({
@@ -158,9 +165,8 @@ export function SellerRanking() {
                 <button type="button" className="hub-nav-sub__item" onClick={() => navigate('/seller-analysis')}>
                   B2C
                 </button>
-                <button type="button" className="hub-nav-sub__item hub-nav-sub__item--disabled" disabled>
+                <button type="button" className="hub-nav-sub__item" onClick={() => navigate('/seller-analysis?segment=b2b')}>
                   B2B
-                  <span className="hub-nav-item__badge">Em breve</span>
                 </button>
               </div>
             </div>
@@ -179,9 +185,12 @@ export function SellerRanking() {
                 >
                   B2C
                 </button>
-                <button type="button" className="hub-nav-sub__item hub-nav-sub__item--disabled" disabled>
+                <button
+                  type="button"
+                  className={`hub-nav-sub__item ${segment === 'b2b' ? 'hub-nav-sub__item--active' : ''}`}
+                  onClick={() => setSegment('b2b')}
+                >
                   B2B
-                  <span className="hub-nav-item__badge">Em breve</span>
                 </button>
               </div>
             </div>
@@ -201,7 +210,7 @@ export function SellerRanking() {
             <span className="hub-strip__page">Ranking Comparativo</span>
           </div>
           <div className="hub-strip__right">
-            <span className="hub-strip__status">Comercial B2C</span>
+            <span className="hub-strip__status">Comercial {isB2B ? 'B2B' : 'B2C'}</span>
           </div>
         </div>
 
@@ -222,16 +231,22 @@ export function SellerRanking() {
               </select>
             </div>
             <div className="sa-filter">
-              <label className="sa-filter__label">Período</label>
+              <label className="sa-filter__label">{isB2B ? 'Ano' : 'Período'}</label>
               <select
                 className="sa-filter__select"
                 value={periodDays}
                 onChange={(e) => setPeriodDays(Number(e.target.value))}
               >
-                <option value={7}>Últimos 7 dias</option>
-                <option value={30}>Últimos 30 dias</option>
-                <option value={90}>Últimos 90 dias</option>
-                <option value={180}>Últimos 6 meses</option>
+                {isB2B ? (
+                  B2B_YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}</option>)
+                ) : (
+                  <>
+                    <option value={7}>Últimos 7 dias</option>
+                    <option value={30}>Últimos 30 dias</option>
+                    <option value={90}>Últimos 90 dias</option>
+                    <option value={180}>Últimos 6 meses</option>
+                  </>
+                )}
               </select>
             </div>
           </div>
@@ -251,7 +266,7 @@ export function SellerRanking() {
                 <div className="rk-podium__header">
                   <div>
                     <span className="rk-podium__supra">TOP 3 · RECEITA GERADA</span>
-                    <h3 className="rk-podium__title">Ranking Geral <span className="rk-podium__title-period">· últimos {periodDays} dias</span></h3>
+                    <h3 className="rk-podium__title">Ranking Geral <span className="rk-podium__title-period">· {isB2B ? `ano de ${periodDays}` : `últimos ${periodDays} dias`}</span></h3>
                     <p className="rk-podium__desc">Ranqueado por receita gerada no período. Clique em um vendedor para abrir a análise individual.</p>
                   </div>
                   {teamAvg && (
@@ -275,7 +290,7 @@ export function SellerRanking() {
                       <div
                         key={s.id}
                         className={`rk-podium__col rk-podium__col--r${rank}`}
-                        onClick={() => navigate('/seller-analysis')}
+                        onClick={() => navigate(isB2B ? '/seller-analysis?segment=b2b' : '/seller-analysis')}
                         role="button"
                         tabIndex={0}
                       >
@@ -295,7 +310,7 @@ export function SellerRanking() {
                             <span className="rk-podium__badge">{rank}</span>
                           </div>
                           <span className="rk-podium__name">{s.name}</span>
-                          <span className="rk-podium__role">Vendedor · Comercial · B2C</span>
+                          <span className="rk-podium__role">Vendedor · Comercial · {isB2B ? 'B2B' : 'B2C'}</span>
 
                           <span className="rk-podium__metric-label">RECEITA</span>
                           <span className={`rk-podium__metric-value ${isFirst ? 'rk-podium__metric-value--lg' : ''}`}>
