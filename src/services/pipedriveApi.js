@@ -58,15 +58,35 @@ export async function fetchDealDetails(dealId) {
   return pipedriveGet(`/api/v1/deals/${dealId}`)
 }
 
-// Busca atividades recentes (últimos N dias) de um usuário
+// Busca atividades recentes (últimos N dias) de um usuário — pagina por
+// `start`/`next_start`, pois vendedores com maior volume passam de 500
+// atividades em janelas mais largas (ex.: 180+ dias) e a API limita a
+// resposta a 500 itens por página.
 export async function fetchUserActivities(userId, sinceDays = 7) {
   const since = new Date()
   since.setDate(since.getDate() - sinceDays)
   const sinceStr = since.toISOString().slice(0, 10)
-  return pipedriveGet('/api/v1/activities', {
-    user_id: userId,
-    start_date: sinceStr,
-    done: 1,
-    limit: 500,
-  })
+
+  const all = []
+  let start = 0
+  while (true) {
+    const url = new URL(`${PIPEDRIVE_BASE_URL}/api/v1/activities`)
+    url.searchParams.set('api_token', TOKEN)
+    url.searchParams.set('user_id', userId)
+    url.searchParams.set('start_date', sinceStr)
+    url.searchParams.set('done', 1)
+    url.searchParams.set('limit', 500)
+    url.searchParams.set('start', start)
+
+    const res = await fetch(url.toString())
+    if (!res.ok) throw new Error(`Pipedrive API error: ${res.status} on /api/v1/activities`)
+    const json = await res.json()
+    if (!json.success) throw new Error('Pipedrive API returned success=false on /api/v1/activities')
+
+    all.push(...(json.data || []))
+    const pagination = json.additional_data?.pagination
+    if (!pagination?.more_items_in_collection || pagination.next_start == null) break
+    start = pagination.next_start
+  }
+  return all
 }
