@@ -751,8 +751,8 @@
 .pkt-won-deals {
   background: var(--branco);
   border-radius: 16px;
-  width: 820px;
-  height: 560px;
+  width: 1040px;
+  height: 640px;
   padding: 28px 32px;
   position: relative;
   display: flex;
@@ -774,7 +774,7 @@
 }
 .pkt-won-deals__row {
   display: grid;
-  grid-template-columns: 1.4fr 2fr .9fr;
+  grid-template-columns: 1.2fr 2.6fr .9fr;
   gap: 14px;
   align-items: center;
   padding: 12px 18px;
