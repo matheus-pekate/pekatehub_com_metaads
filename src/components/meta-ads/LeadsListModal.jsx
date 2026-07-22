@@ -32,7 +32,7 @@ export function LeadsListModal({ program, initialFilter = 'all', onClose }) {
           <div>
             <h3 className="pkt-ad-detail__title">{program.name} — Leads</h3>
             <span className="pkt-ad-detail__subtitle">
-              {sorted.length} lead{sorted.length === 1 ? '' : 's'} do Meta Ads
+              {sorted.length} lead{sorted.length === 1 ? '' : 's'} do Meta Ads · só anúncios ativos, todo o histórico
             </span>
           </div>
         </div>
