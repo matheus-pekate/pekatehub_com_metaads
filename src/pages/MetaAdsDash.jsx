@@ -4,7 +4,6 @@ import { useStageScale } from '../hooks/useStageScale'
 import { MetaAdsTopbar } from '../components/meta-ads/MetaAdsTopbar'
 import { ProgramStrip } from '../components/meta-ads/ProgramStrip'
 import { ProgramDetail } from '../components/meta-ads/ProgramDetail'
-import { DisclaimerStrip } from '../components/meta-ads/DisclaimerStrip'
 import { AdDetailModal } from '../components/meta-ads/AdDetailModal'
 import { WonDealsModal } from '../components/meta-ads/WonDealsModal'
 import { LostDealsModal } from '../components/meta-ads/LostDealsModal'
@@ -84,7 +83,6 @@ export function MetaAdsDash() {
         </div>
         <ProgramStrip programs={data} activeId={activeProgram?.id} onSelect={handleManualSelect} />
         <ProgramDetail program={activeProgram} onSelectAd={handleSelectAd} onOpenWonDeals={handleOpenWonDeals} onOpenLostDeals={handleOpenLostDeals} onOpenLeadsList={handleOpenLeadsList} />
-        <DisclaimerStrip />
         {selectedAd && (
           <AdDetailModal
             ad={selectedAd}
