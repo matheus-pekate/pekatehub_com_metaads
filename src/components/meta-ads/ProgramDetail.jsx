@@ -19,20 +19,28 @@ export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostD
 
       <div className="pkt-meta-detail__stats">
         <div className="pkt-meta-detail__stats-left">
-          <div
-            className={`pkt-meta-detail__stat ${hasActiveCampaigns ? 'pkt-meta-detail__stat--clickable' : ''}`}
-            onClick={hasActiveCampaigns ? () => onOpenLeadsList(program, 'all') : undefined}
-          >
-            <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? totalLeads : '—'}</span>
-            <span className="pkt-meta-detail__stat-label">Leads</span>
+          <div className="pkt-meta-detail__stats-group">
+            <span className="pkt-meta-detail__stats-group-caption">Anúncios ativos · todo o histórico</span>
+            <div
+              className={`pkt-meta-detail__stat ${hasActiveCampaigns ? 'pkt-meta-detail__stat--clickable' : ''}`}
+              onClick={hasActiveCampaigns ? () => onOpenLeadsList(program, 'all') : undefined}
+            >
+              <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? totalLeads : '—'}</span>
+              <span className="pkt-meta-detail__stat-label">Leads</span>
+            </div>
           </div>
-          <div className="pkt-meta-detail__stat">
-            <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatBRL(cplMedio) : '—'}</span>
-            <span className="pkt-meta-detail__stat-label">CPL médio</span>
-          </div>
-          <div className="pkt-meta-detail__stat">
-            <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatCompactNumber(totalReach) : '—'}</span>
-            <span className="pkt-meta-detail__stat-label">Alcance</span>
+          <div className="pkt-meta-detail__stats-group">
+            <span className="pkt-meta-detail__stats-group-caption">Últimos 30 dias</span>
+            <div className="pkt-meta-detail__stats-group-row">
+              <div className="pkt-meta-detail__stat">
+                <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatBRL(cplMedio) : '—'}</span>
+                <span className="pkt-meta-detail__stat-label">CPL médio</span>
+              </div>
+              <div className="pkt-meta-detail__stat">
+                <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatCompactNumber(totalReach) : '—'}</span>
+                <span className="pkt-meta-detail__stat-label">Alcance</span>
+              </div>
+            </div>
           </div>
         </div>
 
