@@ -1,53 +1,47 @@
-import Redis from 'ioredis'
+import { createClient } from '@supabase/supabase-js'
 
 const MAX_HTML_SIZE = 5 * 1024 * 1024 // 5MB
-const INDEX_KEY = 'n8n_docs_index'
-const contentKey = (workflowId) => `n8n_doc_content_${workflowId}`
+const TABLE = 'n8n_docs'
 
-let redis
+let supabase
 
-function getRedis() {
-  if (!redis) {
-    redis = new Redis({
-      host: process.env.REDIS_HOST,
-      port: Number(process.env.REDIS_PORT),
-      password: process.env.REDIS_PASSWORD,
-      maxRetriesPerRequest: 1,
-    })
-    redis.on('error', (err) => console.error('Redis error:', err))
+function getSupabase() {
+  if (!supabase) {
+    supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   }
-  return redis
+  return supabase
+}
+
+function toDoc(row) {
+  return { workflowId: row.workflow_id, title: row.title, updatedAt: row.updated_at, size: row.size }
 }
 
 export const handler = async (event) => {
   try {
-    const client = getRedis()
+    const client = getSupabase()
 
     if (event.httpMethod === 'GET') {
       const workflowId = event.queryStringParameters?.workflowId
       if (workflowId) {
-        const html = await client.get(contentKey(workflowId))
-        if (html == null) {
+        const { data, error } = await client.from(TABLE).select('html').eq('workflow_id', workflowId).maybeSingle()
+        if (error) throw error
+        if (!data) {
           return { statusCode: 404, body: JSON.stringify({ error: 'Documento não encontrado' }) }
         }
         return {
           statusCode: 200,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ html }),
+          body: JSON.stringify({ html: data.html }),
         }
       }
 
-      const index = await client.hgetall(INDEX_KEY)
-      const docs = Object.entries(index)
-        .map(([id, raw]) => {
-          try { return { workflowId: id, ...JSON.parse(raw) } } catch { return null }
-        })
-        .filter(Boolean)
+      const { data, error } = await client.from(TABLE).select('workflow_id, title, updated_at, size')
+      if (error) throw error
 
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ docs }),
+        body: JSON.stringify({ docs: (data || []).map(toDoc) }),
       }
     }
 
@@ -67,15 +61,15 @@ export const handler = async (event) => {
       }
 
       const updatedAt = new Date().toISOString()
-      const meta = { title: title.trim(), updatedAt, size: html.length }
+      const row = { workflow_id: workflowId, title: title.trim(), html, updated_at: updatedAt, size: html.length }
 
-      await client.set(contentKey(workflowId), html)
-      await client.hset(INDEX_KEY, workflowId, JSON.stringify(meta))
+      const { error } = await client.from(TABLE).upsert(row, { onConflict: 'workflow_id' })
+      if (error) throw error
 
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workflowId, ...meta }),
+        body: JSON.stringify({ workflowId, title: title.trim(), updatedAt, size: html.length }),
       }
     }
 
@@ -84,8 +78,8 @@ export const handler = async (event) => {
       if (!workflowId) {
         return { statusCode: 400, body: JSON.stringify({ error: 'workflowId é obrigatório' }) }
       }
-      await client.del(contentKey(workflowId))
-      await client.hdel(INDEX_KEY, workflowId)
+      const { error } = await client.from(TABLE).delete().eq('workflow_id', workflowId)
+      if (error) throw error
       return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true }) }
     }
 
