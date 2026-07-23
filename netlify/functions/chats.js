@@ -1,18 +1,12 @@
-import Redis from 'ioredis'
+import { createClient } from '@supabase/supabase-js'
 
-let redis
+let supabase
 
-function getRedis() {
-  if (!redis) {
-    redis = new Redis({
-      host: process.env.REDIS_HOST,
-      port: Number(process.env.REDIS_PORT),
-      password: process.env.REDIS_PASSWORD,
-      maxRetriesPerRequest: 1,
-    })
-    redis.on('error', (err) => console.error('Redis error:', err))
+function getSupabase() {
+  if (!supabase) {
+    supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   }
-  return redis
+  return supabase
 }
 
 export const handler = async (event) => {
@@ -21,33 +15,28 @@ export const handler = async (event) => {
   }
 
   try {
-    const client = getRedis()
-    const keys = []
-    let cursor = '0'
+    const client = getSupabase()
+    const { data, error } = await client
+      .from('chat_messages')
+      .select('phone, message')
+      .order('phone', { ascending: true })
+      .order('id', { ascending: true })
+    if (error) throw error
 
-    do {
-      const [nextCursor, found] = await client.scan(cursor, 'MATCH', 'chat-history_*', 'COUNT', 100)
-      cursor = nextCursor
-      keys.push(...found)
-    } while (cursor !== '0')
-
-    const result = {}
-    await Promise.all(
-      keys.map(async (key) => {
-        const messages = await client.lrange(key, 0, -1)
-        result[key] = messages.map((m) => {
-          try { return JSON.parse(m) } catch { return m }
-        })
-      })
-    )
+    const chats = {}
+    for (const row of data || []) {
+      const key = `chat-history_${row.phone}`
+      if (!chats[key]) chats[key] = []
+      chats[key].push(row.message)
+    }
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ total: keys.length, chats: result }),
+      body: JSON.stringify({ total: Object.keys(chats).length, chats }),
     }
   } catch (err) {
     console.error(err)
-    return { statusCode: 500, body: JSON.stringify({ error: 'Erro ao consultar Redis' }) }
+    return { statusCode: 500, body: JSON.stringify({ error: 'Erro ao consultar o histórico' }) }
   }
 }
