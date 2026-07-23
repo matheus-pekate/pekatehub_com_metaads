@@ -1,22 +1,15 @@
-import Redis from 'ioredis'
+import { createClient } from '@supabase/supabase-js'
 
 const MAX_HTML_SIZE = 5 * 1024 * 1024 // 5MB
-const INDEX_KEY = 'general_docs_index'
-const contentKey = (slug) => `general_doc_content_${slug}`
+const TABLE = 'general_docs'
 
-let redis
+let supabase
 
-function getRedis() {
-  if (!redis) {
-    redis = new Redis({
-      host: process.env.REDIS_HOST,
-      port: Number(process.env.REDIS_PORT),
-      password: process.env.REDIS_PASSWORD,
-      maxRetriesPerRequest: 1,
-    })
-    redis.on('error', (err) => console.error('Redis error:', err))
+function getSupabase() {
+  if (!supabase) {
+    supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   }
-  return redis
+  return supabase
 }
 
 function slugify(title) {
@@ -29,36 +22,39 @@ function slugify(title) {
   return base || 'documento'
 }
 
+function toDoc(row) {
+  return { slug: row.slug, title: row.title, updatedAt: row.updated_at, size: row.size, protected: row.protected }
+}
+
 export const handler = async (event) => {
   try {
-    const client = getRedis()
+    const client = getSupabase()
 
     if (event.httpMethod === 'GET') {
       const slug = event.queryStringParameters?.slug
       if (slug) {
-        const html = await client.get(contentKey(slug))
-        if (html == null) {
+        const { data, error } = await client.from(TABLE).select('html').eq('slug', slug).maybeSingle()
+        if (error) throw error
+        if (!data) {
           return { statusCode: 404, body: JSON.stringify({ error: 'Documento não encontrado' }) }
         }
         return {
           statusCode: 200,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ html }),
+          body: JSON.stringify({ html: data.html }),
         }
       }
 
-      const index = await client.hgetall(INDEX_KEY)
-      const docs = Object.entries(index)
-        .map(([docSlug, raw]) => {
-          try { return { slug: docSlug, ...JSON.parse(raw) } } catch { return null }
-        })
-        .filter(Boolean)
-        .sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))
+      const { data, error } = await client
+        .from(TABLE)
+        .select('slug, title, updated_at, size, protected')
+        .order('updated_at', { ascending: false })
+      if (error) throw error
 
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ docs }),
+        body: JSON.stringify({ docs: (data || []).map(toDoc) }),
       }
     }
 
@@ -80,26 +76,24 @@ export const handler = async (event) => {
       if (!slug) {
         // upload novo — gera slug a partir do título, evitando colisão com documento de título diferente
         slug = slugify(trimmedTitle)
-        const existingRaw = await client.hget(INDEX_KEY, slug)
-        if (existingRaw) {
-          let sameTitle = false
-          try { sameTitle = JSON.parse(existingRaw).title === trimmedTitle } catch { /* mantém sameTitle = false */ }
-          if (!sameTitle) slug = `${slug}-${Date.now().toString(36)}`
+        const { data: existing } = await client.from(TABLE).select('title').eq('slug', slug).maybeSingle()
+        if (existing && existing.title !== trimmedTitle) {
+          slug = `${slug}-${Date.now().toString(36)}`
         }
       }
       // se targetSlug foi enviado, é uma substituição explícita — atualiza sempre o mesmo slug,
       // mesmo que o título tenha mudado
 
       const updatedAt = new Date().toISOString()
-      const meta = { title: trimmedTitle, updatedAt, size: html.length, protected: !!isProtected }
+      const row = { slug, title: trimmedTitle, html, updated_at: updatedAt, size: html.length, protected: !!isProtected }
 
-      await client.set(contentKey(slug), html)
-      await client.hset(INDEX_KEY, slug, JSON.stringify(meta))
+      const { error } = await client.from(TABLE).upsert(row, { onConflict: 'slug' })
+      if (error) throw error
 
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, ...meta }),
+        body: JSON.stringify({ slug, title: trimmedTitle, updatedAt, size: html.length, protected: !!isProtected }),
       }
     }
 
@@ -108,16 +102,12 @@ export const handler = async (event) => {
       if (!slug) {
         return { statusCode: 400, body: JSON.stringify({ error: 'slug é obrigatório' }) }
       }
-      const existingRaw = await client.hget(INDEX_KEY, slug)
-      if (existingRaw) {
-        try {
-          if (JSON.parse(existingRaw).protected) {
-            return { statusCode: 403, body: JSON.stringify({ error: 'Documento protegido — não pode ser apagado' }) }
-          }
-        } catch { /* índice corrompido, segue com a exclusão */ }
+      const { data: existing } = await client.from(TABLE).select('protected').eq('slug', slug).maybeSingle()
+      if (existing?.protected) {
+        return { statusCode: 403, body: JSON.stringify({ error: 'Documento protegido — não pode ser apagado' }) }
       }
-      await client.del(contentKey(slug))
-      await client.hdel(INDEX_KEY, slug)
+      const { error } = await client.from(TABLE).delete().eq('slug', slug)
+      if (error) throw error
       return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true }) }
     }
 

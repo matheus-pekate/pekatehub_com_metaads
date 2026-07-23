@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.110.8",
     "ioredis": "^5.11.1",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.383.0",
