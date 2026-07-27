@@ -381,6 +381,12 @@ export function PktHub() {
                   <p className="hub-card__desc">Análise META ADS.</p>
                   <span className="hub-card__status hub-card__status--live">Ao vivo</span>
                 </button>
+                <button className="hub-card" onClick={() => navigate('/eventos')}>
+                  <div className="hub-card__icon">🎟️</div>
+                  <h3 className="hub-card__title">Comando Eventos</h3>
+                  <p className="hub-card__desc">Trajetória dos participantes dos eventos: quem virou lead e quem fechou negócio.</p>
+                  <span className="hub-card__status hub-card__status--live">Ao vivo</span>
+                </button>
               </div>
             </section>
           )}
