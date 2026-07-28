@@ -430,6 +430,28 @@
   color: var(--branco);
 }
 
+.pkt-eventos-export {
+  margin-left: auto;
+  border: 1px solid var(--laranja);
+  background: var(--branco);
+  color: var(--laranja);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pkt-eventos-export:hover {
+  background: var(--laranja);
+  color: var(--branco);
+}
+
+.pkt-eventos-export:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
 .pkt-eventos-participants__body {
   overflow-y: auto;
   flex: 1;

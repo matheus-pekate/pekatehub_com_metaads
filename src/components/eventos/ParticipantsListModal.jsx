@@ -5,6 +5,37 @@ import { STATUS_LABELS, STATUS_COLORS } from '../../config/eventos'
 
 const FILTERS = ['todos', 'curioso', 'lead', 'negocio', 'nao_compareceu']
 
+function csvEscape(value) {
+  const str = String(value ?? '')
+  if (/[",;\n]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`
+  }
+  return str
+}
+
+function exportParticipantesCsv(participantes, eventName) {
+  const headers = ['Nome', 'E-mail', 'Telefone', 'Empresa', 'Cargo', 'Ingresso', 'Presença', 'Status', 'Situação']
+  const rows = participantes.map((p) => [
+    [p.first_name, p.last_name].filter(Boolean).join(' '),
+    p.email || '',
+    p.phone || '',
+    p.company || '',
+    p.job_title || '',
+    p.ticket_name || '',
+    p.check_in ? 'Presente' : 'Não compareceu',
+    STATUS_LABELS[p.status] || p.status,
+    p.situacao === 'novo' ? 'Novo' : p.situacao === 'existente' ? 'Já existia' : '',
+  ])
+  const csvContent = '﻿' + [headers, ...rows].map((row) => row.map(csvEscape).join(';')).join('\r\n')
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `participantes-${eventName.replace(/[^\w\-]+/g, '_')}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
 export function ParticipantsListModal({ evento, onClose }) {
   const [participantes, setParticipantes] = useState([])
   const [loading, setLoading] = useState(true)
@@ -44,6 +75,13 @@ export function ParticipantsListModal({ evento, onClose }) {
               {f === 'todos' ? 'Todos' : STATUS_LABELS[f]}
             </button>
           ))}
+          <button
+            className="pkt-eventos-export"
+            onClick={() => exportParticipantesCsv(filtered, evento.name)}
+            disabled={filtered.length === 0}
+          >
+            ⬇ Exportar Excel
+          </button>
         </div>
 
         <div className="pkt-eventos-participants__body">
