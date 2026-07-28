@@ -31,10 +31,10 @@ export function ComandoEventos() {
         <div className="pkt-eventos-topbar__spacer" />
         <div className="pkt-eventos-topbar__summary">
           <span>{totals.total} participantes</span>
-          <span>{totals.prospects} prospects</span>
+          <span>{totals.naoCompareceram} não compareceram</span>
           <span>{totals.leads} leads</span>
           <span>{totals.negocios} negócios</span>
-          <span>{totals.naoCompareceram} não compareceram</span>
+          <span>{totals.prospects} prospects</span>
         </div>
         {error && <span className="pkt-eventos-topbar__error" title={error}>⚠ falha ao atualizar</span>}
         <button className="pkt-eventos-topbar__refresh" onClick={refresh}>⟳</button>

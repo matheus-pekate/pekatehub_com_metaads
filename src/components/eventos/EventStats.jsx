@@ -12,8 +12,8 @@ export function EventStats({ prospects, leadsNovos, leadsExistentes, negociosNov
   return (
     <div className="pkt-eventos-stats">
       <span className="pkt-eventos-stats__item">
-        <i style={{ background: STATUS_COLORS.curioso }} />
-        {prospects} prospect{prospects === 1 ? '' : 's'}
+        <i style={{ background: STATUS_COLORS.nao_compareceu }} />
+        {naoCompareceram} {naoCompareceram === 1 ? 'não compareceu' : 'não compareceram'}
       </span>
       <span className="pkt-eventos-stats__item">
         <i style={{ background: STATUS_COLORS.lead }} />
@@ -24,8 +24,8 @@ export function EventStats({ prospects, leadsNovos, leadsExistentes, negociosNov
         {negocios} negócio{negocios === 1 ? '' : 's'} ({negociosNovos} novo{negociosNovos === 1 ? '' : 's'} · {negociosExistentes} já existia{negociosExistentes === 1 ? '' : 'm'})
       </span>
       <span className="pkt-eventos-stats__item">
-        <i style={{ background: STATUS_COLORS.nao_compareceu }} />
-        {naoCompareceram} não compareceu{naoCompareceram === 1 ? '' : 'ram'}
+        <i style={{ background: STATUS_COLORS.curioso }} />
+        {prospects} prospect{prospects === 1 ? '' : 's'}
       </span>
     </div>
   )
