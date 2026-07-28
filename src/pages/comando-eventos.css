@@ -167,6 +167,35 @@
   margin-bottom: 4px;
 }
 
+/* ── Números do evento (sem barra visual) ── */
+.pkt-eventos-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pkt-eventos-stats--empty {
+  font-size: 12px;
+  color: var(--petroleo-light);
+  font-style: italic;
+}
+
+.pkt-eventos-stats__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--petroleo-mid);
+}
+
+.pkt-eventos-stats__item i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
 /* ── Visão geral (rodapé da página) ── */
 .pkt-eventos-overview {
   margin-top: 40px;
