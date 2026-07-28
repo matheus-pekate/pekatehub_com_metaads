@@ -26,10 +26,10 @@ export function EventosOverview({ eventos }) {
   const pct = (n) => (total > 0 ? (n / total) * 100 : 0)
 
   const pieData = [
-    { key: 'curioso', label: 'Prospects', value: prospects, pct: pct(prospects) },
+    { key: 'nao_compareceu', label: 'Não compareceram', value: naoCompareceram, pct: pct(naoCompareceram) },
     { key: 'lead', label: 'Leads', value: leads, pct: pct(leads) },
     { key: 'negocio', label: 'Negócios', value: negocios, pct: pct(negocios) },
-    { key: 'nao_compareceu', label: 'Não compareceram', value: naoCompareceram, pct: pct(naoCompareceram) },
+    { key: 'curioso', label: 'Prospects', value: prospects, pct: pct(prospects) },
   ]
 
   const conversaoLead = total > 0 ? ((leads + negocios) / total) * 100 : 0
