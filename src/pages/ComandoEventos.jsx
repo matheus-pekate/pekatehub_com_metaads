@@ -12,11 +12,11 @@ export function ComandoEventos() {
 
   const totals = data.reduce((acc, e) => {
     acc.total += e.totalParticipantes
-    acc.curiosos += e.curiosos
-    acc.leads += e.leads
-    acc.negocios += e.negocios
+    acc.prospects += e.prospects
+    acc.leads += e.leadsNovos + e.leadsExistentes
+    acc.negocios += e.negociosNovos + e.negociosExistentes
     return acc
-  }, { total: 0, curiosos: 0, leads: 0, negocios: 0 })
+  }, { total: 0, prospects: 0, leads: 0, negocios: 0 })
 
   return (
     <div className="pkt-eventos-page">
@@ -29,7 +29,7 @@ export function ComandoEventos() {
         <div className="pkt-eventos-topbar__spacer" />
         <div className="pkt-eventos-topbar__summary">
           <span>{totals.total} participantes</span>
-          <span>{totals.curiosos} curiosos</span>
+          <span>{totals.prospects} prospects</span>
           <span>{totals.leads} leads</span>
           <span>{totals.negocios} negócios</span>
         </div>

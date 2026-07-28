@@ -14,7 +14,7 @@ export function ParticipantsListModal({ evento, onClose }) {
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    fetchParticipantesEvento(evento.event_id)
+    fetchParticipantesEvento(evento.event_id, evento.start_date)
       .then((list) => { if (!cancelled) { setParticipantes(list); setError(null) } })
       .catch((err) => { if (!cancelled) setError(err.message) })
       .finally(() => { if (!cancelled) setLoading(false) })
@@ -57,16 +57,24 @@ export function ParticipantsListModal({ evento, onClose }) {
               <div className="pkt-eventos-participants__row pkt-eventos-participants__row--header">
                 <span>Nome</span>
                 <span>E-mail</span>
-                <span>Inscrição</span>
+                <span>Presença</span>
                 <span>Status</span>
+                <span>Situação</span>
               </div>
               {filtered.map((p) => (
                 <div key={p.participant_id} className="pkt-eventos-participants__row">
                   <span>{[p.first_name, p.last_name].filter(Boolean).join(' ') || '—'}</span>
                   <span className="pkt-eventos-participants__email" title={p.email}>{p.email || '—'}</span>
-                  <span>{formatDate(p.order_date)}</span>
+                  <span className="pkt-eventos-presenca" title={p.check_in_date ? formatDate(p.check_in_date) : ''}>
+                    {p.check_in ? '✅ Presente' : '❌ Não compareceu'}
+                  </span>
                   <span className="pkt-eventos-status" style={{ '--status-color': STATUS_COLORS[p.status] }}>
                     {STATUS_LABELS[p.status] || p.status}
+                  </span>
+                  <span className="pkt-eventos-situacao">
+                    {p.situacao === 'novo' && '🆕 Novo'}
+                    {p.situacao === 'existente' && '👤 Já existia'}
+                    {!p.situacao && '—'}
                   </span>
                 </div>
               ))}

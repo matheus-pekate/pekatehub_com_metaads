@@ -10,9 +10,11 @@ export async function fetchEventos() {
   return json
 }
 
-export async function fetchParticipantesEvento(eventId) {
+export async function fetchParticipantesEvento(eventId, eventStartDate) {
   if (!EVENTOS_PARTICIPANTES_WEBHOOK_URL) throw new Error('VITE_EVENTOS_PARTICIPANTES_WEBHOOK_URL não configurado')
-  const url = `${EVENTOS_PARTICIPANTES_WEBHOOK_URL}?event_id=${encodeURIComponent(eventId)}`
+  const params = new URLSearchParams({ event_id: eventId })
+  if (eventStartDate) params.set('event_start_date', eventStartDate)
+  const url = `${EVENTOS_PARTICIPANTES_WEBHOOK_URL}?${params.toString()}`
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Eventos participantes webhook falhou: ${res.status}`)
   const json = await res.json()
