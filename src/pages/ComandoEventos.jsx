@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useEventosData } from '../hooks/useEventosData'
 import { EventCard } from '../components/eventos/EventCard'
 import { ParticipantsListModal } from '../components/eventos/ParticipantsListModal'
+import { EventosOverview } from '../components/eventos/EventosOverview'
 import './comando-eventos.css'
 
 export function ComandoEventos() {
@@ -44,6 +45,8 @@ export function ComandoEventos() {
           <EventCard key={evento.event_id} evento={evento} onSelect={setSelectedEvento} />
         ))}
       </main>
+
+      <EventosOverview eventos={data} />
 
       {selectedEvento && (
         <ParticipantsListModal evento={selectedEvento} onClose={() => setSelectedEvento(null)} />
