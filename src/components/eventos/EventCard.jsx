@@ -17,6 +17,7 @@ export function EventCard({ evento, onSelect }) {
           leadsExistentes={evento.leadsExistentes}
           negociosNovos={evento.negociosNovos}
           negociosExistentes={evento.negociosExistentes}
+          naoCompareceram={evento.naoCompareceram}
         />
       </div>
     </button>

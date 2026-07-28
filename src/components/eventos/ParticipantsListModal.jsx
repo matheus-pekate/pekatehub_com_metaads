@@ -3,7 +3,7 @@ import { fetchParticipantesEvento } from '../../services/eventosApi'
 import { formatDate } from '../meta-ads/format'
 import { STATUS_LABELS, STATUS_COLORS } from '../../config/eventos'
 
-const FILTERS = ['todos', 'curioso', 'lead', 'negocio']
+const FILTERS = ['todos', 'curioso', 'lead', 'negocio', 'nao_compareceu']
 
 export function ParticipantsListModal({ evento, onClose }) {
   const [participantes, setParticipantes] = useState([])
