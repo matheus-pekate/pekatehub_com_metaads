@@ -16,8 +16,9 @@ export function ComandoEventos() {
     acc.prospects += e.prospects
     acc.leads += e.leadsNovos + e.leadsExistentes
     acc.negocios += e.negociosNovos + e.negociosExistentes
+    acc.naoCompareceram += e.naoCompareceram
     return acc
-  }, { total: 0, prospects: 0, leads: 0, negocios: 0 })
+  }, { total: 0, prospects: 0, leads: 0, negocios: 0, naoCompareceram: 0 })
 
   return (
     <div className="pkt-eventos-page">
@@ -33,6 +34,7 @@ export function ComandoEventos() {
           <span>{totals.prospects} prospects</span>
           <span>{totals.leads} leads</span>
           <span>{totals.negocios} negócios</span>
+          <span>{totals.naoCompareceram} não compareceram</span>
         </div>
         {error && <span className="pkt-eventos-topbar__error" title={error}>⚠ falha ao atualizar</span>}
         <button className="pkt-eventos-topbar__refresh" onClick={refresh}>⟳</button>

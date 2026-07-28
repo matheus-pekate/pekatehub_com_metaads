@@ -18,16 +18,18 @@ export function EventosOverview({ eventos }) {
     acc.prospects += e.prospects
     acc.leads += e.leadsNovos + e.leadsExistentes
     acc.negocios += e.negociosNovos + e.negociosExistentes
+    acc.naoCompareceram += e.naoCompareceram
     return acc
-  }, { total: 0, prospects: 0, leads: 0, negocios: 0 })
+  }, { total: 0, prospects: 0, leads: 0, negocios: 0, naoCompareceram: 0 })
 
-  const { total, prospects, leads, negocios } = totals
+  const { total, prospects, leads, negocios, naoCompareceram } = totals
   const pct = (n) => (total > 0 ? (n / total) * 100 : 0)
 
   const pieData = [
     { key: 'curioso', label: 'Prospects', value: prospects, pct: pct(prospects) },
     { key: 'lead', label: 'Leads', value: leads, pct: pct(leads) },
     { key: 'negocio', label: 'Negócios', value: negocios, pct: pct(negocios) },
+    { key: 'nao_compareceu', label: 'Não compareceram', value: naoCompareceram, pct: pct(naoCompareceram) },
   ]
 
   const conversaoLead = total > 0 ? ((leads + negocios) / total) * 100 : 0
