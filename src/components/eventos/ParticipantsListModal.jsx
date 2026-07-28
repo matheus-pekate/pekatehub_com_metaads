@@ -57,14 +57,23 @@ export function ParticipantsListModal({ evento, onClose }) {
               <div className="pkt-eventos-participants__row pkt-eventos-participants__row--header">
                 <span>Nome</span>
                 <span>E-mail</span>
+                <span>Telefone</span>
                 <span>Presença</span>
                 <span>Status</span>
                 <span>Situação</span>
               </div>
               {filtered.map((p) => (
                 <div key={p.participant_id} className="pkt-eventos-participants__row">
-                  <span>{[p.first_name, p.last_name].filter(Boolean).join(' ') || '—'}</span>
+                  <span className="pkt-eventos-participants__nome">
+                    {[p.first_name, p.last_name].filter(Boolean).join(' ') || '—'}
+                    {(p.job_title || p.company) && (
+                      <span className="pkt-eventos-participants__cargo">
+                        {[p.job_title, p.company].filter(Boolean).join(' · ')}
+                      </span>
+                    )}
+                  </span>
                   <span className="pkt-eventos-participants__email" title={p.email}>{p.email || '—'}</span>
+                  <span className="pkt-eventos-participants__phone">{p.phone || '—'}</span>
                   <span className="pkt-eventos-presenca" title={p.check_in_date ? formatDate(p.check_in_date) : ''}>
                     {p.check_in ? '✅ Presente' : '❌ Não compareceu'}
                   </span>
