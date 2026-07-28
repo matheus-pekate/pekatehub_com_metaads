@@ -1,7 +1,7 @@
 export const REFRESH_INTERVAL_MINUTES = 15
 
 export const STATUS_LABELS = {
-  curioso: 'Curioso',
+  curioso: 'Prospect',
   lead: 'Lead',
   negocio: 'Negócio',
 }

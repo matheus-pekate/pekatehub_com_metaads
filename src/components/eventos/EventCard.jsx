@@ -11,7 +11,13 @@ export function EventCard({ evento, onSelect }) {
         <span className="pkt-eventos-card__total">
           {evento.totalParticipantes} participante{evento.totalParticipantes === 1 ? '' : 's'}
         </span>
-        <FunnelBar curiosos={evento.curiosos} leads={evento.leads} negocios={evento.negocios} />
+        <FunnelBar
+          prospects={evento.prospects}
+          leadsNovos={evento.leadsNovos}
+          leadsExistentes={evento.leadsExistentes}
+          negociosNovos={evento.negociosNovos}
+          negociosExistentes={evento.negociosExistentes}
+        />
       </div>
     </button>
   )
