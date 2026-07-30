@@ -13,19 +13,19 @@ export function EventStats({ prospects, leadsNovos, leadsExistentes, negociosNov
     <div className="pkt-eventos-stats">
       <span className="pkt-eventos-stats__item">
         <i style={{ background: STATUS_COLORS.nao_compareceu }} />
-        {naoCompareceram} {naoCompareceram === 1 ? 'não compareceu' : 'não compareceram'}
+        <strong className="pkt-eventos-stats__count">{naoCompareceram}</strong> {naoCompareceram === 1 ? 'não compareceu' : 'não compareceram'}
       </span>
       <span className="pkt-eventos-stats__item">
         <i style={{ background: STATUS_COLORS.lead }} />
-        {leads} lead{leads === 1 ? '' : 's'} ({leadsNovos} novo{leadsNovos === 1 ? '' : 's'} · {leadsExistentes} já existia{leadsExistentes === 1 ? '' : 'm'})
+        <strong className="pkt-eventos-stats__count">{leads}</strong> lead{leads === 1 ? '' : 's'} ({leadsNovos} novo{leadsNovos === 1 ? '' : 's'} · {leadsExistentes} já existia{leadsExistentes === 1 ? '' : 'm'})
       </span>
       <span className="pkt-eventos-stats__item">
         <i style={{ background: STATUS_COLORS.negocio }} />
-        {negocios} negócio{negocios === 1 ? '' : 's'} ({negociosNovos} novo{negociosNovos === 1 ? '' : 's'} · {negociosExistentes} já existia{negociosExistentes === 1 ? '' : 'm'})
+        <strong className="pkt-eventos-stats__count">{negocios}</strong> negócio{negocios === 1 ? '' : 's'} ({negociosNovos} novo{negociosNovos === 1 ? '' : 's'} · {negociosExistentes} já existia{negociosExistentes === 1 ? '' : 'm'})
       </span>
       <span className="pkt-eventos-stats__item">
         <i style={{ background: STATUS_COLORS.curioso }} />
-        {prospects} prospect{prospects === 1 ? '' : 's'}
+        <strong className="pkt-eventos-stats__count">{prospects}</strong> prospect{prospects === 1 ? '' : 's'}
       </span>
     </div>
   )
