@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, LabelList, ResponsiveContainer } from 'recharts'
 import { GeneralDocsGrid } from '../components/docs/GeneralDocsGrid'
 import { PROGRAMS } from '../config/pipedrive'
 import './pkt-hub.css'
@@ -314,8 +314,8 @@ export function PktHub() {
               <section className="hub-main__section">
                 <h2 className="hub-main__section-title">Metas de Receita por Programa</h2>
                 <div className="hub-chart-card">
-                  <ResponsiveContainer width="100%" height={240}>
-                    <BarChart data={PROGRAMS} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={PROGRAMS} margin={{ top: 24, right: 16, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(48,50,51,.08)" />
                       <XAxis dataKey="shortName" tick={{ fontSize: 12, fill: '#4a4d4f' }} axisLine={{ stroke: 'rgba(48,50,51,.15)' }} tickLine={false} />
                       <YAxis tick={{ fontSize: 11, fill: '#9a9d9f' }} axisLine={false} tickLine={false} width={48} tickFormatter={(v) => formatCompactBRL(v)} />
@@ -324,6 +324,7 @@ export function PktHub() {
                         {PROGRAMS.map((p) => (
                           <Cell key={p.id} fill={p.accentColor} />
                         ))}
+                        <LabelList dataKey="revenueGoal" position="top" formatter={formatCompactBRL} style={{ fontSize: 12, fontWeight: 700, fill: '#08373f' }} />
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
