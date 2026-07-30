@@ -1,5 +1,6 @@
 const EVENTOS_WEBHOOK_URL = import.meta.env.VITE_EVENTOS_WEBHOOK_URL
 const EVENTOS_PARTICIPANTES_WEBHOOK_URL = import.meta.env.VITE_EVENTOS_PARTICIPANTES_WEBHOOK_URL
+const EVENTOS_TODOS_PARTICIPANTES_WEBHOOK_URL = import.meta.env.VITE_EVENTOS_TODOS_PARTICIPANTES_WEBHOOK_URL
 
 export async function fetchEventos() {
   if (!EVENTOS_WEBHOOK_URL) throw new Error('VITE_EVENTOS_WEBHOOK_URL não configurado')
@@ -19,5 +20,14 @@ export async function fetchParticipantesEvento(eventId, eventStartDate) {
   if (!res.ok) throw new Error(`Eventos participantes webhook falhou: ${res.status}`)
   const json = await res.json()
   if (!json || !Array.isArray(json.participantes)) throw new Error('Eventos participantes webhook: formato inesperado')
+  return json.participantes
+}
+
+export async function fetchTodosParticipantes() {
+  if (!EVENTOS_TODOS_PARTICIPANTES_WEBHOOK_URL) throw new Error('VITE_EVENTOS_TODOS_PARTICIPANTES_WEBHOOK_URL não configurado')
+  const res = await fetch(EVENTOS_TODOS_PARTICIPANTES_WEBHOOK_URL)
+  if (!res.ok) throw new Error(`Eventos todos participantes webhook falhou: ${res.status}`)
+  const json = await res.json()
+  if (!json || !Array.isArray(json.participantes)) throw new Error('Eventos todos participantes webhook: formato inesperado')
   return json.participantes
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useEventosData } from '../hooks/useEventosData'
 import { EventCard } from '../components/eventos/EventCard'
 import { ParticipantsListModal } from '../components/eventos/ParticipantsListModal'
+import { GlobalParticipantsModal } from '../components/eventos/GlobalParticipantsModal'
 import { EventosOverview } from '../components/eventos/EventosOverview'
 import './comando-eventos.css'
 
@@ -10,6 +11,7 @@ export function ComandoEventos() {
   const navigate = useNavigate()
   const { data, loading, error, refresh } = useEventosData()
   const [selectedEvento, setSelectedEvento] = useState(null)
+  const [globalFilter, setGlobalFilter] = useState(null)
 
   const totals = data.reduce((acc, e) => {
     acc.total += e.totalParticipantes
@@ -30,11 +32,21 @@ export function ComandoEventos() {
         </div>
         <div className="pkt-eventos-topbar__spacer" />
         <div className="pkt-eventos-topbar__summary">
-          <span className="pkt-eventos-topbar__stat"><strong>{totals.total}</strong> participantes</span>
-          <span className="pkt-eventos-topbar__stat"><strong>{totals.naoCompareceram}</strong> não compareceram</span>
-          <span className="pkt-eventos-topbar__stat"><strong>{totals.leads}</strong> leads</span>
-          <span className="pkt-eventos-topbar__stat"><strong>{totals.negocios}</strong> negócios</span>
-          <span className="pkt-eventos-topbar__stat"><strong>{totals.prospects}</strong> prospects</span>
+          <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('todos')}>
+            <strong>{totals.total}</strong> participantes
+          </button>
+          <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('nao_compareceu')}>
+            <strong>{totals.naoCompareceram}</strong> não compareceram
+          </button>
+          <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('lead')}>
+            <strong>{totals.leads}</strong> leads
+          </button>
+          <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('negocio')}>
+            <strong>{totals.negocios}</strong> negócios
+          </button>
+          <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('curioso')}>
+            <strong>{totals.prospects}</strong> prospects
+          </button>
         </div>
         {error && <span className="pkt-eventos-topbar__error" title={error}>⚠ falha ao atualizar</span>}
         <button className="pkt-eventos-topbar__refresh" onClick={refresh}>⟳</button>
@@ -52,6 +64,10 @@ export function ComandoEventos() {
 
       {selectedEvento && (
         <ParticipantsListModal evento={selectedEvento} onClose={() => setSelectedEvento(null)} />
+      )}
+
+      {globalFilter && (
+        <GlobalParticipantsModal initialFilter={globalFilter} onClose={() => setGlobalFilter(null)} />
       )}
     </div>
   )
