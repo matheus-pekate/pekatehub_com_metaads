@@ -11,6 +11,10 @@ export function buildPipedriveDealUrl(dealId) {
   return `https://${PIPEDRIVE_COMPANY_DOMAIN}.pipedrive.com/deal/${dealId}`
 }
 
+export function buildPipedrivePersonUrl(personId) {
+  return `https://${PIPEDRIVE_COMPANY_DOMAIN}.pipedrive.com/person/${personId}`
+}
+
 // Intervalo de atualização automática dos dados (em minutos)
 export const REFRESH_INTERVAL_MINUTES = 30
 
