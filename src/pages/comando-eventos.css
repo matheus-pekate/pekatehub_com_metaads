@@ -498,6 +498,18 @@
   gap: 2px;
 }
 
+.pkt-eventos-participants__nome-link {
+  color: var(--petroleo);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--petroleo-light);
+  width: fit-content;
+}
+
+.pkt-eventos-participants__nome-link:hover {
+  color: var(--laranja);
+  border-bottom-color: var(--laranja);
+}
+
 .pkt-eventos-participants__cargo {
   font-size: 11.5px;
   color: var(--petroleo-light);
