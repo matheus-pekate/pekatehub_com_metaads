@@ -575,6 +575,13 @@
   text-transform: uppercase;
   letter-spacing: .06em;
 }
+.hub-next-program__stat-of {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9a9d9f;
+  text-transform: none;
+  letter-spacing: normal;
+}
 
 /* Gráfico (Home) */
 .hub-chart-card {
