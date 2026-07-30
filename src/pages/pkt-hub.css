@@ -285,43 +285,6 @@
   height: 100vh;
 }
 
-/* ==================== TABS NAVBAR ==================== */
-.hub-tabs {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 4px;
-  margin: 14px 24px 0;
-  flex-shrink: 0;
-  align-self: flex-start;
-  background: rgba(48, 50, 51, .06);
-  border-radius: 10px;
-}
-.hub-tabs__item {
-  padding: 8px 24px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  color: #4a4d4f;
-  cursor: pointer;
-  transition: background .15s, color .15s, box-shadow .15s;
-}
-.hub-tabs__item:hover {
-  color: #08373f;
-}
-.hub-tabs__item--active {
-  background: #fff;
-  color: #08373f;
-  font-weight: 700;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
-}
-.hub-tabs__item--active:hover {
-  background: #fff;
-}
-
 /* ==================== MAIN CONTENT ==================== */
 .hub-main {
   flex: 1;
@@ -544,6 +507,98 @@
 @keyframes hubPulse {
   0%, 100% { opacity: 1; }
   50% { opacity: .3; }
+}
+
+.hub-main__empty {
+  font-size: 13px;
+  color: #9a9d9f;
+  font-style: italic;
+}
+
+/* Próximo Programa (Home) */
+.hub-next-program {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-left: 5px solid var(--accent, #cb5b36);
+  border-radius: 14px;
+  padding: 24px 28px;
+  flex-wrap: wrap;
+}
+.hub-next-program__main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.hub-next-program__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #366368;
+}
+.hub-next-program__name {
+  font-style: italic;
+  font-weight: 900;
+  font-size: 22px;
+  color: #08373f;
+  margin: 0;
+}
+.hub-next-program__countdown {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent, #cb5b36);
+}
+.hub-next-program__stats {
+  display: flex;
+  gap: 28px;
+}
+.hub-next-program__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.hub-next-program__stat strong {
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  font-size: 26px;
+  color: #08373f;
+  line-height: 1;
+}
+.hub-next-program__stat span {
+  font-size: 11px;
+  color: #6b6e70;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* Gráfico (Home) */
+.hub-chart-card {
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-radius: 14px;
+  padding: 16px 20px 8px;
+}
+.hub-chart-tooltip {
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .12);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  color: #4a4d4f;
+  box-shadow: 0 4px 16px rgba(8, 55, 63, .15);
+}
+.hub-chart-tooltip__label {
+  font-weight: 700;
+  color: #08373f;
+  margin: 0 0 4px;
+}
+.hub-chart-tooltip p {
+  margin: 0;
 }
 
 /* Documentos gerais (aba Documentação) */
