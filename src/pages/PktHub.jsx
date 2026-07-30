@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, LabelList, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, LabelList, ResponsiveContainer } from 'recharts'
 import { GeneralDocsGrid } from '../components/docs/GeneralDocsGrid'
 import { PROGRAMS } from '../config/pipedrive'
+import { useDashboardData } from '../hooks/useDashboardData'
 import './pkt-hub.css'
 
 const SIDEBAR_ITEMS = [
@@ -46,10 +47,12 @@ function countdownLabel(days) {
 function ProgramChartTooltip({ active, payload }) {
   if (!active || !payload || !payload.length) return null
   const p = payload[0].payload
+  const pct = p.meta > 0 ? Math.round((p.atual / p.meta) * 100) : 0
   return (
     <div className="hub-chart-tooltip">
       <p className="hub-chart-tooltip__label">{p.name}</p>
-      <p><strong>{formatBRL(p.revenueGoal)}</strong> de meta de receita</p>
+      <p>Meta: <strong>{formatBRL(p.meta)}</strong></p>
+      <p>Atual: <strong>{formatBRL(p.atual)}</strong> ({pct}%)</p>
     </div>
   )
 }
@@ -213,6 +216,16 @@ export function PktHub() {
   const [activeTab, setActiveTab] = useState('Home')
   const [activeAgent, setActiveAgent] = useState(null)
   const nextProgram = getNextProgram()
+  const { data: dashboardData, loading: loadingDashboard } = useDashboardData()
+
+  const chartData = (dashboardData?.programs || []).map((p) => ({
+    shortName: p.shortName,
+    name: p.name,
+    meta: p.revenueGoal,
+    atual: p.totalWonValue,
+    accentColor: p.accentColor,
+  }))
+  const nextProgramLive = dashboardData?.programs?.find((p) => p.id === nextProgram?.id) || null
 
   function handleTabChange(tab) {
     setActiveTab(tab)
@@ -297,12 +310,12 @@ export function PktHub() {
                     </div>
                     <div className="hub-next-program__stats">
                       <div className="hub-next-program__stat">
-                        <strong>{nextProgram.goal}</strong>
-                        <span>vagas meta</span>
+                        <strong>{nextProgramLive ? nextProgramLive.converted : 0}<span className="hub-next-program__stat-of">/{nextProgramLive?.dynamicGoal ?? nextProgram.goal}</span></strong>
+                        <span>vagas convertidas</span>
                       </div>
                       <div className="hub-next-program__stat">
-                        <strong>{formatCompactBRL(nextProgram.revenueGoal)}</strong>
-                        <span>meta de receita</span>
+                        <strong>{formatCompactBRL(nextProgramLive ? nextProgramLive.totalWonValue : 0)}<span className="hub-next-program__stat-of">/{formatCompactBRL(nextProgram.revenueGoal)}</span></strong>
+                        <span>receita atingida</span>
                       </div>
                     </div>
                   </div>
@@ -312,22 +325,32 @@ export function PktHub() {
               </section>
 
               <section className="hub-main__section">
-                <h2 className="hub-main__section-title">Metas de Receita por Programa</h2>
+                <h2 className="hub-main__section-title">Meta x Atual — Receita por Programa</h2>
                 <div className="hub-chart-card">
-                  <ResponsiveContainer width="100%" height={260}>
-                    <BarChart data={PROGRAMS} margin={{ top: 24, right: 16, left: 8, bottom: 8 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(48,50,51,.08)" />
-                      <XAxis dataKey="shortName" tick={{ fontSize: 12, fill: '#4a4d4f' }} axisLine={{ stroke: 'rgba(48,50,51,.15)' }} tickLine={false} />
-                      <YAxis tick={{ fontSize: 11, fill: '#9a9d9f' }} axisLine={false} tickLine={false} width={48} tickFormatter={(v) => formatCompactBRL(v)} />
-                      <Tooltip content={<ProgramChartTooltip />} cursor={{ fill: 'rgba(48,50,51,.04)' }} />
-                      <Bar dataKey="revenueGoal" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                        {PROGRAMS.map((p) => (
-                          <Cell key={p.id} fill={p.accentColor} />
-                        ))}
-                        <LabelList dataKey="revenueGoal" position="top" formatter={formatCompactBRL} style={{ fontSize: 12, fontWeight: 700, fill: '#08373f' }} />
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                  {loadingDashboard && <p className="hub-main__empty">Carregando dados do Pipedrive...</p>}
+                  {!loadingDashboard && chartData.length > 0 && (
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={chartData} margin={{ top: 24, right: 16, left: 8, bottom: 8 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(48,50,51,.08)" />
+                        <XAxis dataKey="shortName" tick={{ fontSize: 12, fill: '#4a4d4f' }} axisLine={{ stroke: 'rgba(48,50,51,.15)' }} tickLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: '#9a9d9f' }} axisLine={false} tickLine={false} width={48} tickFormatter={(v) => formatCompactBRL(v)} />
+                        <Tooltip content={<ProgramChartTooltip />} cursor={{ fill: 'rgba(48,50,51,.04)' }} />
+                        <Legend wrapperStyle={{ fontSize: 12 }} formatter={(value) => (value === 'meta' ? 'Meta' : 'Atual')} />
+                        <Bar dataKey="meta" name="meta" fill="#e3ddd0" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                          <LabelList dataKey="meta" position="top" formatter={formatCompactBRL} style={{ fontSize: 11, fill: '#9a9d9f' }} />
+                        </Bar>
+                        <Bar dataKey="atual" name="atual" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                          {chartData.map((d) => (
+                            <Cell key={d.shortName} fill={d.accentColor} />
+                          ))}
+                          <LabelList dataKey="atual" position="top" formatter={formatCompactBRL} style={{ fontSize: 12, fontWeight: 700, fill: '#08373f' }} />
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                  {!loadingDashboard && chartData.length === 0 && (
+                    <p className="hub-main__empty">Não foi possível carregar os dados do Pipedrive.</p>
+                  )}
                 </div>
               </section>
             </>
