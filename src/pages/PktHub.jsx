@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts'
 import { GeneralDocsGrid } from '../components/docs/GeneralDocsGrid'
+import { PROGRAMS } from '../config/pipedrive'
 import './pkt-hub.css'
 
 const SIDEBAR_ITEMS = [
@@ -12,8 +14,45 @@ const SIDEBAR_ITEMS = [
   { id: 'documentacao', label: 'Documentação', icon: 'doc' },
 ]
 
-const TABS = ['Home', 'Comercial', 'Marketing', 'Operação', 'Agentes', 'Documentação']
 const AGENT_SUBTABS = ['Funis', 'Performance', 'Conversas']
+
+function formatBRL(value) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(value)
+}
+
+function formatCompactBRL(value) {
+  if (value >= 1_000_000) return `R$ ${(value / 1_000_000).toFixed(1)}M`
+  if (value >= 1_000) return `R$ ${Math.round(value / 1000)}k`
+  return formatBRL(value)
+}
+
+function getNextProgram() {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const withDays = PROGRAMS
+    .filter((p) => p.startDate)
+    .map((p) => ({ ...p, daysUntil: Math.ceil((new Date(p.startDate) - today) / 86400000) }))
+    .sort((a, b) => a.daysUntil - b.daysUntil)
+  return withDays.find((p) => p.daysUntil >= 0) || withDays[withDays.length - 1] || null
+}
+
+function countdownLabel(days) {
+  if (days > 1) return `Início em ${days} dias`
+  if (days === 1) return 'Início amanhã'
+  if (days === 0) return 'Começa hoje'
+  return 'Turma em andamento'
+}
+
+function ProgramChartTooltip({ active, payload }) {
+  if (!active || !payload || !payload.length) return null
+  const p = payload[0].payload
+  return (
+    <div className="hub-chart-tooltip">
+      <p className="hub-chart-tooltip__label">{p.name}</p>
+      <p><strong>{formatBRL(p.revenueGoal)}</strong> de meta de receita</p>
+    </div>
+  )
+}
 
 function NavIcon({ type }) {
   const icons = {
@@ -173,6 +212,7 @@ export function PktHub() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('Home')
   const [activeAgent, setActiveAgent] = useState(null)
+  const nextProgram = getNextProgram()
 
   function handleTabChange(tab) {
     setActiveTab(tab)
@@ -225,20 +265,6 @@ export function PktHub() {
           </p>
         </div>
 
-        {!activeAgent && (
-          <nav className="hub-tabs">
-            {TABS.map((tab) => (
-              <button
-                key={tab}
-                className={`hub-tabs__item ${activeTab === tab ? 'hub-tabs__item--active' : ''}`}
-                onClick={() => handleTabChange(tab)}
-              >
-                {tab}
-              </button>
-            ))}
-          </nav>
-        )}
-
         <main className="hub-main">
           {/* Banner — oculto quando agente aberto */}
           {!activeAgent && (
@@ -259,61 +285,51 @@ export function PktHub() {
 
           {/* ── Conteúdo normal das abas ── */}
           {!activeAgent && activeTab === 'Home' && (
-            <section className="hub-main__section">
-              <h2 className="hub-main__section-title">Agentes</h2>
-              <div className="hub-main__grid">
-                <button className="hub-agent-card" onClick={() => setActiveAgent('laura')}>
-                  <span className="hub-agent-card__tag">Comercial</span>
-                  <img src="/Laura-agent.png" alt="Laura Vieira" className="hub-agent-card__photo" />
-                  <h3 className="hub-agent-card__name">Laura Vieira</h3>
-                  <p className="hub-agent-card__role">Pré-qualificação B2C</p>
-                  <span className="hub-agent-card__status">Ativo</span>
-                </button>
-              </div>
-            </section>
-          )}
+            <>
+              <section className="hub-main__section">
+                <h2 className="hub-main__section-title">Próximo Programa</h2>
+                {nextProgram ? (
+                  <div className="hub-next-program" style={{ '--accent': nextProgram.accentColor }}>
+                    <div className="hub-next-program__main">
+                      <span className="hub-next-program__eyebrow">Turma mais próxima</span>
+                      <h3 className="hub-next-program__name">{nextProgram.name}</h3>
+                      <span className="hub-next-program__countdown">{countdownLabel(nextProgram.daysUntil)}</span>
+                    </div>
+                    <div className="hub-next-program__stats">
+                      <div className="hub-next-program__stat">
+                        <strong>{nextProgram.goal}</strong>
+                        <span>vagas meta</span>
+                      </div>
+                      <div className="hub-next-program__stat">
+                        <strong>{formatCompactBRL(nextProgram.revenueGoal)}</strong>
+                        <span>meta de receita</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="hub-main__empty">Nenhum programa cadastrado.</p>
+                )}
+              </section>
 
-          {!activeAgent && activeTab === 'Home' && (
-            <section className="hub-main__section">
-              <h2 className="hub-main__section-title">Comercial</h2>
-              <div className="hub-main__grid">
-                <div className="hub-card hub-card--disabled">
-                  <span className="hub-card__tag hub-card__tag--geral">Geral</span>
-                  <div className="hub-card__icon hub-card__icon--geral">🎯</div>
-                  <h3 className="hub-card__title">Controle de Metas</h3>
-                  <p className="hub-card__desc">Acompanhamento consolidado de metas de receita e conversão de todos os programas.</p>
-                  <span className="hub-card__status">Em breve</span>
+              <section className="hub-main__section">
+                <h2 className="hub-main__section-title">Metas de Receita por Programa</h2>
+                <div className="hub-chart-card">
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart data={PROGRAMS} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(48,50,51,.08)" />
+                      <XAxis dataKey="shortName" tick={{ fontSize: 12, fill: '#4a4d4f' }} axisLine={{ stroke: 'rgba(48,50,51,.15)' }} tickLine={false} />
+                      <YAxis tick={{ fontSize: 11, fill: '#9a9d9f' }} axisLine={false} tickLine={false} width={48} tickFormatter={(v) => formatCompactBRL(v)} />
+                      <Tooltip content={<ProgramChartTooltip />} cursor={{ fill: 'rgba(48,50,51,.04)' }} />
+                      <Bar dataKey="revenueGoal" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                        {PROGRAMS.map((p) => (
+                          <Cell key={p.id} fill={p.accentColor} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-                <button className="hub-card" onClick={() => navigate('/pekate-dash')}>
-                  <span className="hub-card__tag">B2C</span>
-                  <div className="hub-card__icon hub-card__icon--b2c">📊</div>
-                  <h3 className="hub-card__title">Comando B2C</h3>
-                  <p className="hub-card__desc">Funil, metas, vendedores e alertas dos programas B2C em tempo real.</p>
-                  <span className="hub-card__status hub-card__status--live">Ao vivo</span>
-                </button>
-                <button className="hub-card" onClick={() => navigate('/seller-analysis')}>
-                  <span className="hub-card__tag">B2C</span>
-                  <div className="hub-card__icon hub-card__icon--b2c">👤</div>
-                  <h3 className="hub-card__title">Análise dos Vendedores</h3>
-                  <p className="hub-card__desc">Performance individual, atividades e metas dos vendedores.</p>
-                  <span className="hub-card__status hub-card__status--live">Ao vivo</span>
-                </button>
-                <button className="hub-card" onClick={() => navigate('/comando-b2b')}>
-                  <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
-                  <div className="hub-card__icon">🏢</div>
-                  <h3 className="hub-card__title">Comando B2B</h3>
-                  <p className="hub-card__desc">Contas corporativas e pipeline enterprise.</p>
-                  <span className="hub-card__status hub-card__status--live">Ao vivo</span>
-                </button>
-                <button className="hub-card" onClick={() => navigate('/seller-analysis?segment=b2b')}>
-                  <span className="hub-card__tag hub-card__tag--b2b">B2B</span>
-                  <div className="hub-card__icon">👤</div>
-                  <h3 className="hub-card__title">Análise dos Vendedores</h3>
-                  <p className="hub-card__desc">Performance individual, atividades e metas dos vendedores B2B.</p>
-                  <span className="hub-card__status hub-card__status--live">Ao vivo</span>
-                </button>
-              </div>
-            </section>
+              </section>
+            </>
           )}
 
           {!activeAgent && activeTab === 'Comercial' && (
@@ -371,7 +387,7 @@ export function PktHub() {
             </>
           )}
 
-          {!activeAgent && (activeTab === 'Home' || activeTab === 'Marketing') && (
+          {!activeAgent && activeTab === 'Marketing' && (
             <section className="hub-main__section">
               <h2 className="hub-main__section-title">Marketing</h2>
               <div className="hub-main__grid">
@@ -421,7 +437,7 @@ export function PktHub() {
             </section>
           )}
 
-          {!activeAgent && (activeTab === 'Home' || activeTab === 'Operação') && (
+          {!activeAgent && activeTab === 'Operação' && (
             <section className="hub-main__section">
               <h2 className="hub-main__section-title">Operacional</h2>
               <div className="hub-main__grid">
