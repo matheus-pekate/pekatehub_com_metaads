@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react'
 import { fetchParticipantesEvento } from '../../services/eventosApi'
 import { formatDate } from '../meta-ads/format'
 import { STATUS_LABELS, STATUS_COLORS } from '../../config/eventos'
-import { buildPipedriveDealUrl, buildPipedrivePersonUrl } from '../../config/pipedrive'
+import { buildPipedrivePersonUrl } from '../../config/pipedrive'
 
 const FILTERS = ['todos', 'curioso', 'lead', 'negocio', 'nao_compareceu']
 
 function getPipedriveLink(p) {
-  if (p.status === 'negocio' && p.pipedrive_deal_id) return buildPipedriveDealUrl(p.pipedrive_deal_id)
   if (p.pipedrive_person_id) return buildPipedrivePersonUrl(p.pipedrive_person_id)
   return null
 }
@@ -119,7 +118,7 @@ export function ParticipantsListModal({ evento, onClose }) {
                         href={pipedriveLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title={p.status === 'negocio' ? 'Ver negócio no Pipedrive' : 'Ver pessoa no Pipedrive'}
+                        title="Ver pessoa no Pipedrive"
                       >
                         {nome}
                       </a>
