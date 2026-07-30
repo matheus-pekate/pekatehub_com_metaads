@@ -76,10 +76,23 @@
 
 .pkt-eventos-topbar__summary {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   font-size: 14px;
   font-weight: 700;
   color: var(--petroleo-mid);
+}
+
+.pkt-eventos-topbar__stat {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.pkt-eventos-topbar__stat strong {
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: var(--petroleo);
 }
 
 .pkt-eventos-topbar__error {
