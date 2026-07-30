@@ -184,7 +184,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--petroleo-mid);
 }
 
@@ -194,6 +194,13 @@
   border-radius: 50%;
   flex-shrink: 0;
   display: inline-block;
+}
+
+.pkt-eventos-stats__count {
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  font-size: 19px;
+  color: var(--petroleo);
 }
 
 /* ── Visão geral (rodapé da página) ── */
