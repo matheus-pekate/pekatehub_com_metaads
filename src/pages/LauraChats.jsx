@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import './laura-chats.css'
 
 function parseMessage(raw) {
-  const match = raw.match(/^(AI|USER)_(\d{4}-\d{2}-\d{2}T[\d:.+-]+):\s?(.*)$/s)
+  const match = raw.match(/^(AI|USER)(?:_[A-Za-z]+)?_(\d{4}-\d{2}-\d{2}T[\d:.+-]+):\s?(.*)$/s)
   if (!match) return { role: 'unknown', time: '', text: raw }
   return {
     role: match[1] === 'AI' ? 'ai' : 'user',
@@ -18,6 +18,46 @@ function formatTime(iso) {
   } catch {
     return ''
   }
+}
+
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+}
+
+function formatDayLabel(iso) {
+  const date = new Date(iso)
+  if (isNaN(date.getTime())) return ''
+  const now = new Date()
+  const yesterday = new Date(now)
+  yesterday.setDate(now.getDate() - 1)
+  if (isSameDay(date, now)) return 'Hoje'
+  if (isSameDay(date, yesterday)) return 'Ontem'
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+}
+
+function sortByTime(messages) {
+  return [...messages].sort((a, b) => {
+    const ta = new Date(a.time).getTime()
+    const tb = new Date(b.time).getTime()
+    return (isNaN(ta) ? 0 : ta) - (isNaN(tb) ? 0 : tb)
+  })
+}
+
+function withDaySeparators(messages) {
+  const out = []
+  let lastDay = null
+  for (const m of messages) {
+    const date = new Date(m.time)
+    if (!isNaN(date.getTime())) {
+      const dayKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+      if (dayKey !== lastDay) {
+        out.push({ separator: true, label: formatDayLabel(m.time) })
+        lastDay = dayKey
+      }
+    }
+    out.push(m)
+  }
+  return out
 }
 
 function formatPhone(key) {
@@ -53,7 +93,8 @@ export function LauraChats() {
   }, [selected])
 
   const keys = Object.keys(chats)
-  const messages = selected ? (chats[selected] || []).map(parseMessage) : []
+  const sortedMessages = selected ? sortByTime((chats[selected] || []).map(parseMessage)) : []
+  const messages = withDaySeparators(sortedMessages)
 
   return (
     <div className="lc-layout">
@@ -80,7 +121,7 @@ export function LauraChats() {
           {error && <p className="lc-empty lc-empty--error">{error}</p>}
           {!loading && keys.length === 0 && <p className="lc-empty">Nenhuma conversa encontrada.</p>}
           {keys.map((key) => {
-            const msgs = chats[key].map(parseMessage)
+            const msgs = sortByTime(chats[key].map(parseMessage))
             const last = msgs[msgs.length - 1]
             return (
               <button
@@ -110,17 +151,21 @@ export function LauraChats() {
               <div className="lc-chat-header__avatar">{formatPhone(selected).slice(-2)}</div>
               <div>
                 <span className="lc-chat-header__phone">{formatPhone(selected)}</span>
-                <span className="lc-chat-header__count">{messages.length} mensagens</span>
+                <span className="lc-chat-header__count">{sortedMessages.length} mensagens</span>
               </div>
             </div>
 
             <div className="lc-messages">
-              {messages.map((m, i) => (
-                <div key={i} className={`lc-bubble lc-bubble--${m.role}`}>
-                  <p className="lc-bubble__text">{m.text}</p>
-                  <span className="lc-bubble__time">{formatTime(m.time)}</span>
-                </div>
-              ))}
+              {messages.map((m, i) =>
+                m.separator ? (
+                  <div key={i} className="lc-day-separator"><span>{m.label}</span></div>
+                ) : (
+                  <div key={i} className={`lc-bubble lc-bubble--${m.role}`}>
+                    <p className="lc-bubble__text">{m.text}</p>
+                    <span className="lc-bubble__time">{formatTime(m.time)}</span>
+                  </div>
+                )
+              )}
               <div ref={bottomRef} />
             </div>
           </>
