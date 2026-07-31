@@ -28,11 +28,23 @@ export const handler = async () => {
     } while (cursor !== '0')
 
     let totalMessages = 0
+    let totalSkipped = 0
     for (const key of keys) {
       const phone = key.replace('chat-history_', '')
       const messages = await client.lrange(key, 0, -1)
       if (messages.length === 0) continue
-      const rows = messages.map((message) => ({ phone, message }))
+
+      const { data: existing, error: fetchError } = await supabase
+        .from('chat_messages')
+        .select('message')
+        .eq('phone', phone)
+      if (fetchError) throw fetchError
+      const existingSet = new Set((existing || []).map((r) => r.message))
+
+      const rows = messages.filter((message) => !existingSet.has(message)).map((message) => ({ phone, message }))
+      totalSkipped += messages.length - rows.length
+      if (rows.length === 0) continue
+
       const { error } = await supabase.from('chat_messages').insert(rows)
       if (error) throw error
       totalMessages += rows.length
@@ -41,7 +53,7 @@ export const handler = async () => {
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ totalPhones: keys.length, totalMessages }),
+      body: JSON.stringify({ totalPhones: keys.length, totalMessages, totalSkipped }),
     }
   } catch (err) {
     console.error(err)
