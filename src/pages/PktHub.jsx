@@ -81,8 +81,54 @@ function parseMessage(raw) {
 }
 
 function formatTime(iso) {
-  try { return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) }
-  catch { return '' }
+  try {
+    const date = new Date(iso)
+    const day = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+    const hour = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    return `${day} ${hour}`
+  } catch {
+    return ''
+  }
+}
+
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+}
+
+function formatDayLabel(iso) {
+  const date = new Date(iso)
+  if (isNaN(date.getTime())) return ''
+  const now = new Date()
+  const yesterday = new Date(now)
+  yesterday.setDate(now.getDate() - 1)
+  if (isSameDay(date, now)) return 'Hoje'
+  if (isSameDay(date, yesterday)) return 'Ontem'
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+}
+
+function sortByTime(messages) {
+  return [...messages].sort((a, b) => {
+    const ta = new Date(a.time).getTime()
+    const tb = new Date(b.time).getTime()
+    return (isNaN(ta) ? 0 : ta) - (isNaN(tb) ? 0 : tb)
+  })
+}
+
+function withDaySeparators(messages) {
+  const out = []
+  let lastDay = null
+  for (const m of messages) {
+    const date = new Date(m.time)
+    if (!isNaN(date.getTime())) {
+      const dayKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+      if (dayKey !== lastDay) {
+        out.push({ separator: true, label: formatDayLabel(m.time) })
+        lastDay = dayKey
+      }
+    }
+    out.push(m)
+  }
+  return out
 }
 
 function formatPhone(key) {
@@ -116,7 +162,8 @@ function LauraPage() {
   }, [selected, chats])
 
   const keys = Object.keys(chats)
-  const messages = selected ? (chats[selected] || []).map(parseMessage) : []
+  const sortedMessages = selected ? sortByTime((chats[selected] || []).map(parseMessage)) : []
+  const messages = withDaySeparators(sortedMessages)
 
   return (
     <div className="agent-page">
@@ -146,7 +193,7 @@ function LauraPage() {
             {loading && <p className="agent-chats__empty">Carregando...</p>}
             {!loading && keys.length === 0 && <p className="agent-chats__empty">Nenhuma conversa.</p>}
             {keys.map(key => {
-              const msgs = chats[key].map(parseMessage)
+              const msgs = sortByTime(chats[key].map(parseMessage))
               const last = msgs[msgs.length - 1]
               return (
                 <button
@@ -175,16 +222,20 @@ function LauraPage() {
                   <div className="agent-chat-item__avatar">{formatPhone(selected).slice(-2)}</div>
                   <div>
                     <span className="agent-chat-item__phone">{formatPhone(selected)}</span>
-                    <span className="agent-chat-item__preview">{messages.length} mensagens</span>
+                    <span className="agent-chat-item__preview">{sortedMessages.length} mensagens</span>
                   </div>
                 </div>
                 <div className="agent-messages">
-                  {messages.map((m, i) => (
-                    <div key={i} className={`agent-bubble agent-bubble--${m.role}`}>
-                      <p className="agent-bubble__text">{m.text}</p>
-                      <span className="agent-bubble__time">{formatTime(m.time)}</span>
-                    </div>
-                  ))}
+                  {messages.map((m, i) =>
+                    m.separator ? (
+                      <div key={i} className="agent-day-separator"><span>{m.label}</span></div>
+                    ) : (
+                      <div key={i} className={`agent-bubble agent-bubble--${m.role}`}>
+                        <p className="agent-bubble__text">{m.text}</p>
+                        <span className="agent-bubble__time">{formatTime(m.time)}</span>
+                      </div>
+                    )
+                  )}
                   <div ref={bottomRef} />
                 </div>
               </>
