@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, Labe
 import { GeneralDocsGrid } from '../components/docs/GeneralDocsGrid'
 import { PROGRAMS } from '../config/pipedrive'
 import { useDashboardData } from '../hooks/useDashboardData'
+import { supabase } from '../lib/supabaseClient'
 import './pkt-hub.css'
 
 const SIDEBAR_ITEMS = [
@@ -317,6 +318,17 @@ export function PktHub() {
               <span className="hub-sidebar__user-name">Pekatê Brasil</span>
               <span className="hub-sidebar__user-role">Administrador</span>
             </div>
+            <button
+              className="hub-sidebar__logout"
+              title="Sair"
+              onClick={() => supabase.auth.signOut()}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <path d="M16 17l5-5-5-5" />
+                <path d="M21 12H9" />
+              </svg>
+            </button>
           </div>
         </div>
       </aside>

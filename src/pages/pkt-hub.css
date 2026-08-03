@@ -276,6 +276,25 @@
   color: #366368;
 }
 
+.hub-sidebar__logout {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  color: #6b6e70;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.hub-sidebar__logout:hover {
+  background: rgba(203, 91, 54, 0.1);
+  color: #cb5b36;
+}
+
 /* ==================== RIGHT COLUMN ==================== */
 .hub-right {
   flex: 1;
