@@ -67,6 +67,13 @@
   border-color: #fe8f20;
 }
 
+.login-input--code {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 6px;
+}
+
 .login-submit {
   padding: 12px 14px;
   border: none;
