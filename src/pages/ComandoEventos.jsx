@@ -16,11 +16,12 @@ export function ComandoEventos() {
   const totals = data.reduce((acc, e) => {
     acc.total += e.totalParticipantes
     acc.prospects += e.prospects
-    acc.leads += e.leadsNovos + e.leadsExistentes
-    acc.negocios += e.negociosNovos + e.negociosExistentes
+    acc.convidados += e.convidados
+    acc.oportunidades += e.oportunidadesNovas + e.oportunidadesExistentes
+    acc.negociosGanhos += e.negociosGanhosNovos + e.negociosGanhosExistentes
     acc.naoCompareceram += e.naoCompareceram
     return acc
-  }, { total: 0, prospects: 0, leads: 0, negocios: 0, naoCompareceram: 0 })
+  }, { total: 0, prospects: 0, convidados: 0, oportunidades: 0, negociosGanhos: 0, naoCompareceram: 0 })
 
   return (
     <div className="pkt-eventos-page">
@@ -38,11 +39,14 @@ export function ComandoEventos() {
           <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('nao_compareceu')}>
             <strong>{totals.naoCompareceram}</strong> não compareceram
           </button>
-          <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('lead')}>
-            <strong>{totals.leads}</strong> leads
+          <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('convidado')}>
+            <strong>{totals.convidados}</strong> convidados
           </button>
-          <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('negocio')}>
-            <strong>{totals.negocios}</strong> negócios
+          <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('oportunidade')}>
+            <strong>{totals.oportunidades}</strong> oportunidades
+          </button>
+          <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('negocio_ganho')}>
+            <strong>{totals.negociosGanhos}</strong> negócios ganhos
           </button>
           <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter('curioso')}>
             <strong>{totals.prospects}</strong> prospects

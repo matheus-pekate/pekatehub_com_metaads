@@ -2,14 +2,23 @@ export const REFRESH_INTERVAL_MINUTES = 15
 
 export const STATUS_LABELS = {
   curioso: 'Prospect',
-  lead: 'Lead',
-  negocio: 'Negócio',
+  convidado: 'Convidado',
+  oportunidade: 'Oportunidade',
+  negocio_ganho: 'Negócio Ganho',
   nao_compareceu: 'Não compareceu',
 }
 
 export const STATUS_COLORS = {
   curioso: '#94A3B8',
-  lead: '#F26522',
-  negocio: '#2D6A4F',
+  convidado: '#F26522',
+  oportunidade: '#2D6A4F',
+  negocio_ganho: '#EAB308',
   nao_compareceu: '#8B5CF6',
+}
+
+// Status do negócio (pipedrive_deal_status), usado no sub-filtro de Oportunidades
+export const DEAL_STATUS_LABELS = {
+  todos: 'Todos',
+  open: 'Em andamento',
+  lost: 'Perdido',
 }
