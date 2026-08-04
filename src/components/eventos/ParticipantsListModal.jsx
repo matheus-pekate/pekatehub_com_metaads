@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react'
 import { fetchParticipantesEvento } from '../../services/eventosApi'
 import { formatDate } from '../meta-ads/format'
-import { STATUS_LABELS, STATUS_COLORS } from '../../config/eventos'
+import { STATUS_LABELS, STATUS_COLORS, DEAL_STATUS_LABELS } from '../../config/eventos'
 import { buildPipedrivePersonUrl } from '../../config/pipedrive'
 
-const FILTERS = ['todos', 'curioso', 'lead', 'negocio', 'nao_compareceu']
+const FILTERS = ['todos', 'curioso', 'convidado', 'oportunidade', 'negocio_ganho', 'nao_compareceu']
+
+const SITUACAO_LABELS = {
+  todos: 'Todos',
+  novo: 'Novo',
+  existente: 'Já existia',
+}
 
 function getPipedriveLink(p) {
   if (p.pipedrive_person_id) return buildPipedrivePersonUrl(p.pipedrive_person_id)
@@ -47,6 +53,8 @@ export function ParticipantsListModal({ evento, onClose }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [filter, setFilter] = useState('todos')
+  const [dealStatusFilter, setDealStatusFilter] = useState('todos')
+  const [situacaoFilter, setSituacaoFilter] = useState('todos')
 
   useEffect(() => {
     let cancelled = false
@@ -58,7 +66,11 @@ export function ParticipantsListModal({ evento, onClose }) {
     return () => { cancelled = true }
   }, [evento.event_id])
 
-  const filtered = filter === 'todos' ? participantes : participantes.filter((p) => p.status === filter)
+  let filtered = filter === 'todos' ? participantes : participantes.filter((p) => p.status === filter)
+  if (filter === 'oportunidade') {
+    if (dealStatusFilter !== 'todos') filtered = filtered.filter((p) => p.pipedrive_deal_status === dealStatusFilter)
+    if (situacaoFilter !== 'todos') filtered = filtered.filter((p) => p.situacao === situacaoFilter)
+  }
 
   return (
     <div className="pkt-eventos-overlay" onClick={onClose}>
@@ -76,7 +88,7 @@ export function ParticipantsListModal({ evento, onClose }) {
             <button
               key={f}
               className={`pkt-eventos-filter ${filter === f ? 'pkt-eventos-filter--active' : ''}`}
-              onClick={() => setFilter(f)}
+              onClick={() => { setFilter(f); setDealStatusFilter('todos'); setSituacaoFilter('todos') }}
             >
               {f === 'todos' ? 'Todos' : STATUS_LABELS[f]}
             </button>
@@ -89,6 +101,30 @@ export function ParticipantsListModal({ evento, onClose }) {
             ⬇ Exportar Excel
           </button>
         </div>
+
+        {filter === 'oportunidade' && (
+          <div className="pkt-eventos-participants__filters pkt-eventos-participants__filters--sub">
+            {Object.keys(DEAL_STATUS_LABELS).map((ds) => (
+              <button
+                key={ds}
+                className={`pkt-eventos-filter pkt-eventos-filter--sub ${dealStatusFilter === ds ? 'pkt-eventos-filter--active' : ''}`}
+                onClick={() => setDealStatusFilter(ds)}
+              >
+                {DEAL_STATUS_LABELS[ds]}
+              </button>
+            ))}
+            <span className="pkt-eventos-filter-divider" />
+            {Object.keys(SITUACAO_LABELS).map((s) => (
+              <button
+                key={s}
+                className={`pkt-eventos-filter pkt-eventos-filter--sub ${situacaoFilter === s ? 'pkt-eventos-filter--active' : ''}`}
+                onClick={() => setSituacaoFilter(s)}
+              >
+                {SITUACAO_LABELS[s]}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="pkt-eventos-participants__body">
           {loading && <div className="pkt-eventos-modal__state">Carregando...</div>}

@@ -467,6 +467,13 @@
   color: var(--branco);
 }
 
+.pkt-eventos-filter-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--linha-strong);
+  margin: 0 4px;
+}
+
 .pkt-eventos-topbar__stat--clickable {
   cursor: pointer;
   border: none;

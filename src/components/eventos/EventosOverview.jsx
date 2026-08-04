@@ -16,25 +16,27 @@ export function EventosOverview({ eventos }) {
   const totals = eventos.reduce((acc, e) => {
     acc.total += e.totalParticipantes
     acc.prospects += e.prospects
-    acc.leads += e.leadsNovos + e.leadsExistentes
-    acc.negocios += e.negociosNovos + e.negociosExistentes
+    acc.convidados += e.convidados
+    acc.oportunidades += e.oportunidadesNovas + e.oportunidadesExistentes
+    acc.negociosGanhos += e.negociosGanhosNovos + e.negociosGanhosExistentes
     acc.naoCompareceram += e.naoCompareceram
     return acc
-  }, { total: 0, prospects: 0, leads: 0, negocios: 0, naoCompareceram: 0 })
+  }, { total: 0, prospects: 0, convidados: 0, oportunidades: 0, negociosGanhos: 0, naoCompareceram: 0 })
 
-  const { total, prospects, leads, negocios, naoCompareceram } = totals
+  const { total, prospects, convidados, oportunidades, negociosGanhos, naoCompareceram } = totals
   const pct = (n) => (total > 0 ? (n / total) * 100 : 0)
 
   const pieData = [
     { key: 'nao_compareceu', label: 'Não compareceram', value: naoCompareceram, pct: pct(naoCompareceram) },
-    { key: 'lead', label: 'Leads', value: leads, pct: pct(leads) },
-    { key: 'negocio', label: 'Negócios', value: negocios, pct: pct(negocios) },
+    { key: 'convidado', label: 'Convidados', value: convidados, pct: pct(convidados) },
+    { key: 'oportunidade', label: 'Oportunidades', value: oportunidades, pct: pct(oportunidades) },
+    { key: 'negocio_ganho', label: 'Negócios Ganhos', value: negociosGanhos, pct: pct(negociosGanhos) },
     { key: 'curioso', label: 'Prospects', value: prospects, pct: pct(prospects) },
   ]
 
-  const conversaoLead = total > 0 ? ((leads + negocios) / total) * 100 : 0
-  const conversaoNegocio = total > 0 ? (negocios / total) * 100 : 0
-  const fechamento = (leads + negocios) > 0 ? (negocios / (leads + negocios)) * 100 : 0
+  const conversaoAtiva = total > 0 ? ((convidados + oportunidades + negociosGanhos) / total) * 100 : 0
+  const conversaoGanho = total > 0 ? (negociosGanhos / total) * 100 : 0
+  const fechamento = (oportunidades + negociosGanhos) > 0 ? (negociosGanhos / (oportunidades + negociosGanhos)) * 100 : 0
 
   if (total === 0) {
     return (
@@ -89,19 +91,19 @@ export function EventosOverview({ eventos }) {
 
         <div className="pkt-eventos-overview__stats">
           <div className="pkt-eventos-overview__stat">
-            <span className="pkt-eventos-overview__stat-value">{conversaoLead.toFixed(1)}%</span>
-            <span className="pkt-eventos-overview__stat-label">Taxa de conversão em lead</span>
-            <span className="pkt-eventos-overview__stat-hint">participantes que viraram lead ou negócio</span>
+            <span className="pkt-eventos-overview__stat-value">{conversaoAtiva.toFixed(1)}%</span>
+            <span className="pkt-eventos-overview__stat-label">Taxa de conversão</span>
+            <span className="pkt-eventos-overview__stat-hint">participantes que viraram convidado, oportunidade ou negócio ganho</span>
           </div>
           <div className="pkt-eventos-overview__stat">
-            <span className="pkt-eventos-overview__stat-value">{conversaoNegocio.toFixed(1)}%</span>
+            <span className="pkt-eventos-overview__stat-value">{conversaoGanho.toFixed(1)}%</span>
             <span className="pkt-eventos-overview__stat-label">Taxa de fechamento</span>
-            <span className="pkt-eventos-overview__stat-hint">participantes que viraram negócio</span>
+            <span className="pkt-eventos-overview__stat-hint">participantes que viraram negócio ganho</span>
           </div>
           <div className="pkt-eventos-overview__stat">
             <span className="pkt-eventos-overview__stat-value">{fechamento.toFixed(1)}%</span>
-            <span className="pkt-eventos-overview__stat-label">Taxa lead → negócio</span>
-            <span className="pkt-eventos-overview__stat-hint">de quem virou lead ou negócio, quantos fecharam</span>
+            <span className="pkt-eventos-overview__stat-label">Taxa oportunidade → ganho</span>
+            <span className="pkt-eventos-overview__stat-hint">de quem teve oportunidade ou ganhou, quantos fecharam</span>
           </div>
         </div>
       </div>

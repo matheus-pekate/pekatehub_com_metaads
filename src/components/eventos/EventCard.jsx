@@ -13,10 +13,11 @@ export function EventCard({ evento, onSelect }) {
         </span>
         <EventStats
           prospects={evento.prospects}
-          leadsNovos={evento.leadsNovos}
-          leadsExistentes={evento.leadsExistentes}
-          negociosNovos={evento.negociosNovos}
-          negociosExistentes={evento.negociosExistentes}
+          convidados={evento.convidados}
+          oportunidadesNovas={evento.oportunidadesNovas}
+          oportunidadesExistentes={evento.oportunidadesExistentes}
+          negociosGanhosNovos={evento.negociosGanhosNovos}
+          negociosGanhosExistentes={evento.negociosGanhosExistentes}
           naoCompareceram={evento.naoCompareceram}
         />
       </div>
