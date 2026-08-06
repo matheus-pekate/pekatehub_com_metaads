@@ -2,12 +2,10 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import './login.css'
 
-const ADMIN_EMAIL = 'admin@pekate.com.br'
-
 export function Login() {
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
-  const [status, setStatus] = useState('idle') // idle | sending | sent | code | verifying | error
+  const [status, setStatus] = useState('idle') // idle | sending | sent | verifying | error
   const [error, setError] = useState(null)
 
   async function handleSubmit(e) {
@@ -38,7 +36,7 @@ export function Login() {
       return
     }
 
-    setStatus(trimmed === ADMIN_EMAIL ? 'code' : 'sent')
+    setStatus('sent')
   }
 
   async function handleVerifyCode(e) {
@@ -55,7 +53,7 @@ export function Login() {
 
     if (verifyError) {
       setError('Código inválido ou expirado. Confira o e-mail e tente de novo.')
-      setStatus('code')
+      setStatus('sent')
       return
     }
     // sucesso: AuthGate detecta a sessão automaticamente
@@ -67,21 +65,10 @@ export function Login() {
         <img src="/pekate-logo.png" alt="Pekatê Brasil" className="login-logo" />
         <h1 className="login-title">Pekatê <em>Hub</em></h1>
 
-        {status === 'sent' && (
+        {(status === 'sent' || status === 'verifying') ? (
           <>
             <p className="login-subtitle">
-              Enviamos um link de acesso para <strong>{email}</strong>. Abra seu e-mail e clique nele pra entrar.
-            </p>
-            <button className="login-link-again" onClick={() => setStatus('idle')}>
-              Usar outro e-mail
-            </button>
-          </>
-        )}
-
-        {(status === 'code' || status === 'verifying') && (
-          <>
-            <p className="login-subtitle">
-              Enviamos um código de verificação para <strong>{email}</strong>. Digite abaixo pra entrar.
+              Enviamos um e-mail para <strong>{email}</strong>. Clique no link recebido, ou digite abaixo o código de verificação que veio junto.
             </p>
             <form className="login-form" onSubmit={handleVerifyCode}>
               <input
@@ -99,13 +86,11 @@ export function Login() {
               </button>
             </form>
             {error && <p className="login-error">{error}</p>}
-            <button className="login-link-again" onClick={() => setStatus('idle')}>
+            <button className="login-link-again" onClick={() => { setStatus('idle'); setCode(''); setError(null) }}>
               Usar outro e-mail
             </button>
           </>
-        )}
-
-        {(status === 'idle' || status === 'sending' || status === 'error') && (
+        ) : (
           <>
             <p className="login-subtitle">Entre com seu e-mail corporativo para receber o link de acesso.</p>
             <form className="login-form" onSubmit={handleSubmit}>
