@@ -1,21 +1,33 @@
 import { useState } from 'react'
-import { STATUS_COLORS, getStatusLabel } from '../../config/eventos'
+import { STATUS_COLORS, EXISTENTE_CATEGORIES, NOVO_CATEGORIES } from '../../config/eventos'
 
-const CATEGORIAS = [
-  { bucketKey: 'convidado', status: 'convidado' },
-  { bucketKey: 'oportunidade', status: 'oportunidade' },
-  { bucketKey: 'negocioGanho', status: 'negocio_ganho' },
-  { bucketKey: 'prospect', status: 'curioso' },
-]
+const EXISTENTE_BUCKET_KEY = {
+  sem_interacao: 'semInteracao',
+  sem_negociacao: 'semNegociacao',
+  oportunidade: 'oportunidade',
+  negociacao_perdida: 'negociacaoPerdida',
+  negociacao_ganha: 'negociacaoGanha',
+}
 
-function somaBucket(bucket) {
+const NOVO_BUCKET_KEY = {
+  prospect: 'prospect',
+  oportunidade: 'oportunidade',
+  negocio_ganho: 'negocioGanho',
+}
+
+function somaExistente(bucket) {
   if (!bucket) return 0
-  return (bucket.prospect || 0) + (bucket.convidado || 0) + (bucket.oportunidade || 0) + (bucket.negocioGanho || 0)
+  return (bucket.semInteracao || 0) + (bucket.semNegociacao || 0) + (bucket.oportunidade || 0) + (bucket.negociacaoPerdida || 0) + (bucket.negociacaoGanha || 0)
+}
+
+function somaNovo(bucket) {
+  if (!bucket) return 0
+  return (bucket.prospect || 0) + (bucket.oportunidade || 0) + (bucket.negocioGanho || 0)
 }
 
 export function EventStats({ compareceram, naoCompareceram, onDrillDown }) {
   const [aberto, setAberto] = useState(null) // 'compareceram' | 'naoCompareceram' | null
-  const [situacao, setSituacao] = useState(null) // 'existente' | null
+  const [situacao, setSituacao] = useState(null) // 'existente' | 'novo' | null
 
   const total = (compareceram?.total || 0) + (naoCompareceram?.total || 0)
   if (total === 0) {
@@ -24,26 +36,28 @@ export function EventStats({ compareceram, naoCompareceram, onDrillDown }) {
 
   const buckets = { compareceram, naoCompareceram }
 
-  // Cada nível, além de abrir o próximo, já mostra a lista filtrada até aqui —
-  // clicar em qualquer pill sempre leva a algum resultado visível.
+  // Compareceram/Não compareceram → Existe/Novo no CRM → categoria final.
+  // Só a categoria final abre a lista de participantes.
   function abrirTop(chave) {
     setSituacao(null)
-    setAberto(chave)
-    onDrillDown({ compareceu: chave === 'compareceram', situacao: 'todos', status: 'todos' })
+    setAberto((atual) => (atual === chave ? null : chave))
   }
 
-  function escolherSituacao(chave) {
-    setSituacao(chave === 'existente' ? 'existente' : null)
+  function abrirSituacao(chave) {
+    setSituacao((atual) => (atual === chave ? null : chave))
+  }
+
+  function escolherCategoria(categoria) {
     onDrillDown({
       compareceu: aberto === 'compareceram',
-      situacao: chave,
-      status: chave === 'novo' ? 'curioso' : 'todos',
+      situacao,
+      status: categoria.status,
+      dealStatus: categoria.dealStatus,
     })
   }
 
-  function escolherCategoria(status) {
-    onDrillDown({ compareceu: aberto === 'compareceram', situacao: 'existente', status })
-  }
+  const categorias = situacao === 'existente' ? EXISTENTE_CATEGORIES : situacao === 'novo' ? NOVO_CATEGORIES : []
+  const bucketKeyMap = situacao === 'existente' ? EXISTENTE_BUCKET_KEY : NOVO_BUCKET_KEY
 
   return (
     <div className="pkt-eventos-stats">
@@ -70,33 +84,31 @@ export function EventStats({ compareceram, naoCompareceram, onDrillDown }) {
           <button
             type="button"
             className={`pkt-eventos-stats__pill pkt-eventos-stats__pill--sub ${situacao === 'existente' ? 'pkt-eventos-stats__pill--open' : ''}`}
-            onClick={() => escolherSituacao('existente')}
+            onClick={() => abrirSituacao('existente')}
           >
-            <strong>{somaBucket(buckets[aberto]?.existente)}</strong> já existe no CRM
+            <strong>{somaExistente(buckets[aberto]?.existente)}</strong> já existe no CRM
           </button>
           <button
             type="button"
-            className="pkt-eventos-stats__pill pkt-eventos-stats__pill--sub"
-            onClick={() => escolherSituacao('novo')}
+            className={`pkt-eventos-stats__pill pkt-eventos-stats__pill--sub ${situacao === 'novo' ? 'pkt-eventos-stats__pill--open' : ''}`}
+            onClick={() => abrirSituacao('novo')}
           >
-            {/* mostra só os prospects — quem é novo no CRM mas já avançou (virou
-                convidado/oportunidade/negócio ganho novo) não entra nessa contagem específica */}
-            <strong>{buckets[aberto]?.novo?.prospect || 0}</strong> novo no CRM
+            <strong>{somaNovo(buckets[aberto]?.novo)}</strong> novo no CRM
           </button>
         </div>
       )}
 
-      {aberto && situacao === 'existente' && (
+      {aberto && situacao && (
         <div className="pkt-eventos-stats__row pkt-eventos-stats__row--categorias">
-          {CATEGORIAS.map(({ bucketKey, status }) => (
+          {categorias.filter((c) => c.key !== 'todos').map((categoria) => (
             <button
-              key={status}
+              key={categoria.key}
               type="button"
               className="pkt-eventos-stats__pill pkt-eventos-stats__pill--categoria"
-              onClick={() => escolherCategoria(status)}
+              onClick={() => escolherCategoria(categoria)}
             >
-              <i style={{ background: STATUS_COLORS[status] }} />
-              <strong>{buckets[aberto]?.existente?.[bucketKey] || 0}</strong> {getStatusLabel(status, 'existente')}
+              <i style={{ background: categoria.color }} />
+              <strong>{buckets[aberto]?.[situacao]?.[bucketKeyMap[categoria.key]] || 0}</strong> {categoria.label}
             </button>
           ))}
         </div>
