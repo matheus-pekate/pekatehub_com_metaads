@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react'
 import { fetchTodosParticipantes } from '../../services/eventosApi'
 import { formatDate } from '../meta-ads/format'
-import { STATUS_LABELS, STATUS_COLORS, DEAL_STATUS_LABELS, getStatusLabel } from '../../config/eventos'
+import { STATUS_COLORS, DEAL_STATUS_LABELS, EXISTENTE_CATEGORIES, NOVO_CATEGORIES, getStatusLabel } from '../../config/eventos'
 import { buildPipedrivePersonUrl } from '../../config/pipedrive'
 
-const CATEGORY_FILTERS = ['todos', 'curioso', 'convidado', 'oportunidade', 'negocio_ganho']
+// Fallback usado quando nenhuma situação (existe/novo) foi escolhida ainda —
+// mistura tudo, então mostra as categorias "genéricas" (sem separar perdida).
+const CATEGORIAS_TODOS = [
+  { key: 'todos', status: 'todos', dealStatus: 'todos', label: 'Todos' },
+  { key: 'curioso', status: 'curioso', dealStatus: 'todos', label: 'Prospect' },
+  { key: 'convidado', status: 'convidado', dealStatus: 'todos', label: 'Sem negociação' },
+  { key: 'oportunidade', status: 'oportunidade', dealStatus: 'todos', label: 'Oportunidade' },
+  { key: 'negocio_ganho', status: 'negocio_ganho', dealStatus: 'todos', label: 'Negócio Ganho' },
+]
 
 const SITUACAO_LABELS = {
   todos: 'Todos',
@@ -12,7 +20,7 @@ const SITUACAO_LABELS = {
   novo: 'Novo no CRM',
 }
 
-const DEFAULT_FILTER = { compareceu: 'todos', situacao: 'todos', status: 'todos' }
+const DEFAULT_FILTER = { compareceu: 'todos', situacao: 'todos', status: 'todos', dealStatus: 'todos' }
 
 function getPipedriveLink(p) {
   if (p.pipedrive_person_id) return buildPipedrivePersonUrl(p.pipedrive_person_id)
@@ -38,7 +46,7 @@ function exportParticipantesCsv(participantes) {
     p.job_title || '',
     p.ticket_name || '',
     p.check_in ? 'Presente' : 'Não compareceu',
-    getStatusLabel(p.status, p.situacao),
+    getStatusLabel(p.status, p.situacao, p.pipedrive_deal_status),
     p.situacao === 'novo' ? 'Novo' : p.situacao === 'existente' ? 'Já existia' : '',
   ])
   const csvContent = '﻿' + [headers, ...rows].map((row) => row.map(csvEscape).join(';')).join('\r\n')
@@ -59,7 +67,7 @@ export function GlobalParticipantsModal({ initialFilter, onClose }) {
   const [compareceuFilter, setCompareceuFilter] = useState(merged.compareceu)
   const [situacaoFilter, setSituacaoFilter] = useState(merged.situacao)
   const [statusFilter, setStatusFilter] = useState(merged.status)
-  const [dealStatusFilter, setDealStatusFilter] = useState('todos')
+  const [dealStatusFilter, setDealStatusFilter] = useState(merged.dealStatus)
 
   useEffect(() => {
     let cancelled = false
@@ -81,10 +89,17 @@ export function GlobalParticipantsModal({ initialFilter, onClose }) {
 
   function selectSituacao(value) {
     setSituacaoFilter(value)
-    // "Novo no CRM" é sempre o pessoal ainda sem trabalho nenhum — vai direto pro prospect.
-    setStatusFilter(value === 'novo' ? 'curioso' : 'todos')
+    setStatusFilter('todos')
     setDealStatusFilter('todos')
   }
+
+  function selectCategoria(categoria) {
+    setStatusFilter(categoria.status)
+    setDealStatusFilter(categoria.dealStatus)
+  }
+
+  const categorias = situacaoFilter === 'existente' ? EXISTENTE_CATEGORIES : situacaoFilter === 'novo' ? NOVO_CATEGORIES : CATEGORIAS_TODOS
+  const mostrarSubfiltroDeal = situacaoFilter === 'todos' && statusFilter === 'oportunidade'
 
   return (
     <div className="pkt-eventos-overlay" onClick={onClose}>
@@ -123,18 +138,18 @@ export function GlobalParticipantsModal({ initialFilter, onClose }) {
         </div>
 
         <div className="pkt-eventos-participants__filters pkt-eventos-participants__filters--sub">
-          {CATEGORY_FILTERS.map((f) => (
+          {categorias.map((categoria) => (
             <button
-              key={f}
-              className={`pkt-eventos-filter pkt-eventos-filter--sub ${statusFilter === f ? 'pkt-eventos-filter--active' : ''}`}
-              onClick={() => { setStatusFilter(f); setDealStatusFilter('todos') }}
+              key={categoria.key}
+              className={`pkt-eventos-filter pkt-eventos-filter--sub ${statusFilter === categoria.status && dealStatusFilter === categoria.dealStatus ? 'pkt-eventos-filter--active' : ''}`}
+              onClick={() => selectCategoria(categoria)}
             >
-              {f === 'todos' ? 'Todos' : getStatusLabel(f, situacaoFilter)}
+              {categoria.label}
             </button>
           ))}
         </div>
 
-        {statusFilter === 'oportunidade' && (
+        {mostrarSubfiltroDeal && (
           <div className="pkt-eventos-participants__filters pkt-eventos-participants__filters--sub">
             {Object.keys(DEAL_STATUS_LABELS).map((ds) => (
               <button
@@ -195,7 +210,7 @@ export function GlobalParticipantsModal({ initialFilter, onClose }) {
                     {p.check_in ? '✅ Presente' : '❌ Não compareceu'}
                   </span>
                   <span className="pkt-eventos-status" style={{ '--status-color': STATUS_COLORS[p.status] }}>
-                    {getStatusLabel(p.status, p.situacao)}
+                    {getStatusLabel(p.status, p.situacao, p.pipedrive_deal_status)}
                   </span>
                   <span className="pkt-eventos-situacao">
                     {p.situacao === 'novo' && '🆕 Novo'}
