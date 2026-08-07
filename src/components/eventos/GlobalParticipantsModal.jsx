@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchTodosParticipantes } from '../../services/eventosApi'
 import { formatDate } from '../meta-ads/format'
-import { STATUS_LABELS, STATUS_COLORS, DEAL_STATUS_LABELS } from '../../config/eventos'
+import { STATUS_LABELS, STATUS_COLORS, DEAL_STATUS_LABELS, getStatusLabel } from '../../config/eventos'
 import { buildPipedrivePersonUrl } from '../../config/pipedrive'
 
 const CATEGORY_FILTERS = ['todos', 'curioso', 'convidado', 'oportunidade', 'negocio_ganho']
@@ -38,7 +38,7 @@ function exportParticipantesCsv(participantes) {
     p.job_title || '',
     p.ticket_name || '',
     p.check_in ? 'Presente' : 'Não compareceu',
-    STATUS_LABELS[p.status] || p.status,
+    getStatusLabel(p.status, p.situacao),
     p.situacao === 'novo' ? 'Novo' : p.situacao === 'existente' ? 'Já existia' : '',
   ])
   const csvContent = '﻿' + [headers, ...rows].map((row) => row.map(csvEscape).join(';')).join('\r\n')
@@ -129,7 +129,7 @@ export function GlobalParticipantsModal({ initialFilter, onClose }) {
               className={`pkt-eventos-filter pkt-eventos-filter--sub ${statusFilter === f ? 'pkt-eventos-filter--active' : ''}`}
               onClick={() => { setStatusFilter(f); setDealStatusFilter('todos') }}
             >
-              {f === 'todos' ? 'Todos' : STATUS_LABELS[f]}
+              {f === 'todos' ? 'Todos' : getStatusLabel(f, situacaoFilter)}
             </button>
           ))}
         </div>
@@ -195,7 +195,7 @@ export function GlobalParticipantsModal({ initialFilter, onClose }) {
                     {p.check_in ? '✅ Presente' : '❌ Não compareceu'}
                   </span>
                   <span className="pkt-eventos-status" style={{ '--status-color': STATUS_COLORS[p.status] }}>
-                    {STATUS_LABELS[p.status] || p.status}
+                    {getStatusLabel(p.status, p.situacao)}
                   </span>
                   <span className="pkt-eventos-situacao">
                     {p.situacao === 'novo' && '🆕 Novo'}
