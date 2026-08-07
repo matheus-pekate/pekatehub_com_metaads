@@ -3,7 +3,7 @@ export const REFRESH_INTERVAL_MINUTES = 15
 export const STATUS_LABELS = {
   curioso: 'Prospect',
   convidado: 'Sem negociação',
-  oportunidade: 'Oportunidade',
+  oportunidade: 'Negócios em Aberto',
   negocio_ganho: 'Negócio Ganho',
   nao_compareceu: 'Não compareceu',
 }
@@ -33,7 +33,7 @@ export function getStatusLabel(status, situacao, dealStatus) {
   if (status === 'curioso') return situacao === 'existente' ? 'Sem interação' : 'Prospect'
   if (status === 'convidado') return 'Sem negociação'
   if (status === 'oportunidade') {
-    return situacao === 'existente' && dealStatus === 'lost' ? 'Negociação perdida' : 'Oportunidade'
+    return situacao === 'existente' && dealStatus === 'lost' ? 'Negociação perdida' : 'Negócios em Aberto'
   }
   if (status === 'negocio_ganho') return situacao === 'existente' ? 'Negociação ganha' : 'Negócio Ganho'
   return STATUS_LABELS[status] || status
@@ -47,7 +47,7 @@ export const EXISTENTE_CATEGORIES = [
   { key: 'todos', status: 'todos', dealStatus: 'todos', label: 'Todos', color: null },
   { key: 'sem_interacao', status: 'curioso', dealStatus: 'todos', label: 'Sem interação', color: STATUS_COLORS.curioso },
   { key: 'sem_negociacao', status: 'convidado', dealStatus: 'todos', label: 'Sem negociação', color: STATUS_COLORS.convidado },
-  { key: 'oportunidade', status: 'oportunidade', dealStatus: 'open', label: 'Oportunidade', color: STATUS_COLORS.oportunidade },
+  { key: 'oportunidade', status: 'oportunidade', dealStatus: 'open', label: 'Negócios em Aberto', color: STATUS_COLORS.oportunidade },
   { key: 'negociacao_perdida', status: 'oportunidade', dealStatus: 'lost', label: 'Negociação perdida', color: '#B45309' },
   { key: 'negociacao_ganha', status: 'negocio_ganho', dealStatus: 'todos', label: 'Negociação ganha', color: STATUS_COLORS.negocio_ganho },
 ]
@@ -55,6 +55,6 @@ export const EXISTENTE_CATEGORIES = [
 export const NOVO_CATEGORIES = [
   { key: 'todos', status: 'todos', dealStatus: 'todos', label: 'Todos', color: null },
   { key: 'prospect', status: 'curioso', dealStatus: 'todos', label: 'Prospects', color: STATUS_COLORS.curioso },
-  { key: 'oportunidade', status: 'oportunidade', dealStatus: 'todos', label: 'Oportunidades', color: STATUS_COLORS.oportunidade },
+  { key: 'oportunidade', status: 'oportunidade', dealStatus: 'todos', label: 'Negócios em Aberto', color: STATUS_COLORS.oportunidade },
   { key: 'negocio_ganho', status: 'negocio_ganho', dealStatus: 'todos', label: 'Negócios Ganhos', color: STATUS_COLORS.negocio_ganho },
 ]

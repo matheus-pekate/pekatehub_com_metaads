@@ -10,7 +10,7 @@ const CATEGORIAS_TODOS = [
   { key: 'todos', status: 'todos', dealStatus: 'todos', label: 'Todos' },
   { key: 'curioso', status: 'curioso', dealStatus: 'todos', label: 'Prospect' },
   { key: 'convidado', status: 'convidado', dealStatus: 'todos', label: 'Sem negociação' },
-  { key: 'oportunidade', status: 'oportunidade', dealStatus: 'todos', label: 'Oportunidade' },
+  { key: 'oportunidade', status: 'oportunidade', dealStatus: 'todos', label: 'Negócios em Aberto' },
   { key: 'negocio_ganho', status: 'negocio_ganho', dealStatus: 'todos', label: 'Negócio Ganho' },
 ]
 

@@ -29,7 +29,7 @@ export function EventosOverview({ eventos }) {
   const pieData = [
     { key: 'nao_compareceu', label: 'Não compareceram', value: naoCompareceram, pct: pct(naoCompareceram) },
     { key: 'convidado', label: 'Convidados', value: convidados, pct: pct(convidados) },
-    { key: 'oportunidade', label: 'Oportunidades', value: oportunidades, pct: pct(oportunidades) },
+    { key: 'oportunidade', label: 'Negócios em Aberto', value: oportunidades, pct: pct(oportunidades) },
     { key: 'negocio_ganho', label: 'Negócios Ganhos', value: negociosGanhos, pct: pct(negociosGanhos) },
     { key: 'curioso', label: 'Prospects', value: prospects, pct: pct(prospects) },
   ]
@@ -93,7 +93,7 @@ export function EventosOverview({ eventos }) {
           <div className="pkt-eventos-overview__stat">
             <span className="pkt-eventos-overview__stat-value">{conversaoAtiva.toFixed(1)}%</span>
             <span className="pkt-eventos-overview__stat-label">Taxa de conversão</span>
-            <span className="pkt-eventos-overview__stat-hint">participantes que viraram convidado, oportunidade ou negócio ganho</span>
+            <span className="pkt-eventos-overview__stat-hint">participantes com alguma interação, negócio em aberto ou negócio ganho</span>
           </div>
           <div className="pkt-eventos-overview__stat">
             <span className="pkt-eventos-overview__stat-value">{conversaoGanho.toFixed(1)}%</span>
@@ -102,8 +102,8 @@ export function EventosOverview({ eventos }) {
           </div>
           <div className="pkt-eventos-overview__stat">
             <span className="pkt-eventos-overview__stat-value">{fechamento.toFixed(1)}%</span>
-            <span className="pkt-eventos-overview__stat-label">Taxa oportunidade → ganho</span>
-            <span className="pkt-eventos-overview__stat-hint">de quem teve oportunidade ou ganhou, quantos fecharam</span>
+            <span className="pkt-eventos-overview__stat-label">Taxa negócio em aberto → ganho</span>
+            <span className="pkt-eventos-overview__stat-hint">de quem teve negócio em aberto ou ganhou, quantos fecharam</span>
           </div>
         </div>
       </div>
