@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { STATUS_COLORS, STATUS_LABELS } from '../../config/eventos'
+import { STATUS_COLORS, getStatusLabel } from '../../config/eventos'
 
 const CATEGORIAS = [
   { bucketKey: 'convidado', status: 'convidado' },
@@ -24,17 +24,21 @@ export function EventStats({ compareceram, naoCompareceram, onDrillDown }) {
 
   const buckets = { compareceram, naoCompareceram }
 
-  function toggleTop(chave) {
+  // Cada nível, além de abrir o próximo, já mostra a lista filtrada até aqui —
+  // clicar em qualquer pill sempre leva a algum resultado visível.
+  function abrirTop(chave) {
     setSituacao(null)
-    setAberto((atual) => (atual === chave ? null : chave))
+    setAberto(chave)
+    onDrillDown({ compareceu: chave === 'compareceram', situacao: 'todos', status: 'todos' })
   }
 
   function escolherSituacao(chave) {
-    if (chave === 'novo') {
-      onDrillDown({ compareceu: aberto === 'compareceram', situacao: 'novo', status: 'curioso' })
-      return
-    }
-    setSituacao((atual) => (atual === 'existente' ? null : 'existente'))
+    setSituacao(chave === 'existente' ? 'existente' : null)
+    onDrillDown({
+      compareceu: aberto === 'compareceram',
+      situacao: chave,
+      status: chave === 'novo' ? 'curioso' : 'todos',
+    })
   }
 
   function escolherCategoria(status) {
@@ -47,14 +51,14 @@ export function EventStats({ compareceram, naoCompareceram, onDrillDown }) {
         <button
           type="button"
           className={`pkt-eventos-stats__pill ${aberto === 'compareceram' ? 'pkt-eventos-stats__pill--open' : ''}`}
-          onClick={() => toggleTop('compareceram')}
+          onClick={() => abrirTop('compareceram')}
         >
           <strong>{compareceram?.total || 0}</strong> compareceram
         </button>
         <button
           type="button"
           className={`pkt-eventos-stats__pill ${aberto === 'naoCompareceram' ? 'pkt-eventos-stats__pill--open' : ''}`}
-          onClick={() => toggleTop('naoCompareceram')}
+          onClick={() => abrirTop('naoCompareceram')}
         >
           <i style={{ background: STATUS_COLORS.nao_compareceu }} />
           <strong>{naoCompareceram?.total || 0}</strong> não compareceram
@@ -75,7 +79,9 @@ export function EventStats({ compareceram, naoCompareceram, onDrillDown }) {
             className="pkt-eventos-stats__pill pkt-eventos-stats__pill--sub"
             onClick={() => escolherSituacao('novo')}
           >
-            <strong>{somaBucket(buckets[aberto]?.novo)}</strong> novo no CRM
+            {/* mostra só os prospects — quem é novo no CRM mas já avançou (virou
+                convidado/oportunidade/negócio ganho novo) não entra nessa contagem específica */}
+            <strong>{buckets[aberto]?.novo?.prospect || 0}</strong> novo no CRM
           </button>
         </div>
       )}
@@ -90,7 +96,7 @@ export function EventStats({ compareceram, naoCompareceram, onDrillDown }) {
               onClick={() => escolherCategoria(status)}
             >
               <i style={{ background: STATUS_COLORS[status] }} />
-              <strong>{buckets[aberto]?.existente?.[bucketKey] || 0}</strong> {STATUS_LABELS[status]}
+              <strong>{buckets[aberto]?.existente?.[bucketKey] || 0}</strong> {getStatusLabel(status, 'existente')}
             </button>
           ))}
         </div>

@@ -22,3 +22,12 @@ export const DEAL_STATUS_LABELS = {
   open: 'Em andamento',
   lost: 'Perdido',
 }
+
+// Prospect é, por definição, gente nova no CRM que nunca teve nenhuma
+// interação. Uma pessoa que já existia no CRM antes do evento mas nunca foi
+// trabalhada não é "prospect" (isso é exclusivo de quem é novo) — é alguém
+// que está no CRM mas ainda sem nenhuma interação registrada.
+export function getStatusLabel(status, situacao) {
+  if (status === 'curioso' && situacao === 'existente') return 'Sem interação'
+  return STATUS_LABELS[status] || status
+}
