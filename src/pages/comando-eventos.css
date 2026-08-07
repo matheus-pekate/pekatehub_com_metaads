@@ -128,19 +128,29 @@
 .pkt-eventos-card {
   display: flex;
   flex-direction: column;
-  text-align: left;
   background: var(--branco);
   border: 1px solid var(--linha);
   border-radius: 14px;
   overflow: hidden;
-  cursor: pointer;
-  padding: 0;
   transition: box-shadow .2s ease, transform .2s ease;
 }
 
 .pkt-eventos-card:hover {
   box-shadow: 0 8px 24px rgba(8, 55, 63, .12);
   transform: translateY(-2px);
+}
+
+.pkt-eventos-card__header {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 100%;
+  font: inherit;
+  color: inherit;
 }
 
 .pkt-eventos-card__image {
@@ -150,10 +160,14 @@
 }
 
 .pkt-eventos-card__body {
-  padding: 16px 18px 20px;
+  padding: 16px 18px 8px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.pkt-eventos-card__stats {
+  padding: 4px 18px 20px;
 }
 
 .pkt-eventos-card__date {
@@ -180,11 +194,11 @@
   margin-bottom: 4px;
 }
 
-/* ── Números do evento (sem barra visual) ── */
+/* ── Números do evento (compareceu/não → existe/novo → categorias) ── */
 .pkt-eventos-stats {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .pkt-eventos-stats--empty {
@@ -193,15 +207,33 @@
   font-style: italic;
 }
 
-.pkt-eventos-stats__item {
+.pkt-eventos-stats__row {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
-  font-size: 14px;
-  color: var(--petroleo-mid);
 }
 
-.pkt-eventos-stats__item i {
+.pkt-eventos-stats__row--sub,
+.pkt-eventos-stats__row--categorias {
+  padding-left: 12px;
+  border-left: 2px solid var(--linha-strong);
+}
+
+.pkt-eventos-stats__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--linha-strong);
+  background: var(--branco);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 13px;
+  color: var(--petroleo-mid);
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.pkt-eventos-stats__pill i {
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -209,11 +241,44 @@
   display: inline-block;
 }
 
-.pkt-eventos-stats__count {
+.pkt-eventos-stats__pill strong {
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 800;
-  font-size: 19px;
+  font-size: 16px;
   color: var(--petroleo);
+}
+
+.pkt-eventos-stats__pill:hover {
+  border-color: var(--petroleo-light);
+}
+
+.pkt-eventos-stats__pill--open {
+  background: var(--petroleo);
+  border-color: var(--petroleo);
+  color: var(--branco);
+}
+
+.pkt-eventos-stats__pill--open strong {
+  color: var(--branco);
+}
+
+.pkt-eventos-stats__pill--sub {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.pkt-eventos-stats__pill--sub strong {
+  font-size: 14px;
+}
+
+.pkt-eventos-stats__pill--categoria {
+  border-color: var(--linha);
+  color: var(--petroleo-light);
+}
+
+.pkt-eventos-stats__pill--categoria:hover {
+  border-color: var(--laranja);
+  color: var(--laranja);
 }
 
 /* ── Visão geral (rodapé da página) ── */

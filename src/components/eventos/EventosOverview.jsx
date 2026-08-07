@@ -19,7 +19,7 @@ export function EventosOverview({ eventos }) {
     acc.convidados += e.convidados
     acc.oportunidades += e.oportunidadesNovas + e.oportunidadesExistentes
     acc.negociosGanhos += e.negociosGanhosNovos + e.negociosGanhosExistentes
-    acc.naoCompareceram += e.naoCompareceram
+    acc.naoCompareceram += e.naoCompareceramTotal
     return acc
   }, { total: 0, prospects: 0, convidados: 0, oportunidades: 0, negociosGanhos: 0, naoCompareceram: 0 })
 
