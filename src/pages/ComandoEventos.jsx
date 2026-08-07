@@ -49,7 +49,7 @@ export function ComandoEventos() {
             <strong>{totals.convidados}</strong> convidados
           </button>
           <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter({ compareceu: 'todos', situacao: 'todos', status: 'oportunidade' })}>
-            <strong>{totals.oportunidades}</strong> oportunidades
+            <strong>{totals.oportunidades}</strong> negócios em aberto
           </button>
           <button className="pkt-eventos-topbar__stat pkt-eventos-topbar__stat--clickable" onClick={() => setGlobalFilter({ compareceu: 'todos', situacao: 'todos', status: 'negocio_ganho' })}>
             <strong>{totals.negociosGanhos}</strong> negócios ganhos
