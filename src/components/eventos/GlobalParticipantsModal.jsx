@@ -4,13 +4,15 @@ import { formatDate } from '../meta-ads/format'
 import { STATUS_LABELS, STATUS_COLORS, DEAL_STATUS_LABELS } from '../../config/eventos'
 import { buildPipedrivePersonUrl } from '../../config/pipedrive'
 
-const FILTERS = ['todos', 'curioso', 'convidado', 'oportunidade', 'negocio_ganho', 'nao_compareceu']
+const CATEGORY_FILTERS = ['todos', 'curioso', 'convidado', 'oportunidade', 'negocio_ganho']
 
 const SITUACAO_LABELS = {
   todos: 'Todos',
-  novo: 'Novo',
-  existente: 'Já existia',
+  existente: 'Já existe no CRM',
+  novo: 'Novo no CRM',
 }
+
+const DEFAULT_FILTER = { compareceu: 'todos', situacao: 'todos', status: 'todos' }
 
 function getPipedriveLink(p) {
   if (p.pipedrive_person_id) return buildPipedrivePersonUrl(p.pipedrive_person_id)
@@ -49,13 +51,15 @@ function exportParticipantesCsv(participantes) {
   URL.revokeObjectURL(url)
 }
 
-export function GlobalParticipantsModal({ initialFilter = 'todos', onClose }) {
+export function GlobalParticipantsModal({ initialFilter, onClose }) {
+  const merged = { ...DEFAULT_FILTER, ...initialFilter }
   const [participantes, setParticipantes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [filter, setFilter] = useState(initialFilter)
+  const [compareceuFilter, setCompareceuFilter] = useState(merged.compareceu)
+  const [situacaoFilter, setSituacaoFilter] = useState(merged.situacao)
+  const [statusFilter, setStatusFilter] = useState(merged.status)
   const [dealStatusFilter, setDealStatusFilter] = useState('todos')
-  const [situacaoFilter, setSituacaoFilter] = useState('todos')
 
   useEffect(() => {
     let cancelled = false
@@ -67,10 +71,19 @@ export function GlobalParticipantsModal({ initialFilter = 'todos', onClose }) {
     return () => { cancelled = true }
   }, [])
 
-  let filtered = filter === 'todos' ? participantes : participantes.filter((p) => p.status === filter)
-  if (filter === 'oportunidade') {
-    if (dealStatusFilter !== 'todos') filtered = filtered.filter((p) => p.pipedrive_deal_status === dealStatusFilter)
-    if (situacaoFilter !== 'todos') filtered = filtered.filter((p) => p.situacao === situacaoFilter)
+  let filtered = participantes
+  if (compareceuFilter !== 'todos') filtered = filtered.filter((p) => p.check_in === compareceuFilter)
+  if (situacaoFilter !== 'todos') filtered = filtered.filter((p) => p.situacao === situacaoFilter)
+  if (statusFilter !== 'todos') filtered = filtered.filter((p) => p.status === statusFilter)
+  if (statusFilter === 'oportunidade' && dealStatusFilter !== 'todos') {
+    filtered = filtered.filter((p) => p.pipedrive_deal_status === dealStatusFilter)
+  }
+
+  function selectSituacao(value) {
+    setSituacaoFilter(value)
+    // "Novo no CRM" é sempre o pessoal ainda sem trabalho nenhum — vai direto pro prospect.
+    setStatusFilter(value === 'novo' ? 'curioso' : 'todos')
+    setDealStatusFilter('todos')
   }
 
   return (
@@ -85,15 +98,9 @@ export function GlobalParticipantsModal({ initialFilter = 'todos', onClose }) {
         </div>
 
         <div className="pkt-eventos-participants__filters">
-          {FILTERS.map((f) => (
-            <button
-              key={f}
-              className={`pkt-eventos-filter ${filter === f ? 'pkt-eventos-filter--active' : ''}`}
-              onClick={() => { setFilter(f); setDealStatusFilter('todos'); setSituacaoFilter('todos') }}
-            >
-              {f === 'todos' ? 'Todos' : STATUS_LABELS[f]}
-            </button>
-          ))}
+          <button className={`pkt-eventos-filter ${compareceuFilter === 'todos' ? 'pkt-eventos-filter--active' : ''}`} onClick={() => setCompareceuFilter('todos')}>Todos</button>
+          <button className={`pkt-eventos-filter ${compareceuFilter === true ? 'pkt-eventos-filter--active' : ''}`} onClick={() => setCompareceuFilter(true)}>Compareceram</button>
+          <button className={`pkt-eventos-filter ${compareceuFilter === false ? 'pkt-eventos-filter--active' : ''}`} onClick={() => setCompareceuFilter(false)}>Não compareceram</button>
           <button
             className="pkt-eventos-export"
             onClick={() => exportParticipantesCsv(filtered)}
@@ -103,7 +110,31 @@ export function GlobalParticipantsModal({ initialFilter = 'todos', onClose }) {
           </button>
         </div>
 
-        {filter === 'oportunidade' && (
+        <div className="pkt-eventos-participants__filters pkt-eventos-participants__filters--sub">
+          {Object.keys(SITUACAO_LABELS).map((s) => (
+            <button
+              key={s}
+              className={`pkt-eventos-filter pkt-eventos-filter--sub ${situacaoFilter === s ? 'pkt-eventos-filter--active' : ''}`}
+              onClick={() => selectSituacao(s)}
+            >
+              {SITUACAO_LABELS[s]}
+            </button>
+          ))}
+        </div>
+
+        <div className="pkt-eventos-participants__filters pkt-eventos-participants__filters--sub">
+          {CATEGORY_FILTERS.map((f) => (
+            <button
+              key={f}
+              className={`pkt-eventos-filter pkt-eventos-filter--sub ${statusFilter === f ? 'pkt-eventos-filter--active' : ''}`}
+              onClick={() => { setStatusFilter(f); setDealStatusFilter('todos') }}
+            >
+              {f === 'todos' ? 'Todos' : STATUS_LABELS[f]}
+            </button>
+          ))}
+        </div>
+
+        {statusFilter === 'oportunidade' && (
           <div className="pkt-eventos-participants__filters pkt-eventos-participants__filters--sub">
             {Object.keys(DEAL_STATUS_LABELS).map((ds) => (
               <button
@@ -112,16 +143,6 @@ export function GlobalParticipantsModal({ initialFilter = 'todos', onClose }) {
                 onClick={() => setDealStatusFilter(ds)}
               >
                 {DEAL_STATUS_LABELS[ds]}
-              </button>
-            ))}
-            <span className="pkt-eventos-filter-divider" />
-            {Object.keys(SITUACAO_LABELS).map((s) => (
-              <button
-                key={s}
-                className={`pkt-eventos-filter pkt-eventos-filter--sub ${situacaoFilter === s ? 'pkt-eventos-filter--active' : ''}`}
-                onClick={() => setSituacaoFilter(s)}
-              >
-                {SITUACAO_LABELS[s]}
               </button>
             ))}
           </div>
