@@ -78,7 +78,7 @@ export const PROGRAMS = [
     id: 'clevel',
     name: 'Jornada C-Level',
     shortName: 'C-Level',
-    startDate: '2026-08-08',
+    startDate: '2026-09-14',
     goal: 35,
     price: 33880,
     revenueGoal: 1185800,
