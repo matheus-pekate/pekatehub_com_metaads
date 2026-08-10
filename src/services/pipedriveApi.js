@@ -100,3 +100,58 @@ export async function fetchUserActivities(userId, sinceDays = 7) {
 export async function fetchUserActivitiesInRange(userId, startDate, endDate) {
   return fetchActivitiesInDateRange(userId, startDate, endDate)
 }
+
+// Busca, pra todo deal aberto de um pipeline, o id da próxima atividade
+// agendada (ainda não feita) e o id da última atividade de fato concluída.
+// Só a API v1 (via include_fields) expõe esses dois campos — a v2 usada em
+// fetchAllDealsByPipeline não tem equivalente, por isso é uma chamada extra
+// e não substitui a busca principal de deals.
+export async function fetchDealActivitySignals(pipelineId) {
+  const signals = {}
+  let start = 0
+  while (true) {
+    const url = new URL(`${PIPEDRIVE_BASE_URL}/api/v1/deals`)
+    url.searchParams.set('api_token', TOKEN)
+    url.searchParams.set('pipeline_id', pipelineId)
+    url.searchParams.set('status', 'open')
+    url.searchParams.set('include_fields', 'next_activity_id,last_activity_id')
+    url.searchParams.set('limit', 500)
+    url.searchParams.set('start', start)
+
+    const res = await fetch(url.toString())
+    if (!res.ok) throw new Error(`Erro ao buscar sinais de atividade do pipeline ${pipelineId}: ${res.status}`)
+    const json = await res.json()
+    if (!json.success) throw new Error(`Pipedrive API retornou success=false ao buscar sinais de atividade do pipeline ${pipelineId}`)
+
+    ;(json.data || []).forEach((d) => {
+      signals[d.id] = { nextActivityId: d.next_activity_id || null, lastActivityId: d.last_activity_id || null }
+    })
+
+    const pagination = json.additional_data?.pagination
+    if (!pagination?.more_items_in_collection || pagination.next_start == null) break
+    start = pagination.next_start
+  }
+  return signals
+}
+
+// Busca due_date/marked_as_done_time de um conjunto de atividades pelos ids
+// (até 100 por chamada, por isso faz em lotes).
+export async function fetchActivitiesByIds(ids) {
+  const unique = [...new Set(ids.filter(Boolean))]
+  const byId = {}
+  for (let i = 0; i < unique.length; i += 100) {
+    const chunk = unique.slice(i, i + 100)
+    const url = new URL(`${PIPEDRIVE_BASE_URL}/api/v1/activities`)
+    url.searchParams.set('api_token', TOKEN)
+    url.searchParams.set('ids', chunk.join(','))
+    url.searchParams.set('limit', 100)
+
+    const res = await fetch(url.toString())
+    if (!res.ok) throw new Error(`Erro ao buscar atividades por id: ${res.status}`)
+    const json = await res.json()
+    if (!json.success) throw new Error('Pipedrive API retornou success=false ao buscar atividades por id')
+
+    ;(json.data || []).forEach((a) => { byId[a.id] = a })
+  }
+  return byId
+}
