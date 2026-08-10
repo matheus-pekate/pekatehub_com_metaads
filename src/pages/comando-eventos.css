@@ -295,6 +295,12 @@
   font-style: italic;
   font-weight: 900;
   font-size: 24px;
+  margin: 0 0 4px;
+}
+
+.pkt-eventos-overview__subtitle {
+  font-size: 13px;
+  color: var(--petroleo-light);
   margin: 0 0 20px;
 }
 
