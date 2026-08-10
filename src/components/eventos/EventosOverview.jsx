@@ -12,29 +12,32 @@ function OverviewTooltip({ active, payload }) {
   )
 }
 
+// Só considera quem é novo no CRM (pessoas que só existem por causa do
+// evento) — quem já existia antes traz uma bagagem de relacionamento que não
+// tem nada a ver com este evento específico, e distorceria a taxa real dele.
 export function EventosOverview({ eventos }) {
   const totals = eventos.reduce((acc, e) => {
-    acc.total += e.totalParticipantes
-    acc.prospects += e.prospects
-    acc.convidados += e.convidados
-    acc.oportunidades += e.oportunidadesNovas + e.oportunidadesExistentes
-    acc.negociosGanhos += e.negociosGanhosNovos + e.negociosGanhosExistentes
-    acc.naoCompareceram += e.naoCompareceramTotal
+    const novoCompareceu = e.compareceram?.novo || {}
+    const novoNaoCompareceu = e.naoCompareceram?.novo || {}
+    acc.naoCompareceram += (novoNaoCompareceu.prospect || 0) + (novoNaoCompareceu.oportunidade || 0) + (novoNaoCompareceu.negocioGanho || 0)
+    acc.prospects += novoCompareceu.prospect || 0
+    acc.oportunidades += novoCompareceu.oportunidade || 0
+    acc.negociosGanhos += novoCompareceu.negocioGanho || 0
     return acc
-  }, { total: 0, prospects: 0, convidados: 0, oportunidades: 0, negociosGanhos: 0, naoCompareceram: 0 })
+  }, { prospects: 0, oportunidades: 0, negociosGanhos: 0, naoCompareceram: 0 })
 
-  const { total, prospects, convidados, oportunidades, negociosGanhos, naoCompareceram } = totals
+  const { prospects, oportunidades, negociosGanhos, naoCompareceram } = totals
+  const total = prospects + oportunidades + negociosGanhos + naoCompareceram
   const pct = (n) => (total > 0 ? (n / total) * 100 : 0)
 
   const pieData = [
     { key: 'nao_compareceu', label: 'Não compareceram', value: naoCompareceram, pct: pct(naoCompareceram) },
-    { key: 'convidado', label: 'Convidados', value: convidados, pct: pct(convidados) },
     { key: 'oportunidade', label: 'Negócios em Aberto', value: oportunidades, pct: pct(oportunidades) },
     { key: 'negocio_ganho', label: 'Negócios Ganhos', value: negociosGanhos, pct: pct(negociosGanhos) },
     { key: 'curioso', label: 'Prospects', value: prospects, pct: pct(prospects) },
   ]
 
-  const conversaoAtiva = total > 0 ? ((convidados + oportunidades + negociosGanhos) / total) * 100 : 0
+  const conversaoAtiva = total > 0 ? ((oportunidades + negociosGanhos) / total) * 100 : 0
   const conversaoGanho = total > 0 ? (negociosGanhos / total) * 100 : 0
   const fechamento = (oportunidades + negociosGanhos) > 0 ? (negociosGanhos / (oportunidades + negociosGanhos)) * 100 : 0
 
@@ -50,6 +53,7 @@ export function EventosOverview({ eventos }) {
   return (
     <section className="pkt-eventos-overview">
       <h2 className="pkt-eventos-overview__title">Visão geral</h2>
+      <p className="pkt-eventos-overview__subtitle">Considera só quem é novo no CRM — o resultado real gerado pelos eventos, sem misturar com contatos que já existiam.</p>
       <div className="pkt-eventos-overview__body">
         <div className="pkt-eventos-overview__chart">
           <div className="pkt-eventos-overview__pie">
@@ -75,7 +79,7 @@ export function EventosOverview({ eventos }) {
             </ResponsiveContainer>
             <div className="pkt-eventos-overview__pie-center">
               <strong>{total}</strong>
-              <span>participantes</span>
+              <span>novos no CRM</span>
             </div>
           </div>
           <div className="pkt-eventos-overview__legend">
@@ -93,12 +97,12 @@ export function EventosOverview({ eventos }) {
           <div className="pkt-eventos-overview__stat">
             <span className="pkt-eventos-overview__stat-value">{conversaoAtiva.toFixed(1)}%</span>
             <span className="pkt-eventos-overview__stat-label">Taxa de conversão</span>
-            <span className="pkt-eventos-overview__stat-hint">participantes com alguma interação, negócio em aberto ou negócio ganho</span>
+            <span className="pkt-eventos-overview__stat-hint">novos no CRM que viraram negócio em aberto ou negócio ganho por causa do evento</span>
           </div>
           <div className="pkt-eventos-overview__stat">
             <span className="pkt-eventos-overview__stat-value">{conversaoGanho.toFixed(1)}%</span>
             <span className="pkt-eventos-overview__stat-label">Taxa de fechamento</span>
-            <span className="pkt-eventos-overview__stat-hint">participantes que viraram negócio ganho</span>
+            <span className="pkt-eventos-overview__stat-hint">novos no CRM que viraram negócio ganho por causa do evento</span>
           </div>
           <div className="pkt-eventos-overview__stat">
             <span className="pkt-eventos-overview__stat-value">{fechamento.toFixed(1)}%</span>
