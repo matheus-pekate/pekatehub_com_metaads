@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { fetchAllDealsByPipeline, fetchUsers, fetchDealActivitySignals, fetchActivitiesByIds } from '../services/pipedriveApi.js'
+import { fetchAllDealsByPipeline, fetchUsers, fetchActivitiesByIds } from '../services/pipedriveApi.js'
 import { PROGRAMS, REFRESH_INTERVAL_MINUTES } from '../config/pipedrive.js'
 
 function toLocalDateStr(date) {
@@ -10,7 +10,7 @@ function toLocalDateStr(date) {
 }
 
 // Processa os deals de um programa e retorna métricas calculadas
-function processProgramDeals(program, deals, userMap, activitySignals = {}, activitiesById = {}) {
+function processProgramDeals(program, deals, userMap, activitiesById = {}) {
   // Filtra todos os deals pela turma quando configurado
   let filtered = deals
   if (program.convertedFilter) {
@@ -123,11 +123,10 @@ function processProgramDeals(program, deals, userMap, activitySignals = {}, acti
   // atividade vence sem ser feita, ou quando nunca houve nenhuma agendada.
   const todayStr = toLocalDateStr(now)
   const idleDays = (deal) => {
-    const signal = activitySignals[deal.id]
-    const nextActivity = signal?.nextActivityId ? activitiesById[signal.nextActivityId] : null
+    const nextActivity = deal.next_activity_id ? activitiesById[deal.next_activity_id] : null
     if (nextActivity?.due_date && nextActivity.due_date >= todayStr) return 0
 
-    const lastActivity = signal?.lastActivityId ? activitiesById[signal.lastActivityId] : null
+    const lastActivity = deal.last_activity_id ? activitiesById[deal.last_activity_id] : null
     const lastDoneAt = lastActivity?.marked_as_done_time || lastActivity?.due_date || null
     const last = lastDoneAt || deal.update_time || deal.add_time
     return last ? Math.floor((now - new Date(last)) / msPerDay) : 999
@@ -209,14 +208,11 @@ export function useDashboardData() {
     try {
       setError(null)
 
-      // Busca todos os programas em paralelo
-      const [programDealsResults, users, activitySignalsResults] = await Promise.all([
+      // Busca todos os programas em paralelo (cada deal já vem com
+      // next_activity_id/last_activity_id, pedidos via include_fields)
+      const [programDealsResults, users] = await Promise.all([
         Promise.all(PROGRAMS.map((p) => fetchAllDealsByPipeline(p.pipelineId))),
         fetchUsers(),
-        // Sinais de "próxima atividade agendada" / "última concluída" (só a
-        // API v1 expõe isso) — se essa busca falhar, cai no fallback antigo
-        // (deal.update_time) em vez de quebrar o dashboard inteiro.
-        Promise.all(PROGRAMS.map((p) => fetchDealActivitySignals(p.pipelineId).catch(() => ({})))),
       ])
 
       const userMap = {}
@@ -226,13 +222,15 @@ export function useDashboardData() {
         userMap[u.id] = { name: u.name, avatarUrl }
       })
 
-      // Junta os ids de atividade (próxima + última) de todos os programas
-      // numa única leva de busca em lote, em vez de repetir por programa.
+      // Junta os ids de atividade (próxima + última) de todos os deals de
+      // todos os programas numa única leva de busca em lote. Se essa busca
+      // falhar, cai no fallback antigo (deal.update_time) em vez de quebrar
+      // o dashboard inteiro.
       const allActivityIds = new Set()
-      activitySignalsResults.forEach((signals) => {
-        Object.values(signals).forEach(({ nextActivityId, lastActivityId }) => {
-          if (nextActivityId) allActivityIds.add(nextActivityId)
-          if (lastActivityId) allActivityIds.add(lastActivityId)
+      programDealsResults.forEach((deals) => {
+        deals.forEach((deal) => {
+          if (deal.next_activity_id) allActivityIds.add(deal.next_activity_id)
+          if (deal.last_activity_id) allActivityIds.add(deal.last_activity_id)
         })
       })
       const activitiesById = allActivityIds.size > 0
@@ -241,7 +239,7 @@ export function useDashboardData() {
 
       const programs = PROGRAMS.map((program, idx) => {
         const deals = programDealsResults[idx]
-        const metrics = processProgramDeals(program, deals, userMap, activitySignalsResults[idx], activitiesById)
+        const metrics = processProgramDeals(program, deals, userMap, activitiesById)
         return {
           ...program,
           ...metrics,
