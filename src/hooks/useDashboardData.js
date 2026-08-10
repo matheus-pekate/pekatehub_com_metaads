@@ -151,10 +151,11 @@ function processProgramDeals(program, deals, userMap, activitiesById = {}) {
     stageId: deal.stage_id,
     stageName: stageNameMap.get(deal.stage_id) || '—',
     value: deal.value || 0,
+    ownerName: userMap[deal.owner_id]?.name || 'Sem responsável',
   })
   const criticoDeals = critico.map(toAlertDeal).sort((a, b) => b.idle - a.idle)
   const pendenciaDeals = pendencia.map(toAlertDeal).sort((a, b) => b.idle - a.idle)
-  const oportunidadeDeals = oportunidade.map(toAlertDeal).sort((a, b) => b.value - a.value)
+  const oportunidadeDeals = oportunidade.map(toAlertDeal).sort((a, b) => b.idle - a.idle)
 
   const daysToStart = program.startDate
     ? Math.ceil((new Date(program.startDate + 'T00:00:00') - now) / msPerDay)
@@ -222,13 +223,15 @@ export function useDashboardData() {
         userMap[u.id] = { name: u.name, avatarUrl }
       })
 
-      // Junta os ids de atividade (próxima + última) de todos os deals de
-      // todos os programas numa única leva de busca em lote. Se essa busca
-      // falhar, cai no fallback antigo (deal.update_time) em vez de quebrar
-      // o dashboard inteiro.
+      // Junta os ids de atividade (próxima + última) de todos os programas
+      // numa única leva de busca em lote. Só dos deals abertos — é a única
+      // situação em que "dias parado" é calculado; ganhos/perdidos antigos
+      // (anos de histórico) não precisam disso e só deixariam a busca lenta.
+      // Se essa busca falhar, cai no fallback antigo (deal.update_time) em
+      // vez de quebrar o dashboard inteiro.
       const allActivityIds = new Set()
       programDealsResults.forEach((deals) => {
-        deals.forEach((deal) => {
+        deals.filter((d) => d.status === 'open').forEach((deal) => {
           if (deal.next_activity_id) allActivityIds.add(deal.next_activity_id)
           if (deal.last_activity_id) allActivityIds.add(deal.last_activity_id)
         })

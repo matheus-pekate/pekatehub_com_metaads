@@ -24,8 +24,9 @@ async function pipedriveGet(path, params = {}) {
 export async function fetchAllDealsByPipeline(pipelineId) {
   const allDeals = []
   let cursor = null
+  const MAX_PAGES = 50 // trava de segurança — 50×500 = 25.000 deals, bem acima do real
 
-  while (true) {
+  for (let page = 0; page < MAX_PAGES; page++) {
     const url = new URL(`${PIPEDRIVE_BASE_URL}/api/v2/deals`)
     url.searchParams.set('api_token', TOKEN)
     url.searchParams.set('pipeline_id', pipelineId)
@@ -36,6 +37,7 @@ export async function fetchAllDealsByPipeline(pipelineId) {
     const res = await fetch(url.toString())
     if (!res.ok) throw new Error(`Erro ao buscar deals do pipeline ${pipelineId}: ${res.status}`)
     const json = await res.json()
+    if (!json.success) throw new Error(`Pipedrive API retornou success=false ao buscar deals do pipeline ${pipelineId}`)
 
     const deals = json.data || []
     allDeals.push(...deals)
@@ -106,13 +108,15 @@ export async function fetchUserActivitiesInRange(userId, startDate, endDate) {
 }
 
 // Busca due_date/marked_as_done_time de um conjunto de atividades pelos ids
-// (até 100 por chamada, por isso faz em lotes). O filtro por "ids" só existe
-// na API v2 (/api/v2/activities) — a v1 não aceita esse parâmetro.
+// (até 100 por chamada, por isso faz em lotes — todos em paralelo, já que
+// são chamadas independentes). O filtro por "ids" só existe na API v2
+// (/api/v2/activities) — a v1 não aceita esse parâmetro.
 export async function fetchActivitiesByIds(ids) {
   const unique = [...new Set(ids.filter(Boolean))]
-  const byId = {}
-  for (let i = 0; i < unique.length; i += 100) {
-    const chunk = unique.slice(i, i + 100)
+  const chunks = []
+  for (let i = 0; i < unique.length; i += 100) chunks.push(unique.slice(i, i + 100))
+
+  const results = await Promise.all(chunks.map(async (chunk) => {
     const url = new URL(`${PIPEDRIVE_BASE_URL}/api/v2/activities`)
     url.searchParams.set('api_token', TOKEN)
     url.searchParams.set('ids', chunk.join(','))
@@ -122,8 +126,10 @@ export async function fetchActivitiesByIds(ids) {
     if (!res.ok) throw new Error(`Erro ao buscar atividades por id: ${res.status}`)
     const json = await res.json()
     if (!json.success) throw new Error('Pipedrive API retornou success=false ao buscar atividades por id')
+    return json.data || []
+  }))
 
-    ;(json.data || []).forEach((a) => { byId[a.id] = a })
-  }
+  const byId = {}
+  results.flat().forEach((a) => { byId[a.id] = a })
   return byId
 }
