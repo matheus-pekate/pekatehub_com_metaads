@@ -151,6 +151,7 @@ function processProgramDeals(program, deals, userMap, activitiesById = {}) {
     stageId: deal.stage_id,
     stageName: stageNameMap.get(deal.stage_id) || '—',
     value: deal.value || 0,
+    ownerName: userMap[deal.owner_id]?.name || 'Sem responsável',
   })
   const criticoDeals = critico.map(toAlertDeal).sort((a, b) => b.idle - a.idle)
   const pendenciaDeals = pendencia.map(toAlertDeal).sort((a, b) => b.idle - a.idle)

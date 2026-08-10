@@ -41,6 +41,7 @@ export function AlertDealsModal({ open, alertKey, alert, onClose }) {
                   {d.title}
                 </a>
                 <span className="pkt-alert-modal__deal-stage">{d.stageName}</span>
+                <span className="pkt-alert-modal__deal-owner">{d.ownerName}</span>
                 <span className="pkt-alert-modal__deal-idle">
                   {d.idle} {d.idle === 1 ? 'dia' : 'dias'} parado
                 </span>
