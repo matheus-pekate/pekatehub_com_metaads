@@ -317,6 +317,8 @@
 .pkt-pgm__badge--batida::before { background: var(--positivo); }
 .pkt-pgm__badge--quase  { color: var(--fdc-roxo); border-color: #e2cfee; background: #f3e8f8; }
 .pkt-pgm__badge--quase::before  { background: var(--fdc-roxo); }
+.pkt-pgm__badge--encerrado { color: var(--carvao-soft); border-color: #dcdcdc; background: #ececec; }
+.pkt-pgm__badge--encerrado::before { background: var(--carvao-soft); }
 
 .pkt-pgm__name {
   font-style: italic; font-weight: 900;

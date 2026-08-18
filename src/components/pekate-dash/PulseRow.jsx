@@ -20,7 +20,15 @@ function daysUntil(dateStr) {
   return Math.ceil((target - today) / (1000 * 60 * 60 * 24))
 }
 
-function deriveBadge(goalPercent, goal, converted) {
+// Encerrado = a data de início da turma já passou — nesse ponto o programa
+// para de ser um alvo ativo de venda, então o crachá e a ordem no topo
+// devem refletir isso, independente de ter batido meta ou não.
+function isEncerrado(program) {
+  return daysUntil(program.startDate) < 0
+}
+
+function deriveBadge(goalPercent, goal, converted, closed) {
+  if (closed) return { label: 'Encerrado', variant: 'encerrado' }
   if (goalPercent >= 100) return { label: 'Meta batida', variant: 'batida' }
   if (goalPercent >= 90) {
     const missing = Math.max(0, goal - converted)
@@ -36,8 +44,9 @@ function PulseCard({ program, color, active, onSelect }) {
   const overflow = rawPct > 100
   const fillPct = overflow ? 100 : rawPct
   const pctDisplay = Math.min(100, Math.round(rawPct))
-  const badge = deriveBadge(rawPct, dynamicGoal, converted)
   const days = daysUntil(startDate)
+  const closed = days < 0
+  const badge = deriveBadge(rawPct, dynamicGoal, converted, closed)
 
   return (
     <article className={`pkt-pgm${active ? ' pkt-pgm--active' : ''}`} data-color={color} data-pgm-id={program.id} onClick={onSelect} style={{ cursor: 'pointer' }}>
@@ -76,7 +85,7 @@ function PulseCard({ program, color, active, onSelect }) {
             <i className="pkt-arrow"></i> <strong>{totalActive}</strong> leads no funil
           </span>
           <span className="pkt-pgm__foot-dias">
-            <strong>{Math.max(0, days)}</strong> dias p/ a virada
+            {closed ? 'Encerrado' : (<><strong>{days}</strong> dias p/ a virada</>)}
           </span>
         </div>
       </div>
@@ -90,6 +99,9 @@ export function PulseRow({ programs, activeId = 'pos', onSelect }) {
   const ordered = ORDER
     .map((id) => programs.find((p) => p.id === id))
     .filter(Boolean)
+    // Programas encerrados (turma já começou) vão pro final da fila — sort é
+    // estável, então quem continua ativo mantém a ordem original entre si.
+    .sort((a, b) => (isEncerrado(a) ? 1 : 0) - (isEncerrado(b) ? 1 : 0))
 
   useEffect(() => {
     const row = rowRef.current
