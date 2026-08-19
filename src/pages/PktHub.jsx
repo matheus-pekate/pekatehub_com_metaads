@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, LabelList, ResponsiveContainer } from 'recharts'
 import { GeneralDocsGrid } from '../components/docs/GeneralDocsGrid'
-import { PROGRAMS } from '../config/pipedrive'
 import { useDashboardData } from '../hooks/useDashboardData'
+import { useB2BDashboardData } from '../hooks/useB2BDashboardData'
+import { useEventosData } from '../hooks/useEventosData'
 import { supabase } from '../lib/supabaseClient'
 import './pkt-hub.css'
 
@@ -28,21 +29,25 @@ function formatCompactBRL(value) {
   return formatBRL(value)
 }
 
-function getNextProgram() {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const withDays = PROGRAMS
-    .filter((p) => p.startDate)
-    .map((p) => ({ ...p, daysUntil: Math.ceil((new Date(p.startDate) - today) / 86400000) }))
-    .sort((a, b) => a.daysUntil - b.daysUntil)
-  return withDays.find((p) => p.daysUntil >= 0) || withDays[withDays.length - 1] || null
+// Evento mais próximo: prioriza o próximo que ainda vai acontecer; se não
+// houver nenhum futuro cadastrado, cai pro mais recente que já rolou (mesmo
+// critério de fallback do resto do hub — nunca fica sem nada pra mostrar).
+function getNextEvento(eventos) {
+  const now = new Date()
+  const upcoming = eventos
+    .filter((e) => e.start_date && new Date(e.start_date) >= now)
+    .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+  if (upcoming.length > 0) return upcoming[0]
+  const past = eventos.filter((e) => e.start_date).sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
+  return past[0] || null
 }
 
-function countdownLabel(days) {
-  if (days > 1) return `Início em ${days} dias`
-  if (days === 1) return 'Início amanhã'
-  if (days === 0) return 'Começa hoje'
-  return 'Turma em andamento'
+function formatEventoDate(startDate) {
+  if (!startDate) return ''
+  const start = new Date(startDate)
+  const dateLabel = start.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+  const timeLabel = start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return `${dateLabel} · ${timeLabel}`
 }
 
 function ProgramChartTooltip({ active, payload }) {
@@ -267,8 +272,9 @@ export function PktHub() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('Home')
   const [activeAgent, setActiveAgent] = useState(null)
-  const nextProgram = getNextProgram()
   const { data: dashboardData, loading: loadingDashboard } = useDashboardData()
+  const { data: b2bData, loading: loadingB2B } = useB2BDashboardData(new Date().getFullYear())
+  const { data: eventos } = useEventosData()
 
   const chartData = (dashboardData?.programs || []).map((p) => ({
     shortName: p.shortName,
@@ -277,7 +283,14 @@ export function PktHub() {
     atual: p.totalWonValue,
     accentColor: p.accentColor,
   }))
-  const nextProgramLive = dashboardData?.programs?.find((p) => p.id === nextProgram?.id) || null
+  const b2bChartData = (b2bData?.programs || []).map((p) => ({
+    shortName: p.shortName,
+    name: p.name,
+    meta: p.periodRevenueGoal,
+    atual: p.totalWonValue,
+    accentColor: p.accentColor,
+  }))
+  const nextEvento = getNextEvento(eventos)
 
   function handleTabChange(tab) {
     setActiveTab(tab)
@@ -363,32 +376,30 @@ export function PktHub() {
           {!activeAgent && activeTab === 'Home' && (
             <>
               <section className="hub-main__section">
-                <h2 className="hub-main__section-title">Próximo Programa</h2>
-                {nextProgram ? (
-                  <div className="hub-next-program" style={{ '--accent': nextProgram.accentColor }}>
-                    <div className="hub-next-program__main">
-                      <span className="hub-next-program__eyebrow">Turma mais próxima</span>
-                      <h3 className="hub-next-program__name">{nextProgram.name}</h3>
-                      <span className="hub-next-program__countdown">{countdownLabel(nextProgram.daysUntil)}</span>
+                <h2 className="hub-main__section-title">Próximo Evento</h2>
+                {nextEvento ? (
+                  <a
+                    className="hub-next-event"
+                    href={nextEvento.url || undefined}
+                    target={nextEvento.url ? '_blank' : undefined}
+                    rel={nextEvento.url ? 'noopener noreferrer' : undefined}
+                  >
+                    {nextEvento.image && (
+                      <img className="hub-next-event__photo" src={nextEvento.image} alt={nextEvento.name} />
+                    )}
+                    <div className="hub-next-event__body">
+                      <span className="hub-next-event__eyebrow">Evento mais próximo</span>
+                      <h3 className="hub-next-event__name">{nextEvento.name}</h3>
+                      <span className="hub-next-event__date">{formatEventoDate(nextEvento.start_date)}</span>
                     </div>
-                    <div className="hub-next-program__stats">
-                      <div className="hub-next-program__stat">
-                        <strong>{nextProgramLive ? nextProgramLive.converted : 0}<span className="hub-next-program__stat-of">/{nextProgramLive?.dynamicGoal ?? nextProgram.goal}</span></strong>
-                        <span>vagas convertidas</span>
-                      </div>
-                      <div className="hub-next-program__stat">
-                        <strong>{formatCompactBRL(nextProgramLive ? nextProgramLive.totalWonValue : 0)}<span className="hub-next-program__stat-of">/{formatCompactBRL(nextProgram.revenueGoal)}</span></strong>
-                        <span>receita atingida</span>
-                      </div>
-                    </div>
-                  </div>
+                  </a>
                 ) : (
-                  <p className="hub-main__empty">Nenhum programa cadastrado.</p>
+                  <p className="hub-main__empty">Nenhum evento cadastrado.</p>
                 )}
               </section>
 
               <section className="hub-main__section">
-                <h2 className="hub-main__section-title">Meta x Atual — Receita por Programa</h2>
+                <h2 className="hub-main__section-title">Meta x Atual — Receita por Programa B2C</h2>
                 <div className="hub-chart-card">
                   {loadingDashboard && <p className="hub-main__empty">Carregando dados do Pipedrive...</p>}
                   {!loadingDashboard && chartData.length > 0 && (
@@ -413,6 +424,36 @@ export function PktHub() {
                   )}
                   {!loadingDashboard && chartData.length === 0 && (
                     <p className="hub-main__empty">Não foi possível carregar os dados do Pipedrive.</p>
+                  )}
+                </div>
+              </section>
+
+              <section className="hub-main__section">
+                <h2 className="hub-main__section-title">Meta x Atual — Receita por Programa B2B</h2>
+                <div className="hub-chart-card">
+                  {loadingB2B && <p className="hub-main__empty">Carregando dados do Pipedrive...</p>}
+                  {!loadingB2B && b2bChartData.length > 0 && (
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={b2bChartData} margin={{ top: 24, right: 16, left: 8, bottom: 8 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(48,50,51,.08)" />
+                        <XAxis dataKey="shortName" tick={{ fontSize: 12, fill: '#4a4d4f' }} axisLine={{ stroke: 'rgba(48,50,51,.15)' }} tickLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: '#9a9d9f' }} axisLine={false} tickLine={false} width={48} tickFormatter={(v) => formatCompactBRL(v)} />
+                        <Tooltip content={<ProgramChartTooltip />} cursor={{ fill: 'rgba(48,50,51,.04)' }} />
+                        <Legend wrapperStyle={{ fontSize: 12 }} formatter={(value) => (value === 'meta' ? 'Meta' : 'Atual')} />
+                        <Bar dataKey="meta" name="meta" fill="#e3ddd0" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                          <LabelList dataKey="meta" position="top" formatter={formatCompactBRL} style={{ fontSize: 11, fill: '#9a9d9f' }} />
+                        </Bar>
+                        <Bar dataKey="atual" name="atual" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                          {b2bChartData.map((d) => (
+                            <Cell key={d.shortName} fill={d.accentColor} />
+                          ))}
+                          <LabelList dataKey="atual" position="top" formatter={formatCompactBRL} style={{ fontSize: 12, fontWeight: 700, fill: '#08373f' }} />
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                  {!loadingB2B && b2bChartData.length === 0 && (
+                    <p className="hub-main__empty">Não foi possível carregar os dados do Pipedrive B2B.</p>
                   )}
                 </div>
               </section>
