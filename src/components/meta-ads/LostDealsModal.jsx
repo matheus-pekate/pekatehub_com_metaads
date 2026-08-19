@@ -18,15 +18,18 @@ function ReasonTooltip({ active, payload }) {
   )
 }
 
-function renderPercentLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }) {
+function renderPercentLabel({ cx, cy, midAngle, innerRadius, outerRadius, payload }) {
   const RADIAN = Math.PI / 180
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5
   const x = cx + radius * Math.cos(-midAngle * RADIAN)
   const y = cy + radius * Math.sin(-midAngle * RADIAN)
-  if (percent < 0.05) return null // fatia pequena demais — rótulo viraria ruído
+  // Usa o percentual já calculado em cima dos dados (não o `percent` que o
+  // recharts injeta no label — em fatias pequenas ele vinha fora de escala).
+  const percent = payload?.percent ?? 0
+  if (percent < 5) return null // fatia pequena demais — rótulo viraria ruído
   return (
     <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={700}>
-      {Math.round(percent * 100)}%
+      {percent}%
     </text>
   )
 }
