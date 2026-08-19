@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { fetchMetaAdsSnapshot, fetchWonDeals, fetchLostDeals, fetchLeadsList } from '../services/metaAdsApi'
+import { fetchMetaAdsSnapshot, fetchWonDeals, fetchLostDeals, fetchOpenDeals, fetchLeadsList } from '../services/metaAdsApi'
 import { PROGRAMS, REFRESH_INTERVAL_MINUTES } from '../config/metaAds'
 
 const MS_PER_DAY = 86400000
@@ -15,7 +15,7 @@ function computeLeadCounts(leads) {
   return { total: leads.length, last1Day, last7Days }
 }
 
-function toProgramView(apiProgram, configProgram, wonProgram, lostProgram, leadsProgram) {
+function toProgramView(apiProgram, configProgram, wonProgram, lostProgram, openProgram, leadsProgram) {
   const ads = apiProgram?.ads ?? []
   const leads = leadsProgram?.leads ?? []
   const leadCounts = computeLeadCounts(leads)
@@ -38,11 +38,13 @@ function toProgramView(apiProgram, configProgram, wonProgram, lostProgram, leads
     totalLost: lostProgram?.totalLost ?? 0,
     lostDeals: lostProgram?.deals ?? [],
     lostReasons: lostProgram?.reasonBreakdown ?? [],
+    totalOpen: openProgram?.totalOpen ?? 0,
+    openDeals: openProgram?.deals ?? [],
     leadsList: leads,
   }
 }
 
-function emptyProgramView(program, wonProgram, lostProgram, leadsProgram) {
+function emptyProgramView(program, wonProgram, lostProgram, openProgram, leadsProgram) {
   const leads = leadsProgram?.leads ?? []
   const leadCounts = computeLeadCounts(leads)
   return {
@@ -64,6 +66,8 @@ function emptyProgramView(program, wonProgram, lostProgram, leadsProgram) {
     totalLost: lostProgram?.totalLost ?? 0,
     lostDeals: lostProgram?.deals ?? [],
     lostReasons: lostProgram?.reasonBreakdown ?? [],
+    totalOpen: openProgram?.totalOpen ?? 0,
+    openDeals: openProgram?.deals ?? [],
     leadsList: leads,
   }
 }
@@ -78,24 +82,28 @@ export function useMetaAdsData() {
   const load = useCallback(async () => {
     try {
       const payload = await fetchMetaAdsSnapshot()
-      // Convertidos/Ganhos, Perdidos e Leads são dados complementares (fonte separada) —
-      // se esses webhooks falharem, não pode derrubar o resto do dashboard que já funciona.
-      const [wonPrograms, lostPrograms, leadsPrograms] = await Promise.all([
+      // Convertidos/Ganhos, Perdidos, Em Aberto e Leads são dados complementares (fonte
+      // separada) — se esses webhooks falharem, não pode derrubar o resto do dashboard
+      // que já funciona.
+      const [wonPrograms, lostPrograms, openPrograms, leadsPrograms] = await Promise.all([
         fetchWonDeals().catch(() => []),
         fetchLostDeals().catch(() => []),
+        fetchOpenDeals().catch(() => []),
         fetchLeadsList().catch(() => []),
       ])
       const wonById = new Map(wonPrograms.map((p) => [p.program_id, p]))
       const lostById = new Map(lostPrograms.map((p) => [p.program_id, p]))
+      const openById = new Map(openPrograms.map((p) => [p.program_id, p]))
       const leadsById = new Map(leadsPrograms.map((p) => [p.program_id, p]))
       const byId = new Map(payload.map((p) => [p.program_id, p]))
       const next = PROGRAMS.map((program) => {
         const wonProgram = wonById.get(program.id)
         const lostProgram = lostById.get(program.id)
+        const openProgram = openById.get(program.id)
         const leadsProgram = leadsById.get(program.id)
         return byId.has(program.id)
-          ? toProgramView(byId.get(program.id), program, wonProgram, lostProgram, leadsProgram)
-          : emptyProgramView(program, wonProgram, lostProgram, leadsProgram)
+          ? toProgramView(byId.get(program.id), program, wonProgram, lostProgram, openProgram, leadsProgram)
+          : emptyProgramView(program, wonProgram, lostProgram, openProgram, leadsProgram)
       })
       dataRef.current = next
       setData(next)

@@ -4,6 +4,7 @@ const PROGRAM_DAILY_WEBHOOK_URL = import.meta.env.VITE_META_ADS_PROGRAM_DAILY_WE
 const WON_DEALS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_WON_DEALS_WEBHOOK_URL
 const LOST_DEALS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_LOST_DEALS_WEBHOOK_URL
 const LEADS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_LEADS_WEBHOOK_URL
+const OPEN_DEALS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_OPEN_DEALS_WEBHOOK_URL
 
 export async function fetchMetaAdsSnapshot() {
   if (!WEBHOOK_URL) throw new Error('VITE_META_ADS_WEBHOOK_URL não configurado')
@@ -52,6 +53,18 @@ export async function fetchLostDeals() {
   const text = await res.text()
   const json = text ? JSON.parse(text) : { programs: [] }
   if (!json || !Array.isArray(json.programs)) throw new Error('Meta Ads lost-deals webhook: formato inesperado')
+  return json.programs
+}
+
+export async function fetchOpenDeals() {
+  if (!OPEN_DEALS_WEBHOOK_URL) throw new Error('VITE_META_ADS_OPEN_DEALS_WEBHOOK_URL não configurado')
+  const res = await fetch(OPEN_DEALS_WEBHOOK_URL)
+  if (!res.ok) throw new Error(`Meta Ads open-deals webhook falhou: ${res.status}`)
+  // Mesma cautela do lost-deals: tabela pode estar vazia (sem sync ainda) e o
+  // n8n não emite nenhum item, chegando um corpo vazio em vez de JSON válido.
+  const text = await res.text()
+  const json = text ? JSON.parse(text) : { programs: [] }
+  if (!json || !Array.isArray(json.programs)) throw new Error('Meta Ads open-deals webhook: formato inesperado')
   return json.programs
 }
 
