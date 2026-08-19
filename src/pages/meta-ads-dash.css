@@ -771,8 +771,8 @@
 .pkt-won-deals {
   background: var(--branco);
   border-radius: 16px;
-  width: 1040px;
-  height: 640px;
+  width: 1240px;
+  height: 740px;
   padding: 28px 32px;
   position: relative;
   display: flex;
@@ -800,6 +800,9 @@
   padding: 12px 18px;
   border-top: 1px solid var(--linha);
   font-size: 14px;
+}
+.pkt-won-deals__row--with-activity {
+  grid-template-columns: 1.1fr 2.2fr .8fr .9fr;
 }
 .pkt-won-deals__row:first-child {
   border-top: none;
@@ -862,8 +865,8 @@
 .pkt-lost-deals {
   background: var(--branco);
   border-radius: 16px;
-  width: 900px;
-  height: 640px;
+  width: 1200px;
+  height: 740px;
   padding: 28px 32px;
   position: relative;
   display: flex;
@@ -948,7 +951,7 @@
 }
 .pkt-lost-deals__row--header,
 .pkt-lost-deals__row {
-  grid-template-columns: 1.2fr 1.6fr 1.2fr .9fr;
+  grid-template-columns: 1.1fr 1.6fr 1.1fr .8fr .9fr;
 }
 .pkt-lost-deals__reason-cell {
   font-size: 13px;

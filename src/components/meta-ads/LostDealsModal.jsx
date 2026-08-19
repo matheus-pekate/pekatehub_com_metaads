@@ -9,12 +9,25 @@ const REASON_COLORS = ['#2a78d6', '#008300', '#e87ba4', '#eda100', '#1baf7a', '#
 
 function ReasonTooltip({ active, payload }) {
   if (!active || !payload || !payload.length) return null
-  const { reason, count } = payload[0].payload
+  const { reason, count, percent } = payload[0].payload
   return (
     <div className="pkt-ad-detail__tooltip">
       <p className="pkt-ad-detail__tooltip-label">{reason}</p>
-      <p><strong>{count}</strong> negóci{count === 1 ? 'o' : 'os'}</p>
+      <p><strong>{count}</strong> negóci{count === 1 ? 'o' : 'os'} · {percent}%</p>
     </div>
+  )
+}
+
+function renderPercentLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }) {
+  const RADIAN = Math.PI / 180
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5
+  const x = cx + radius * Math.cos(-midAngle * RADIAN)
+  const y = cy + radius * Math.sin(-midAngle * RADIAN)
+  if (percent < 0.05) return null // fatia pequena demais — rótulo viraria ruído
+  return (
+    <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={700}>
+      {Math.round(percent * 100)}%
+    </text>
   )
 }
 
@@ -23,7 +36,12 @@ export function LostDealsModal({ program, onClose }) {
   if (!program) return null
 
   const deals = program.lostDeals ?? []
-  const reasons = program.lostReasons ?? []
+  const rawReasons = program.lostReasons ?? []
+  const totalReasons = rawReasons.reduce((sum, r) => sum + r.count, 0)
+  const reasons = rawReasons.map((r) => ({
+    ...r,
+    percent: totalReasons > 0 ? Math.round((r.count / totalReasons) * 100) : 0,
+  }))
   const filteredDeals = selectedReason ? deals.filter((d) => d.lost_reason === selectedReason) : deals
 
   const toggleReason = (reason) => {
@@ -60,6 +78,8 @@ export function LostDealsModal({ program, onClose }) {
                       outerRadius={60}
                       paddingAngle={2}
                       isAnimationActive={false}
+                      label={renderPercentLabel}
+                      labelLine={false}
                       onClick={(entry) => toggleReason(entry.reason)}
                     >
                       {reasons.map((r, i) => (
@@ -86,7 +106,7 @@ export function LostDealsModal({ program, onClose }) {
                   >
                     <i className="pkt-lost-deals__legend-swatch" style={{ background: REASON_COLORS[i % REASON_COLORS.length] }} />
                     <span className="pkt-lost-deals__legend-label" title={r.reason}>{r.reason}</span>
-                    <span className="pkt-lost-deals__legend-count">{r.count}</span>
+                    <span className="pkt-lost-deals__legend-count">{r.count} · {r.percent}%</span>
                   </div>
                 ))}
               </div>
@@ -120,6 +140,7 @@ export function LostDealsModal({ program, onClose }) {
                 <span>Anúncio</span>
                 <span>Motivo</span>
                 <span>Perdido em</span>
+                <span>Última atividade</span>
               </div>
               {filteredDeals.map((deal) => (
                 <div key={deal.deal_id} className="pkt-won-deals__row pkt-lost-deals__row">
@@ -148,6 +169,9 @@ export function LostDealsModal({ program, onClose }) {
                   </span>
                   <span className="pkt-lost-deals__reason-cell" title={deal.lost_reason}>{deal.lost_reason}</span>
                   <span className="pkt-won-deals__date">{formatDate(deal.lost_time)}</span>
+                  <span className="pkt-won-deals__date">
+                    {deal.last_activity_date ? formatDate(deal.last_activity_date) : '—'}
+                  </span>
                 </div>
               ))}
             </div>

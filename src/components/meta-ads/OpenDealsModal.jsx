@@ -1,9 +1,9 @@
 import { formatDate } from './format'
 import { buildPipedriveDealUrl } from '../../config/pipedrive'
 
-export function WonDealsModal({ program, onClose }) {
+export function OpenDealsModal({ program, onClose }) {
   if (!program) return null
-  const deals = program.wonDeals ?? []
+  const deals = program.openDeals ?? []
 
   return (
     <div className="pkt-ad-detail-overlay" onClick={onClose}>
@@ -11,22 +11,22 @@ export function WonDealsModal({ program, onClose }) {
         <button className="pkt-ad-detail__close" onClick={onClose}>✕</button>
         <div className="pkt-ad-detail__header">
           <div>
-            <h3 className="pkt-ad-detail__title">{program.name} — Convertidos e Ganhos</h3>
+            <h3 className="pkt-ad-detail__title">{program.name} — Em Aberto</h3>
             <span className="pkt-ad-detail__subtitle">
-              {deals.length} negócio{deals.length === 1 ? '' : 's'} ganho{deals.length === 1 ? '' : 's'} vindo{deals.length === 1 ? '' : 's'} do Meta Ads
+              {deals.length} negócio{deals.length === 1 ? '' : 's'} em aberto vindo{deals.length === 1 ? '' : 's'} do Meta Ads
             </span>
           </div>
         </div>
         <div className="pkt-won-deals__body">
           {deals.length === 0 && (
-            <div className="pkt-ad-detail__state">Nenhum negócio ganho do Meta Ads para este programa ainda.</div>
+            <div className="pkt-ad-detail__state">Nenhum negócio em aberto do Meta Ads para este programa no momento.</div>
           )}
           {deals.length > 0 && (
             <div className="pkt-won-deals__list">
               <div className="pkt-won-deals__row pkt-won-deals__row--header pkt-won-deals__row--with-activity">
                 <span>Pessoa</span>
                 <span>Anúncio</span>
-                <span>Ganho em</span>
+                <span>Aberto em</span>
                 <span>Última atividade</span>
               </div>
               {deals.map((deal) => (
@@ -51,10 +51,10 @@ export function WonDealsModal({ program, onClose }) {
                         )}
                       </>
                     ) : (
-                      <span className="pkt-won-deals__ad-unknown">Anúncio não disponível (ganho antes do rastreamento)</span>
+                      <span className="pkt-won-deals__ad-unknown">Anúncio não disponível</span>
                     )}
                   </span>
-                  <span className="pkt-won-deals__date">{formatDate(deal.won_time)}</span>
+                  <span className="pkt-won-deals__date">{formatDate(deal.add_time)}</span>
                   <span className="pkt-won-deals__date">
                     {deal.last_activity_date ? formatDate(deal.last_activity_date) : '—'}
                   </span>
