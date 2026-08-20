@@ -804,6 +804,39 @@
 .pkt-won-deals__row--with-activity {
   grid-template-columns: 1.1fr 2.2fr .8fr .9fr;
 }
+.pkt-won-deals__row--won {
+  grid-template-columns: 1fr 1.8fr .8fr .8fr .8fr;
+}
+
+.pkt-roi__summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  flex-shrink: 0;
+}
+.pkt-roi__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--off-white);
+}
+.pkt-roi__stat-value {
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  font-size: 26px;
+  color: var(--petroleo);
+}
+.pkt-roi__stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--petroleo-light);
+}
+.pkt-roi__stat--return .pkt-roi__stat-value { color: var(--pgm-accent); }
+.pkt-roi__stat--positive .pkt-roi__stat-value { color: var(--positivo); }
+.pkt-roi__stat--negative .pkt-roi__stat-value { color: var(--atencao); }
 .pkt-won-deals__row:first-child {
   border-top: none;
 }

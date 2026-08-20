@@ -1,9 +1,14 @@
-import { formatDate, formatBRL } from './format'
+import { formatBRL, formatDate } from './format'
 import { buildPipedriveDealUrl } from '../../config/pipedrive'
 
-export function WonDealsModal({ program, onClose }) {
+export function InvestidoRetornoModal({ program, onClose }) {
   if (!program) return null
-  const deals = program.wonDeals ?? []
+  const { totalLifetimeSpend, totalWonValue, wonDeals } = program
+  const invested = totalLifetimeSpend || 0
+  const returned = totalWonValue || 0
+  const roi = invested > 0 ? returned / invested : null
+  const profit = returned - invested
+  const deals = [...(wonDeals ?? [])].sort((a, b) => (b.deal_value || 0) - (a.deal_value || 0))
 
   return (
     <div className="pkt-ad-detail-overlay" onClick={onClose}>
@@ -11,12 +16,30 @@ export function WonDealsModal({ program, onClose }) {
         <button className="pkt-ad-detail__close" onClick={onClose}>✕</button>
         <div className="pkt-ad-detail__header">
           <div>
-            <h3 className="pkt-ad-detail__title">{program.name} — Convertidos e Ganhos</h3>
+            <h3 className="pkt-ad-detail__title">{program.name} — Investido x Retorno</h3>
             <span className="pkt-ad-detail__subtitle">
-              {deals.length} negócio{deals.length === 1 ? '' : 's'} ganho{deals.length === 1 ? '' : 's'} vindo{deals.length === 1 ? '' : 's'} do Meta Ads
+              Retorno somado a partir do valor de cada negócio ganho no Pipedrive vindo do Meta Ads
             </span>
           </div>
         </div>
+
+        <div className="pkt-roi__summary">
+          <div className="pkt-roi__stat">
+            <span className="pkt-roi__stat-value">{formatBRL(invested)}</span>
+            <span className="pkt-roi__stat-label">Investido</span>
+          </div>
+          <div className="pkt-roi__stat pkt-roi__stat--return">
+            <span className="pkt-roi__stat-value">{formatBRL(returned)}</span>
+            <span className="pkt-roi__stat-label">Retorno</span>
+          </div>
+          <div className={`pkt-roi__stat ${profit >= 0 ? 'pkt-roi__stat--positive' : 'pkt-roi__stat--negative'}`}>
+            <span className="pkt-roi__stat-value">
+              {roi != null ? `${roi.toFixed(1)}x` : '—'}
+            </span>
+            <span className="pkt-roi__stat-label">Retorno sobre investido</span>
+          </div>
+        </div>
+
         <div className="pkt-won-deals__body">
           {deals.length === 0 && (
             <div className="pkt-ad-detail__state">Nenhum negócio ganho do Meta Ads para este programa ainda.</div>
