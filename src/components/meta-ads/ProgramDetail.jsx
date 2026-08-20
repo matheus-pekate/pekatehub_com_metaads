@@ -4,7 +4,7 @@ import { ProgramDailyChart } from './ProgramDailyChart'
 
 export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostDeals, onOpenOpenDeals, onOpenLeadsList }) {
   if (!program) return null
-  const { id, name, hasActiveCampaigns, totalLeads, cplMedio, totalReach, ads, leadsLast1Day, leadsLast7Days, totalWon, totalLost, totalOpen } = program
+  const { id, name, hasActiveCampaigns, totalLeads, cplMedio, totalReach, totalLifetimeSpend, ads, leadsLast1Day, leadsLast7Days, totalWon, totalLost, totalOpen } = program
 
   return (
     <div className="pkt-meta-detail">
@@ -20,13 +20,10 @@ export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostD
       <div className="pkt-meta-detail__stats">
         <div className="pkt-meta-detail__stats-left">
           <div className="pkt-meta-detail__stats-group">
-            <span className="pkt-meta-detail__stats-group-caption">Anúncios ativos · todo o histórico</span>
-            <div
-              className={`pkt-meta-detail__stat ${hasActiveCampaigns ? 'pkt-meta-detail__stat--clickable' : ''}`}
-              onClick={hasActiveCampaigns ? () => onOpenLeadsList(program, 'all') : undefined}
-            >
-              <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? totalLeads : '—'}</span>
-              <span className="pkt-meta-detail__stat-label">Leads</span>
+            <span className="pkt-meta-detail__stats-group-caption">Todo o histórico do Meta Ads</span>
+            <div className="pkt-meta-detail__stat">
+              <span className="pkt-meta-detail__stat-value">{totalLeads}</span>
+              <span className="pkt-meta-detail__stat-label">Leads (ganhos + perdidos + em aberto)</span>
             </div>
           </div>
           <div className="pkt-meta-detail__stats-group">
@@ -40,6 +37,13 @@ export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostD
                 <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatCompactNumber(totalReach) : '—'}</span>
                 <span className="pkt-meta-detail__stat-label">Alcance</span>
               </div>
+            </div>
+          </div>
+          <div className="pkt-meta-detail__stats-group">
+            <span className="pkt-meta-detail__stats-group-caption">Desde o início da campanha</span>
+            <div className="pkt-meta-detail__stat">
+              <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatBRL(totalLifetimeSpend) : '—'}</span>
+              <span className="pkt-meta-detail__stat-label">Investido</span>
             </div>
           </div>
         </div>
