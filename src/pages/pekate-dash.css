@@ -325,8 +325,13 @@
   font-size: 22px; line-height: 1.05;
   letter-spacing: -.015em;
   color: var(--petroleo);
-  text-wrap: balance;
   margin: 0;
+  /* Sempre 1 linha (com "..." se não couber) — nome de 2 linhas deixava
+     esse card com cabeçalho mais alto que os outros, empurrando o resto
+     do card pra baixo de forma inconsistente entre programas. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pkt-pgm__source {
@@ -334,7 +339,8 @@
   align-items: center;
   gap: 6px;
   margin-top: 5px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 .pkt-pgm__pipeline {
   font-size: 9px;
@@ -350,11 +356,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
 }
 .pkt-pgm__source-sep {
   font-size: 10px;
   color: var(--petroleo);
   opacity: .3;
+  flex-shrink: 0;
 }
 .pkt-pgm__turma {
   font-size: 9px;
@@ -367,6 +376,7 @@
   padding: 2px 8px;
   border-radius: 999px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .pkt-pgm__hero {
