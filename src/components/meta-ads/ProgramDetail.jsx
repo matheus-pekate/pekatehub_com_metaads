@@ -40,9 +40,11 @@ export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostD
             </div>
           </div>
           <div className="pkt-meta-detail__stats-group">
-            <span className="pkt-meta-detail__stats-group-caption">Desde o início da campanha</span>
+            <span className="pkt-meta-detail__stats-group-caption">
+              {hasActiveCampaigns ? 'Desde o início da campanha' : 'Última campanha · encerrada'}
+            </span>
             <div className="pkt-meta-detail__stat">
-              <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatBRL(totalLifetimeSpend) : '—'}</span>
+              <span className="pkt-meta-detail__stat-value">{formatBRL(totalLifetimeSpend)}</span>
               <span className="pkt-meta-detail__stat-label">Investido</span>
             </div>
           </div>
