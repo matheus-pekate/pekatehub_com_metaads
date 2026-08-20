@@ -1,6 +1,8 @@
 # PKT-HUB — guia para trabalhar neste repositório
 
-Central de dados da Pekatê Brasil: Comando B2C (Pipedrive), Comando Meta Ads (n8n), Wiki de Automações, biblioteca de Documentos Gerais e histórico da agente Laura. React + Vite, hospedado na Netlify (Netlify Functions + Redis, sem servidor próprio).
+Central de dados da Pekatê Brasil: Comando B2C (Pipedrive), Comando Meta Ads (n8n), Wiki de Automações, biblioteca de Documentos Gerais e histórico da agente Laura. React + Vite, hospedado na Netlify (Netlify Functions + Supabase, sem servidor próprio).
+
+**Persistência é toda Supabase agora** (`chats.js`, `docs.js`, `general-docs.js` — tabelas/dados no projeto Supabase, ver `.env.example`). O Redis (Redis Cloud) foi descontinuado nessa migração; as únicas sobras são `netlify/functions/migrate-chats-to-supabase.js` (ferramenta de backfill pontual, já executada, mantida só como registro) e as variáveis `REDIS_*` no `.env.example`, que só importam se essa migração precisar rodar de novo. `server/` (Express) e `api/chats.js` (handler estilo Vercel) eram código morto pré-Netlify Functions, baseado em Redis, e foram removidos.
 
 **A documentação técnica completa e sempre atualizada do projeto vive dentro do próprio site**, na aba **Documentação → "Documentação Pekatê Hub"** (biblioteca de Documentos Gerais). Esse arquivo aqui é só o "como trabalhamos" — pra arquitetura/módulos/variáveis de ambiente detalhados, abra aquele documento primeiro.
 
