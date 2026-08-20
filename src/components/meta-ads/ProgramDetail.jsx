@@ -2,7 +2,7 @@ import { formatBRL, formatCompactNumber } from './format'
 import { AdsList } from './AdsList'
 import { ProgramDailyChart } from './ProgramDailyChart'
 
-export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostDeals, onOpenOpenDeals, onOpenLeadsList }) {
+export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostDeals, onOpenOpenDeals, onOpenLeadsList, onOpenInvestidoRetorno }) {
   if (!program) return null
   const { id, name, hasActiveCampaigns, totalLeads, cplMedio, totalReach, totalLifetimeSpend, ads, leadsLast1Day, leadsLast7Days, totalWon, totalLost, totalOpen } = program
 
@@ -40,9 +40,14 @@ export function ProgramDetail({ program, onSelectAd, onOpenWonDeals, onOpenLostD
             </div>
           </div>
           <div className="pkt-meta-detail__stats-group">
-            <span className="pkt-meta-detail__stats-group-caption">Desde o início da campanha</span>
-            <div className="pkt-meta-detail__stat">
-              <span className="pkt-meta-detail__stat-value">{hasActiveCampaigns ? formatBRL(totalLifetimeSpend) : '—'}</span>
+            <span className="pkt-meta-detail__stats-group-caption">
+              {hasActiveCampaigns ? 'Desde o início da campanha' : 'Última campanha · encerrada'}
+            </span>
+            <div
+              className={`pkt-meta-detail__stat ${totalLifetimeSpend > 0 ? 'pkt-meta-detail__stat--clickable' : ''}`}
+              onClick={totalLifetimeSpend > 0 ? () => onOpenInvestidoRetorno(program) : undefined}
+            >
+              <span className="pkt-meta-detail__stat-value">{formatBRL(totalLifetimeSpend)}</span>
               <span className="pkt-meta-detail__stat-label">Investido</span>
             </div>
           </div>
