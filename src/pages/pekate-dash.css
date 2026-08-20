@@ -257,12 +257,24 @@
   border: 1px solid var(--linha);
   border-radius: 6px;
   padding: 22px 26px 20px;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+  display: flex;
+  flex-direction: column;
   gap: 14px;
   overflow: hidden;
   transition: transform .25s ease;
   min-width: 0;
+}
+/* Header, hero e rodapé sempre no tamanho do próprio conteúdo (nada de
+   linha flexível "1fr"/"flex:1") — assim a barra e o rodapé nunca ficam
+   espremidos/cortados por diferença de altura no cabeçalho (nome de 1 vs 2
+   linhas, com ou sem pill de turma) entre os cards. Qualquer sobra de
+   altura (quando o flex do carrossel estica os cards pra ficarem do mesmo
+   tamanho) vira espaço em branco depois do rodapé, nunca antes.
+*/
+.pkt-pgm__head,
+.pkt-pgm__hero,
+.pkt-pgm > div:last-child {
+  flex-shrink: 0;
 }
 .pkt-pgm--active {
   border-color: transparent;
