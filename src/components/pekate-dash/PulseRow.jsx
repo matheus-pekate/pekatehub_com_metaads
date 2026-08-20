@@ -41,8 +41,6 @@ function PulseCard({ program, color, active, onSelect }) {
   const { shortName, name, converted, dynamicGoal, totalActive, startDate, convertedFilter, pipelineName } = program
   const turmaLabel = convertedFilter ? TURMA_LABELS[convertedFilter.value] : null
   const rawPct = dynamicGoal > 0 ? (converted / dynamicGoal) * 100 : 0
-  const overflow = rawPct > 100
-  const fillPct = overflow ? 100 : rawPct
   const pctDisplay = Math.min(100, Math.round(rawPct))
   const days = daysUntil(startDate)
   const closed = days < 0
@@ -75,19 +73,13 @@ function PulseCard({ program, color, active, onSelect }) {
         </div>
       </div>
 
-      <div>
-        <div className="pkt-pgm__bar">
-          <div className="pkt-pgm__bar-fill" style={{ width: `${fillPct}%` }}></div>
-          {overflow && <div className="pkt-pgm__bar-overflow"></div>}
-        </div>
-        <div className="pkt-pgm__foot">
-          <span className="pkt-pgm__foot-funil">
-            <i className="pkt-arrow"></i> <strong>{totalActive}</strong> leads no funil
-          </span>
-          <span className="pkt-pgm__foot-dias">
-            {closed ? 'Encerrado' : (<><strong>{days}</strong> dias p/ a virada</>)}
-          </span>
-        </div>
+      <div className="pkt-pgm__foot">
+        <span className="pkt-pgm__foot-funil">
+          <i className="pkt-arrow"></i> <strong>{totalActive}</strong> leads no funil
+        </span>
+        <span className="pkt-pgm__foot-dias">
+          {closed ? 'Encerrado' : (<><strong>{days}</strong> dias p/ a virada</>)}
+        </span>
       </div>
     </article>
   )
