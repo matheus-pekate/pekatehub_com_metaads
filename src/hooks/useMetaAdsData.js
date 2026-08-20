@@ -19,14 +19,20 @@ function toProgramView(apiProgram, configProgram, wonProgram, lostProgram, openP
   const ads = apiProgram?.ads ?? []
   const leads = leadsProgram?.leads ?? []
   const leadCounts = computeLeadCounts(leads)
+  // "Leads" no topo do card = todo o histórico do Meta Ads pro programa
+  // (ganhos + perdidos + em aberto), não só os leads brutos dos anúncios
+  // ativos — esse segundo número é bem mais estreito (só formulário do
+  // Facebook pros anúncios de hoje) e sub-representa o real.
+  const totalLeads = (wonProgram?.totalWon ?? 0) + (lostProgram?.totalLost ?? 0) + (openProgram?.totalOpen ?? 0)
   return {
     id: configProgram.id,
     name: configProgram.name,
     accentColor: configProgram.accentColor,
     duration: configProgram.duration,
     hasActiveCampaigns: ads.length > 0,
-    totalLeads: leadCounts.total,
+    totalLeads,
     totalSpend: apiProgram.totalSpend ?? 0,
+    totalLifetimeSpend: apiProgram.totalLifetimeSpend ?? 0,
     cplMedio: apiProgram.cplMedio ?? null,
     totalReach: apiProgram.totalReach ?? 0,
     leadsLast1Day: leadCounts.last1Day,
@@ -47,14 +53,16 @@ function toProgramView(apiProgram, configProgram, wonProgram, lostProgram, openP
 function emptyProgramView(program, wonProgram, lostProgram, openProgram, leadsProgram) {
   const leads = leadsProgram?.leads ?? []
   const leadCounts = computeLeadCounts(leads)
+  const totalLeads = (wonProgram?.totalWon ?? 0) + (lostProgram?.totalLost ?? 0) + (openProgram?.totalOpen ?? 0)
   return {
     id: program.id,
     name: program.name,
     accentColor: program.accentColor,
     duration: program.duration,
     hasActiveCampaigns: false,
-    totalLeads: leadCounts.total,
+    totalLeads,
     totalSpend: 0,
+    totalLifetimeSpend: 0,
     cplMedio: null,
     totalReach: 0,
     leadsLast1Day: leadCounts.last1Day,
