@@ -263,6 +263,10 @@
   overflow: hidden;
   transition: transform .25s ease;
   min-width: 0;
+  /* Altura fixa explícita, sem depender de esticar via flex do carrossel —
+     garante literalmente a mesma altura pra todos os cards, cabe o
+     cabeçalho de 2 linhas + hero + barra + rodapé com folga. */
+  min-height: 300px;
 }
 /* Header, hero e rodapé sempre no tamanho do próprio conteúdo (nada de
    linha flexível "1fr"/"flex:1") — assim a barra e o rodapé nunca ficam
