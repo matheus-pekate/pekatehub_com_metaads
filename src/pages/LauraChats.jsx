@@ -46,6 +46,17 @@ function sortByTime(messages) {
   })
 }
 
+function getLastMessageTime(rawMessages) {
+  const sorted = sortByTime((rawMessages || []).map(parseMessage))
+  const last = sorted[sorted.length - 1]
+  const t = last ? new Date(last.time).getTime() : 0
+  return isNaN(t) ? 0 : t
+}
+
+function sortKeysByRecency(chats) {
+  return Object.keys(chats).sort((a, b) => getLastMessageTime(chats[b]) - getLastMessageTime(chats[a]))
+}
+
 function withDaySeparators(messages) {
   const out = []
   let lastDay = null
@@ -81,7 +92,7 @@ export function LauraChats() {
       .then((r) => r.json())
       .then((data) => {
         setChats(data.chats || {})
-        const first = Object.keys(data.chats || {})[0]
+        const first = sortKeysByRecency(data.chats || {})[0]
         if (first) setSelected(first)
         setLoading(false)
       })
@@ -95,7 +106,7 @@ export function LauraChats() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [selected])
 
-  const keys = Object.keys(chats)
+  const keys = sortKeysByRecency(chats)
   const sortedMessages = selected ? sortByTime((chats[selected] || []).map(parseMessage)) : []
   const messages = withDaySeparators(sortedMessages)
 
