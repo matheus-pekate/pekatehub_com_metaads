@@ -162,19 +162,13 @@ function formatNumber(value) {
 
 function LauraPerformancePanel() {
   const { programs, loading, error } = useLauraPerformance()
+  const [selectedId, setSelectedId] = useState(null)
 
   const ordered = PROGRAMS
     .map((p) => ({ ...p, data: programs.find((d) => d.program_id === p.id) }))
     .filter((p) => p.data)
 
-  const totals = programs.reduce(
-    (acc, p) => ({
-      pageViews: acc.pageViews + (p.pageViews || 0),
-      leads: acc.leads + (p.leads || 0),
-    }),
-    { pageViews: 0, leads: 0 }
-  )
-  const totalConversion = totals.pageViews > 0 ? Math.round((totals.leads / totals.pageViews) * 1000) / 10 : null
+  const active = ordered.find((p) => p.id === selectedId) || ordered[0]
 
   if (loading) {
     return (
@@ -208,45 +202,59 @@ function LauraPerformancePanel() {
 
   return (
     <div className="laura-perf">
-      <div className="laura-perf__summary">
-        <div>
-          <span className="laura-perf__summary-label">Visualizações de página</span>
-          <strong className="laura-perf__summary-value">{formatNumber(totals.pageViews)}</strong>
-        </div>
-        <div>
-          <span className="laura-perf__summary-label">Formulários preenchidos</span>
-          <strong className="laura-perf__summary-value">{formatNumber(totals.leads)}</strong>
-        </div>
-        <div>
-          <span className="laura-perf__summary-label">Taxa de conversão</span>
-          <strong className="laura-perf__summary-value">{totalConversion != null ? `${totalConversion}%` : '—'}</strong>
-        </div>
-      </div>
-
-      <div className="laura-perf__grid">
+      <div className="laura-perf__strip">
         {ordered.map((p) => (
-          <div key={p.id} className="laura-perf__card" style={{ borderTopColor: p.accentColor }}>
-            <span className="laura-perf__card-name" style={{ color: p.accentColor }}>{p.name}</span>
-            <div className="laura-perf__card-row">
-              <span>Visualizações de página</span>
-              <strong>{formatNumber(p.data.pageViews)}</strong>
+          <button
+            key={p.id}
+            className={`laura-perf__pill ${active?.id === p.id ? 'laura-perf__pill--active' : ''}`}
+            style={{ '--pill-accent': p.accentColor }}
+            onClick={() => setSelectedId(p.id)}
+          >
+            <span className="laura-perf__pill-name">{p.name}</span>
+            <div className="laura-perf__pill-stats">
+              <span>{formatNumber(p.data.leads)} <small>forms</small></span>
+              <span>{p.data.conversionRate != null ? `${p.data.conversionRate}%` : '—'} <small>conv.</small></span>
             </div>
-            <div className="laura-perf__card-row">
-              <span>Formulários preenchidos</span>
-              <strong>{formatNumber(p.data.leads)}</strong>
-            </div>
-            <div className="laura-perf__card-row">
-              <span>Taxa de conversão</span>
-              <strong>{p.data.conversionRate != null ? `${p.data.conversionRate}%` : '—'}</strong>
-            </div>
-            {p.data.campaigns?.map((c) => (
-              <span key={c.campaign_id} className="laura-perf__campaign-name" title={c.campaign_name}>
-                {c.campaign_name}
-              </span>
-            ))}
-          </div>
+          </button>
         ))}
       </div>
+
+      {active && (
+        <div className="laura-perf__detail" style={{ '--pgm-accent': active.accentColor }}>
+          <div className="laura-perf__detail-header">
+            <h3 className="laura-perf__detail-title" style={{ color: active.accentColor }}>{active.name}</h3>
+            <span className="laura-perf__detail-badge">
+              {active.data.campaigns.length} campanha{active.data.campaigns.length === 1 ? '' : 's'} da agência
+            </span>
+          </div>
+
+          <div className="laura-perf__stats">
+            <div className="laura-perf__stat">
+              <span className="laura-perf__stat-value">{formatNumber(active.data.pageViews)}</span>
+              <span className="laura-perf__stat-label">Visualizações de página</span>
+            </div>
+            <div className="laura-perf__stat">
+              <span className="laura-perf__stat-value">{formatNumber(active.data.leads)}</span>
+              <span className="laura-perf__stat-label">Formulários preenchidos</span>
+            </div>
+            <div className="laura-perf__stat">
+              <span className="laura-perf__stat-value">{active.data.conversionRate != null ? `${active.data.conversionRate}%` : '—'}</span>
+              <span className="laura-perf__stat-label">Taxa de conversão</span>
+            </div>
+          </div>
+
+          <ul className="laura-perf__campaigns">
+            {active.data.campaigns.map((c) => (
+              <li key={c.campaign_id} className="laura-perf__campaign-row">
+                <span className="laura-perf__campaign-name" title={c.campaign_name}>{c.campaign_name}</span>
+                <span>{formatNumber(c.page_views)} views</span>
+                <span>{formatNumber(c.leads)} forms</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <p className="laura-perf__footnote">
         Considera apenas campanhas do Meta Ads com "LP COM FORMULÁRIO" no nome (gerenciadas pela agência de tráfego).
       </p>
