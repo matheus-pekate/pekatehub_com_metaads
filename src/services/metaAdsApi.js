@@ -5,6 +5,7 @@ const WON_DEALS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_WON_DEALS_WEBHOOK_UR
 const LOST_DEALS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_LOST_DEALS_WEBHOOK_URL
 const LEADS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_LEADS_WEBHOOK_URL
 const OPEN_DEALS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_OPEN_DEALS_WEBHOOK_URL
+const LAURA_PERFORMANCE_WEBHOOK_URL = import.meta.env.VITE_META_ADS_LAURA_PERFORMANCE_WEBHOOK_URL
 
 export async function fetchMetaAdsSnapshot() {
   if (!WEBHOOK_URL) throw new Error('VITE_META_ADS_WEBHOOK_URL não configurado')
@@ -75,5 +76,17 @@ export async function fetchLeadsList() {
   const text = await res.text()
   const json = text ? JSON.parse(text) : { programs: [] }
   if (!json || !Array.isArray(json.programs)) throw new Error('Meta Ads leads webhook: formato inesperado')
+  return json.programs
+}
+
+// Campanhas de tráfego pago geridas pela agência para o agente Laura
+// (marcadas com "LP COM FORMULÁRIO" no nome da campanha no Meta Ads).
+export async function fetchLauraPerformance() {
+  if (!LAURA_PERFORMANCE_WEBHOOK_URL) throw new Error('VITE_META_ADS_LAURA_PERFORMANCE_WEBHOOK_URL não configurado')
+  const res = await fetch(LAURA_PERFORMANCE_WEBHOOK_URL)
+  if (!res.ok) throw new Error(`Meta Ads Laura performance webhook falhou: ${res.status}`)
+  const text = await res.text()
+  const json = text ? JSON.parse(text) : { programs: [] }
+  if (!json || !Array.isArray(json.programs)) throw new Error('Meta Ads Laura performance webhook: formato inesperado')
   return json.programs
 }

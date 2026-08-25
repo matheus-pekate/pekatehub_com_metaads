@@ -5,6 +5,8 @@ import { GeneralDocsGrid } from '../components/docs/GeneralDocsGrid'
 import { useDashboardData } from '../hooks/useDashboardData'
 import { useB2BDashboardData } from '../hooks/useB2BDashboardData'
 import { useEventosData } from '../hooks/useEventosData'
+import { useLauraPerformance } from '../hooks/useLauraPerformance'
+import { PROGRAMS } from '../config/metaAds'
 import { supabase } from '../lib/supabaseClient'
 import './pkt-hub.css'
 
@@ -153,6 +155,105 @@ function formatPhone(key) {
   return num.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/, '+$1 ($2) $3-$4') || num
 }
 
+/* ── Performance (tráfego pago do agente Laura) ── */
+function formatNumber(value) {
+  return new Intl.NumberFormat('pt-BR').format(value || 0)
+}
+
+function LauraPerformancePanel() {
+  const { programs, loading, error } = useLauraPerformance()
+
+  const ordered = PROGRAMS
+    .map((p) => ({ ...p, data: programs.find((d) => d.program_id === p.id) }))
+    .filter((p) => p.data)
+
+  const totals = programs.reduce(
+    (acc, p) => ({
+      pageViews: acc.pageViews + (p.pageViews || 0),
+      leads: acc.leads + (p.leads || 0),
+    }),
+    { pageViews: 0, leads: 0 }
+  )
+  const totalConversion = totals.pageViews > 0 ? Math.round((totals.leads / totals.pageViews) * 1000) / 10 : null
+
+  if (loading) {
+    return (
+      <div className="agent-placeholder">
+        <span>📈</span>
+        <p>Carregando performance...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="agent-placeholder">
+        <span>⚠️</span>
+        <p>{error}</p>
+      </div>
+    )
+  }
+
+  if (ordered.length === 0) {
+    return (
+      <div className="agent-placeholder">
+        <span>📈</span>
+        <p>Nenhuma campanha da Laura encontrada ainda.</p>
+        <p style={{ fontSize: 12, maxWidth: 340, textAlign: 'center' }}>
+          Essa aba mostra só as campanhas do Meta Ads marcadas pela agência com "LP COM FORMULÁRIO" no nome.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="laura-perf">
+      <div className="laura-perf__summary">
+        <div>
+          <span className="laura-perf__summary-label">Visualizações de página</span>
+          <strong className="laura-perf__summary-value">{formatNumber(totals.pageViews)}</strong>
+        </div>
+        <div>
+          <span className="laura-perf__summary-label">Formulários preenchidos</span>
+          <strong className="laura-perf__summary-value">{formatNumber(totals.leads)}</strong>
+        </div>
+        <div>
+          <span className="laura-perf__summary-label">Taxa de conversão</span>
+          <strong className="laura-perf__summary-value">{totalConversion != null ? `${totalConversion}%` : '—'}</strong>
+        </div>
+      </div>
+
+      <div className="laura-perf__grid">
+        {ordered.map((p) => (
+          <div key={p.id} className="laura-perf__card" style={{ borderTopColor: p.accentColor }}>
+            <span className="laura-perf__card-name" style={{ color: p.accentColor }}>{p.name}</span>
+            <div className="laura-perf__card-row">
+              <span>Visualizações de página</span>
+              <strong>{formatNumber(p.data.pageViews)}</strong>
+            </div>
+            <div className="laura-perf__card-row">
+              <span>Formulários preenchidos</span>
+              <strong>{formatNumber(p.data.leads)}</strong>
+            </div>
+            <div className="laura-perf__card-row">
+              <span>Taxa de conversão</span>
+              <strong>{p.data.conversionRate != null ? `${p.data.conversionRate}%` : '—'}</strong>
+            </div>
+            {p.data.campaigns?.map((c) => (
+              <span key={c.campaign_id} className="laura-perf__campaign-name" title={c.campaign_name}>
+                {c.campaign_name}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+      <p className="laura-perf__footnote">
+        Considera apenas campanhas do Meta Ads com "LP COM FORMULÁRIO" no nome (gerenciadas pela agência de tráfego).
+      </p>
+    </div>
+  )
+}
+
 /* ── Sub-página da Laura ── */
 function LauraPage() {
   const [subTab, setSubTab] = useState('Funis')
@@ -268,12 +369,7 @@ function LauraPage() {
         </div>
       )}
 
-      {subTab === 'Performance' && (
-        <div className="agent-placeholder">
-          <span>📈</span>
-          <p>Performance — em breve</p>
-        </div>
-      )}
+      {subTab === 'Performance' && <LauraPerformancePanel />}
     </div>
   )
 }

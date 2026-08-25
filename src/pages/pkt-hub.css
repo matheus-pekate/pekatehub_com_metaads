@@ -1266,3 +1266,79 @@
   margin-top: 60px;
 }
 .agent-placeholder span { font-size: 40px; }
+
+/* Performance da Laura (tráfego pago) */
+.laura-perf {
+  padding: 20px 0 12px;
+}
+.laura-perf__summary {
+  display: flex;
+  gap: 32px;
+  padding: 18px 24px;
+  background: #f5f0eb;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+.laura-perf__summary-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #366368;
+  margin-bottom: 4px;
+}
+.laura-perf__summary-value {
+  font-size: 26px;
+  font-style: italic;
+  font-weight: 900;
+  color: #08373f;
+}
+.laura-perf__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.laura-perf__card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-top: 3px solid #08373f;
+  border-radius: 12px;
+}
+.laura-perf__card-name {
+  font-style: italic;
+  font-weight: 900;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.laura-perf__card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  color: #4a4d4f;
+}
+.laura-perf__card-row strong {
+  color: #08373f;
+  font-size: 15px;
+}
+.laura-perf__campaign-name {
+  display: block;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(48, 50, 51, .12);
+  font-size: 10.5px;
+  color: #9a9d9f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.laura-perf__footnote {
+  margin-top: 18px;
+  font-size: 11.5px;
+  color: #9a9d9f;
+}
