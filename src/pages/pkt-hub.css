@@ -1267,76 +1267,142 @@
 }
 .agent-placeholder span { font-size: 40px; }
 
-/* Performance da Laura (tráfego pago) */
+/* Performance da Laura (tráfego pago) — mesmo padrão visual do Comando
+   Marketing (pills por programa + blocos de número grande), adaptado pro
+   contexto embutido do hub em vez do modo TV. */
 .laura-perf {
   padding: 20px 0 12px;
 }
-.laura-perf__summary {
+
+.laura-perf__strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.laura-perf__pill {
+  --pill-accent: #08373f;
   display: flex;
-  gap: 32px;
-  padding: 18px 24px;
-  background: #f5f0eb;
-  border-radius: 12px;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(8, 55, 63, .08);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: border-color .2s ease, transform .15s ease;
+}
+.laura-perf__pill:hover {
+  transform: translateY(-1px);
+}
+.laura-perf__pill--active {
+  border-color: var(--pill-accent);
+  box-shadow: 0 10px 24px rgba(8, 55, 63, .12);
+}
+.laura-perf__pill-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--pill-accent);
+}
+.laura-perf__pill-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  color: #08373f;
+  font-variant-numeric: tabular-nums;
+}
+.laura-perf__pill-stats small {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9a9d9f;
+  text-transform: uppercase;
+  margin-left: 3px;
+}
+
+.laura-perf__detail {
+  --pgm-accent: #08373f;
+  background: #fff;
+  border: 1px solid rgba(48, 50, 51, .10);
+  border-radius: 14px;
+  padding: 24px;
+}
+.laura-perf__detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
-.laura-perf__summary-label {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: #366368;
-  margin-bottom: 4px;
-}
-.laura-perf__summary-value {
-  font-size: 26px;
+.laura-perf__detail-title {
   font-style: italic;
   font-weight: 900;
+  font-size: 22px;
+  margin: 0;
+}
+.laura-perf__detail-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #366368;
+  background: #f5f0eb;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.laura-perf__stats {
+  display: flex;
+  gap: 48px;
+  margin-bottom: 20px;
+}
+.laura-perf__stat {
+  display: flex;
+  flex-direction: column;
+}
+.laura-perf__stat-value {
+  font-size: 40px;
+  font-weight: 800;
   color: #08373f;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
-.laura-perf__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
+.laura-perf__stat-label {
+  font-size: 12.5px;
+  color: #366368;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  margin-top: 6px;
 }
-.laura-perf__card {
+
+.laura-perf__campaigns {
+  list-style: none;
+  margin: 0;
+  padding: 14px 0 0;
+  border-top: 1px solid rgba(48, 50, 51, .10);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 18px;
-  background: #fff;
-  border: 1px solid rgba(48, 50, 51, .10);
-  border-top: 3px solid #08373f;
-  border-radius: 12px;
 }
-.laura-perf__card-name {
-  font-style: italic;
-  font-weight: 900;
-  font-size: 16px;
-  margin-bottom: 4px;
-}
-.laura-perf__card-row {
+.laura-perf__campaign-row {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  font-size: 13px;
+  gap: 16px;
+  font-size: 12.5px;
   color: #4a4d4f;
 }
-.laura-perf__card-row strong {
-  color: #08373f;
-  font-size: 15px;
-}
 .laura-perf__campaign-name {
-  display: block;
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px dashed rgba(48, 50, 51, .12);
-  font-size: 10.5px;
-  color: #9a9d9f;
+  flex: 1;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #08373f;
+  font-weight: 600;
 }
+
 .laura-perf__footnote {
   margin-top: 18px;
   font-size: 11.5px;
