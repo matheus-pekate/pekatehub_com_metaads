@@ -74,6 +74,16 @@ function withDaySeparators(messages) {
   return out
 }
 
+function formatShortDate(iso) {
+  try {
+    const date = new Date(iso)
+    if (isNaN(date.getTime())) return '—'
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+  } catch {
+    return '—'
+  }
+}
+
 function formatPhone(key) {
   const num = key.replace('chat-history_', '')
   return num.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/, '+$1 ($2) $3-$4') || num
@@ -136,6 +146,7 @@ export function LauraChats() {
           {!loading && keys.length === 0 && <p className="lc-empty">Nenhuma conversa encontrada.</p>}
           {keys.map((key) => {
             const msgs = sortByTime(chats[key].map(parseMessage))
+            const first = msgs[0]
             const last = msgs[msgs.length - 1]
             return (
               <button
@@ -143,7 +154,16 @@ export function LauraChats() {
                 className={`lc-chat-item ${selected === key ? 'lc-chat-item--active' : ''}`}
                 onClick={() => setSelected(key)}
               >
-                <div className="lc-chat-item__avatar">{formatPhone(key).slice(-2)}</div>
+                <div className="lc-chat-item__dates">
+                  <span className="lc-chat-item__date-row">
+                    <span className="lc-chat-item__date-label">Início</span>
+                    <span className="lc-chat-item__date-value">{formatShortDate(first?.time)}</span>
+                  </span>
+                  <span className="lc-chat-item__date-row">
+                    <span className="lc-chat-item__date-label">Última</span>
+                    <span className="lc-chat-item__date-value">{formatShortDate(last?.time)}</span>
+                  </span>
+                </div>
                 <div className="lc-chat-item__info">
                   <span className="lc-chat-item__phone">{formatPhone(key)}</span>
                   <span className="lc-chat-item__preview">{last?.text?.slice(0, 45)}…</span>
