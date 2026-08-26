@@ -1147,6 +1147,31 @@
   flex-shrink: 0;
 }
 
+.agent-chat-item__dates {
+  width: 44px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.agent-chat-item__date-row {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.agent-chat-item__date-label {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: #9a9d9f;
+}
+.agent-chat-item__date-value {
+  font-size: 11px;
+  font-weight: 700;
+  color: #08373f;
+}
+
 .agent-chat-item__info {
   flex: 1;
   min-width: 0;
