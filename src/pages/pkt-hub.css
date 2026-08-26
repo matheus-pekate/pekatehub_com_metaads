@@ -310,6 +310,7 @@
   padding: 36px 44px;
   overflow-y: auto;
   min-width: 0;
+  min-height: 0;
 }
 
 /* Header */
