@@ -155,6 +155,16 @@ function formatPhone(key) {
   return num.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/, '+$1 ($2) $3-$4') || num
 }
 
+function formatShortDate(iso) {
+  try {
+    const date = new Date(iso)
+    if (isNaN(date.getTime())) return '—'
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+  } catch {
+    return '—'
+  }
+}
+
 /* ── Performance (tráfego pago do agente Laura) ── */
 function formatNumber(value) {
   return new Intl.NumberFormat('pt-BR').format(value || 0)
@@ -382,6 +392,7 @@ function LauraPage() {
             {!loading && keys.length === 0 && <p className="agent-chats__empty">Nenhuma conversa.</p>}
             {keys.map(key => {
               const msgs = sortByTime(chats[key].map(parseMessage))
+              const first = msgs[0]
               const last = msgs[msgs.length - 1]
               return (
                 <button
@@ -389,7 +400,16 @@ function LauraPage() {
                   className={`agent-chat-item ${selected === key ? 'agent-chat-item--active' : ''}`}
                   onClick={() => setSelected(key)}
                 >
-                  <div className="agent-chat-item__avatar">{formatPhone(key).slice(-2)}</div>
+                  <div className="agent-chat-item__dates">
+                    <span className="agent-chat-item__date-row">
+                      <span className="agent-chat-item__date-label">Início</span>
+                      <span className="agent-chat-item__date-value">{formatShortDate(first?.time)}</span>
+                    </span>
+                    <span className="agent-chat-item__date-row">
+                      <span className="agent-chat-item__date-label">Última</span>
+                      <span className="agent-chat-item__date-value">{formatShortDate(last?.time)}</span>
+                    </span>
+                  </div>
                   <div className="agent-chat-item__info">
                     <span className="agent-chat-item__phone">{formatPhone(key)}</span>
                     <span className="agent-chat-item__preview">{last?.text?.slice(0, 40)}…</span>
