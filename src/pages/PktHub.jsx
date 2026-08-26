@@ -160,9 +160,57 @@ function formatNumber(value) {
   return new Intl.NumberFormat('pt-BR').format(value || 0)
 }
 
+function formatLeadDate(iso) {
+  if (!iso) return ''
+  const date = new Date(iso)
+  if (isNaN(date.getTime())) return ''
+  const dateLabel = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+  const timeLabel = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return `${dateLabel} · ${timeLabel}`
+}
+
+function LeadsListModal({ programName, accentColor, leads, onClose }) {
+  return (
+    <div className="laura-perf-leads-overlay" onClick={onClose}>
+      <div className="laura-perf-leads" onClick={(e) => e.stopPropagation()}>
+        <button className="laura-perf-leads__close" onClick={onClose}>✕</button>
+        <header className="laura-perf-leads__header">
+          <span className="laura-perf-leads__eyebrow">{leads.length} {leads.length === 1 ? 'formulário' : 'formulários'}</span>
+          <h2 className="laura-perf-leads__title" style={{ color: accentColor }}>{programName}</h2>
+        </header>
+
+        {leads.length === 0 ? (
+          <div className="laura-perf-leads__empty">
+            <span>📋</span>
+            <p>Nenhum formulário preenchido ainda para este programa.</p>
+          </div>
+        ) : (
+          <div className="laura-perf-leads__list">
+            {leads.map((lead, idx) => (
+              <div key={`${lead.phone || idx}-${lead.created_at || idx}`} className="laura-perf-leads__row">
+                <div className="laura-perf-leads__row-main">
+                  <span className="laura-perf-leads__row-name">{lead.person_name || 'Sem nome'}</span>
+                  <span className="laura-perf-leads__row-ad" title={lead.campaign_name || ''}>
+                    {lead.ad_name || 'Anúncio não identificado'}
+                  </span>
+                </div>
+                <div className="laura-perf-leads__row-meta">
+                  {lead.agendou === 'sim' && <span className="laura-perf-leads__badge">Reunião agendada</span>}
+                  <span className="laura-perf-leads__row-date">{formatLeadDate(lead.created_at)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function LauraPerformancePanel() {
   const { programs, loading, error } = useLauraPerformance()
   const [selectedId, setSelectedId] = useState(null)
+  const [showLeadsModal, setShowLeadsModal] = useState(false)
 
   const ordered = PROGRAMS
     .map((p) => ({ ...p, data: programs.find((d) => d.program_id === p.id) }))
@@ -212,7 +260,7 @@ function LauraPerformancePanel() {
           >
             <span className="laura-perf__pill-name">{p.name}</span>
             <div className="laura-perf__pill-stats">
-              <span>{formatNumber(p.data.leads)} <small>forms</small></span>
+              <span>{formatNumber(p.data.formsSubmitted ?? p.data.leads)} <small>forms</small></span>
               <span>{p.data.conversionRate != null ? `${p.data.conversionRate}%` : '—'} <small>conv.</small></span>
             </div>
           </button>
@@ -233,10 +281,15 @@ function LauraPerformancePanel() {
               <span className="laura-perf__stat-value">{formatNumber(active.data.pageViews)}</span>
               <span className="laura-perf__stat-label">Visualizações de página</span>
             </div>
-            <div className="laura-perf__stat">
-              <span className="laura-perf__stat-value">{formatNumber(active.data.leads)}</span>
-              <span className="laura-perf__stat-label">Formulários preenchidos</span>
-            </div>
+            <button
+              type="button"
+              className="laura-perf__stat laura-perf__stat--clickable"
+              onClick={() => setShowLeadsModal(true)}
+              title="Ver quem preencheu e de qual anúncio veio"
+            >
+              <span className="laura-perf__stat-value">{formatNumber(active.data.formsSubmitted ?? active.data.leads)}</span>
+              <span className="laura-perf__stat-label">Formulários preenchidos ↗</span>
+            </button>
             <div className="laura-perf__stat">
               <span className="laura-perf__stat-value">{active.data.conversionRate != null ? `${active.data.conversionRate}%` : '—'}</span>
               <span className="laura-perf__stat-label">Taxa de conversão</span>
@@ -258,6 +311,15 @@ function LauraPerformancePanel() {
       <p className="laura-perf__footnote">
         Considera apenas campanhas do Meta Ads com "LP COM FORMULÁRIO" no nome (gerenciadas pela agência de tráfego).
       </p>
+
+      {showLeadsModal && active && (
+        <LeadsListModal
+          programName={active.name}
+          accentColor={active.accentColor}
+          leads={active.data.formsSubmittedList || []}
+          onClose={() => setShowLeadsModal(false)}
+        />
+      )}
     </div>
   )
 }
