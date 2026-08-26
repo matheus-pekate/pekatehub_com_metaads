@@ -185,6 +185,14 @@
   display: grid;
   place-items: center;
 }
+
+.lc-chat-header__avatar-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(48, 50, 51, .1);
+}
 .lc-chat-header__phone {
   display: block;
   font-weight: 800;

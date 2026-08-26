@@ -338,6 +338,7 @@ function LauraPerformancePanel() {
 function LauraPage() {
   const [subTab, setSubTab] = useState('Funis')
   const [chats, setChats] = useState({})
+  const [photos, setPhotos] = useState({})
   const [selected, setSelected] = useState(null)
   const [loading, setLoading] = useState(true)
   const bottomRef = useRef(null)
@@ -348,6 +349,7 @@ function LauraPage() {
       .then(data => {
         const c = data.chats || {}
         setChats(c)
+        setPhotos(data.photos || {})
         const first = sortKeysByRecency(c)[0]
         if (first) setSelected(first)
         setLoading(false)
@@ -427,7 +429,20 @@ function LauraPage() {
             ) : (
               <>
                 <div className="agent-chats__winheader">
-                  <div className="agent-chat-item__avatar">{formatPhone(selected).slice(-2)}</div>
+                  {photos[selected.replace('chat-history_', '')] ? (
+                    <img
+                      className="agent-chat-item__avatar-photo"
+                      src={photos[selected.replace('chat-history_', '')]}
+                      alt=""
+                      onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'grid' }}
+                    />
+                  ) : null}
+                  <div
+                    className="agent-chat-item__avatar"
+                    style={photos[selected.replace('chat-history_', '')] ? { display: 'none' } : undefined}
+                  >
+                    {formatPhone(selected).slice(-2)}
+                  </div>
                   <div>
                     <span className="agent-chat-item__phone">{formatPhone(selected)}</span>
                     <span className="agent-chat-item__preview">{sortedMessages.length} mensagens</span>

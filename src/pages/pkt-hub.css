@@ -1147,6 +1147,15 @@
   flex-shrink: 0;
 }
 
+.agent-chat-item__avatar-photo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(48, 50, 51, .1);
+}
+
 .agent-chat-item__dates {
   width: 44px;
   flex-shrink: 0;

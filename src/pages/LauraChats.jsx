@@ -92,6 +92,7 @@ function formatPhone(key) {
 export function LauraChats() {
   const navigate = useNavigate()
   const [chats, setChats] = useState({})
+  const [photos, setPhotos] = useState({})
   const [selected, setSelected] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -102,6 +103,7 @@ export function LauraChats() {
       .then((r) => r.json())
       .then((data) => {
         setChats(data.chats || {})
+        setPhotos(data.photos || {})
         const first = sortKeysByRecency(data.chats || {})[0]
         if (first) setSelected(first)
         setLoading(false)
@@ -182,7 +184,20 @@ export function LauraChats() {
         ) : (
           <>
             <div className="lc-chat-header">
-              <div className="lc-chat-header__avatar">{formatPhone(selected).slice(-2)}</div>
+              {photos[selected.replace('chat-history_', '')] ? (
+                <img
+                  className="lc-chat-header__avatar-photo"
+                  src={photos[selected.replace('chat-history_', '')]}
+                  alt=""
+                  onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'grid' }}
+                />
+              ) : null}
+              <div
+                className="lc-chat-header__avatar"
+                style={photos[selected.replace('chat-history_', '')] ? { display: 'none' } : undefined}
+              >
+                {formatPhone(selected).slice(-2)}
+              </div>
               <div>
                 <span className="lc-chat-header__phone">{formatPhone(selected)}</span>
                 <span className="lc-chat-header__count">{sortedMessages.length} mensagens</span>
