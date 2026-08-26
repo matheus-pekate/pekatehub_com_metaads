@@ -115,7 +115,7 @@ export function LauraChats() {
   }, [])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [selected])
 
   const keys = sortKeysByRecency(chats)

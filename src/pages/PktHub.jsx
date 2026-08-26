@@ -358,7 +358,7 @@ function LauraPage() {
   }, [])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [selected, chats])
 
   const keys = sortKeysByRecency(chats)
