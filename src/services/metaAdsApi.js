@@ -6,6 +6,7 @@ const LOST_DEALS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_LOST_DEALS_WEBHOOK_
 const LEADS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_LEADS_WEBHOOK_URL
 const OPEN_DEALS_WEBHOOK_URL = import.meta.env.VITE_META_ADS_OPEN_DEALS_WEBHOOK_URL
 const LAURA_PERFORMANCE_WEBHOOK_URL = import.meta.env.VITE_META_ADS_LAURA_PERFORMANCE_WEBHOOK_URL
+const LAURA_FUNIL_WEBHOOK_URL = import.meta.env.VITE_META_ADS_LAURA_FUNIL_WEBHOOK_URL
 
 export async function fetchMetaAdsSnapshot() {
   if (!WEBHOOK_URL) throw new Error('VITE_META_ADS_WEBHOOK_URL não configurado')
@@ -89,4 +90,16 @@ export async function fetchLauraPerformance() {
   const json = text ? JSON.parse(text) : { programs: [] }
   if (!json || !Array.isArray(json.programs)) throw new Error('Meta Ads Laura performance webhook: formato inesperado')
   return json.programs
+}
+
+// Funil de SDR da Laura no Pipedrive (pipeline 88: Fila de Prospecção →
+// Cadência Enviada → Respondeu → Reunião Agendada), com a lista de pessoas
+// em cada etapa.
+export async function fetchLauraFunil() {
+  if (!LAURA_FUNIL_WEBHOOK_URL) throw new Error('VITE_META_ADS_LAURA_FUNIL_WEBHOOK_URL não configurado')
+  const res = await fetch(LAURA_FUNIL_WEBHOOK_URL)
+  if (!res.ok) throw new Error(`Meta Ads Laura funil webhook falhou: ${res.status}`)
+  const json = await res.json()
+  if (!json || !Array.isArray(json.stages)) throw new Error('Meta Ads Laura funil webhook: formato inesperado')
+  return json.stages
 }
