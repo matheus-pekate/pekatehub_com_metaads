@@ -6,7 +6,9 @@ import { useDashboardData } from '../hooks/useDashboardData'
 import { useB2BDashboardData } from '../hooks/useB2BDashboardData'
 import { useEventosData } from '../hooks/useEventosData'
 import { useLauraPerformance } from '../hooks/useLauraPerformance'
+import { useLauraFunil } from '../hooks/useLauraFunil'
 import { PROGRAMS } from '../config/metaAds'
+import { buildPipedriveDealUrl } from '../config/pipedrive'
 import { supabase } from '../lib/supabaseClient'
 import './pkt-hub.css'
 
@@ -511,6 +513,68 @@ function LauraPerformancePanel() {
   )
 }
 
+/* ── Funil (SDR da Laura no Pipedrive) ── */
+function LauraFunilPanel() {
+  const { stages, loading, error } = useLauraFunil()
+
+  if (loading) {
+    return (
+      <div className="agent-placeholder">
+        <span>📊</span>
+        <p>Carregando funil...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="agent-placeholder">
+        <span>⚠️</span>
+        <p>{error}</p>
+      </div>
+    )
+  }
+
+  const total = stages.reduce((sum, s) => sum + s.count, 0)
+
+  return (
+    <div className="laura-funil">
+      <p className="laura-funil__total">{formatNumber(total)} {total === 1 ? 'pessoa' : 'pessoas'} no funil</p>
+      <div className="laura-funil__board">
+        {stages.map((stage) => (
+          <div key={stage.stage_id} className="laura-funil__column">
+            <div className="laura-funil__column-header">
+              <span className="laura-funil__column-name">{stage.name}</span>
+              <span className="laura-funil__column-count">{stage.count}</span>
+            </div>
+            {stage.people.length === 0 ? (
+              <div className="laura-funil__empty">Ninguém aqui agora</div>
+            ) : (
+              <div className="laura-funil__cards">
+                {stage.people.map((p) => (
+                  <a
+                    key={p.deal_id}
+                    className="laura-funil__card"
+                    href={buildPipedriveDealUrl(p.deal_id)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span className="laura-funil__card-name">{p.person_name || p.title}</span>
+                    <span className="laura-funil__card-date">{formatLeadDate(p.stage_change_time || p.add_time)}</span>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <p className="laura-perf__footnote">
+        Pipeline de SDR da Laura no Pipedrive (migrado em 27/08) — clique num nome pra abrir o negócio.
+      </p>
+    </div>
+  )
+}
+
 /* ── Sub-página da Laura ── */
 function LauraPage() {
   const [subTab, setSubTab] = useState('Funis')
@@ -644,12 +708,7 @@ function LauraPage() {
         </div>
       )}
 
-      {subTab === 'Funis' && (
-        <div className="agent-placeholder">
-          <span>📊</span>
-          <p>Funis — em breve</p>
-        </div>
-      )}
+      {subTab === 'Funis' && <LauraFunilPanel />}
 
       {subTab === 'Performance' && <LauraPerformancePanel />}
     </div>
