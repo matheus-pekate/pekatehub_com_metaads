@@ -255,10 +255,53 @@ function LeadsListModal({ programName, accentColor, leads, onClose }) {
   )
 }
 
+// Ganhos aqui é sempre restrito às campanhas "LP COM FORMULÁRIO" da própria
+// Laura (GEF/C-Level hoje) — o merge já vem filtrado por program_id no hook.
+function WonListModal({ programName, accentColor, deals, onClose }) {
+  return (
+    <div className="laura-perf-leads-overlay" onClick={onClose}>
+      <div className="laura-perf-leads" onClick={(e) => e.stopPropagation()}>
+        <button className="laura-perf-leads__close" onClick={onClose}>✕</button>
+        <header className="laura-perf-leads__header">
+          <span className="laura-perf-leads__eyebrow">{deals.length} {deals.length === 1 ? 'ganho' : 'ganhos'}</span>
+          <h2 className="laura-perf-leads__title" style={{ color: accentColor }}>{programName}</h2>
+        </header>
+
+        {deals.length === 0 ? (
+          <div className="laura-perf-leads__empty">
+            <span>🏆</span>
+            <p>Nenhum negócio ganho vindo dessas campanhas ainda.</p>
+          </div>
+        ) : (
+          <div className="laura-perf-leads__list">
+            {deals.map((deal, idx) => (
+              <div key={deal.deal_id || idx} className="laura-perf-leads__row">
+                <div className="laura-perf-leads__row-main">
+                  <span className="laura-perf-leads__row-name">{deal.person_name || deal.deal_title || 'Sem nome'}</span>
+                  <span className="laura-perf-leads__row-ad" title={deal.campaign_name || ''}>
+                    {deal.ad_name || 'Anúncio não identificado'}
+                  </span>
+                </div>
+                <div className="laura-perf-leads__row-meta">
+                  {deal.deal_value != null && (
+                    <span className="laura-perf-leads__badge">{formatBRL(deal.deal_value)}</span>
+                  )}
+                  <span className="laura-perf-leads__row-date">{formatLeadDate(deal.won_time)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function LauraPerformancePanel() {
   const { programs, loading, error } = useLauraPerformance()
   const [selectedId, setSelectedId] = useState(null)
   const [showLeadsModal, setShowLeadsModal] = useState(false)
+  const [showWonModal, setShowWonModal] = useState(false)
 
   const ordered = PROGRAMS
     .map((p) => {
@@ -286,6 +329,30 @@ function LauraPerformancePanel() {
       // e de calcular a taxa de conversão em cima deles.
       const formsSubmittedList = (raw.formsSubmittedList || []).filter(isRealLead)
 
+      // formulário real por anúncio (pra bater com o total de cima, em vez do
+      // "leads" que o Meta Ads reporta por conta própria pra cada anúncio).
+      // Lead sem ad_name (ex: preencheu sem UTM de anúncio) cai no bucket "sem anúncio".
+      const formsByAdName = new Map()
+      let unattributedForms = 0
+      for (const lead of formsSubmittedList) {
+        if (lead.ad_name) {
+          formsByAdName.set(lead.ad_name, (formsByAdName.get(lead.ad_name) || 0) + 1)
+        } else {
+          unattributedForms += 1
+        }
+      }
+
+      // "ganhos" vem do Pipedrive do programa inteiro (histórico completo, anos
+      // de negócios de outras campanhas) — aplica o mesmo filtro por nome de
+      // anúncio/campanha, senão um negócio antigo sem relação com a campanha
+      // "LP COM FORMULÁRIO" apareceria contado aqui.
+      const rawWonDeals = raw.wonDeals || []
+      const wonDeals = p.matchToken
+        ? rawWonDeals.filter((d) => normalizeToken(`${d.ad_name || ''} ${d.campaign_name || ''} ${d.adset_name || ''}`).includes(p.matchToken))
+        : rawWonDeals
+      const totalWon = wonDeals.length
+      const totalWonValue = Number(wonDeals.reduce((sum, d) => sum + (Number(d.deal_value) || 0), 0).toFixed(2))
+
       const data = {
         ...raw,
         campaigns,
@@ -294,6 +361,11 @@ function LauraPerformancePanel() {
         leads: metaLeads,
         formsSubmittedList,
         formsSubmitted: formsSubmittedList.length,
+        formsByAdName,
+        unattributedForms,
+        wonDeals,
+        totalWon,
+        totalWonValue,
       }
       data.conversionRate = computeConversionRate(data)
       return { ...p, data }
@@ -378,6 +450,15 @@ function LauraPerformancePanel() {
               <span className="laura-perf__stat-value">{active.data.conversionRate != null ? `${active.data.conversionRate}%` : '—'}</span>
               <span className="laura-perf__stat-label">Taxa de conversão</span>
             </div>
+            <button
+              type="button"
+              className="laura-perf__stat laura-perf__stat--clickable"
+              onClick={() => setShowWonModal(true)}
+              title="Ver quais negócios foram ganhos"
+            >
+              <span className="laura-perf__stat-value">{formatNumber(active.data.totalWon)}</span>
+              <span className="laura-perf__stat-label">Ganhos ↗</span>
+            </button>
           </div>
 
           <ul className="laura-perf__campaigns">
@@ -387,11 +468,20 @@ function LauraPerformancePanel() {
               <li key={c.ad_id || `${c.campaign_id}|${c.ad_name}`} className="laura-perf__campaign-row">
                 <span className="laura-perf__campaign-name" title={c.campaign_name}>{c.ad_name || c.campaign_name}</span>
                 <span>{formatNumber(c.page_views)} views</span>
-                {/* "leads" aqui é a métrica auto-reportada pelo Meta Ads por anúncio —
-                    não é o formulário real da Laura (esse é o "Formulários preenchidos" acima) */}
-                <span>{formatNumber(c.leads)} leads (Meta)</span>
+                {/* formulário real da Laura por anúncio (mesma fonte do "Formulários
+                    preenchidos" acima) — não a métrica que o Meta Ads reporta sozinho. */}
+                <span>{formatNumber(active.data.formsByAdName.get(c.ad_name) || 0)} formulários</span>
               </li>
             ))}
+            {active.data.unattributedForms > 0 && (
+              <li className="laura-perf__campaign-row">
+                <span className="laura-perf__campaign-name" title="Formulário preenchido sem UTM de anúncio identificável">
+                  Sem anúncio identificado
+                </span>
+                <span>—</span>
+                <span>{formatNumber(active.data.unattributedForms)} formulários</span>
+              </li>
+            )}
           </ul>
         </div>
       )}
@@ -406,6 +496,15 @@ function LauraPerformancePanel() {
           accentColor={active.accentColor}
           leads={active.data.formsSubmittedList || []}
           onClose={() => setShowLeadsModal(false)}
+        />
+      )}
+
+      {showWonModal && active && (
+        <WonListModal
+          programName={active.name}
+          accentColor={active.accentColor}
+          deals={active.data.wonDeals || []}
+          onClose={() => setShowWonModal(false)}
         />
       )}
     </div>

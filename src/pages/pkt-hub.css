@@ -1390,7 +1390,8 @@
 
 .laura-perf__stats {
   display: flex;
-  gap: 48px;
+  flex-wrap: wrap;
+  gap: 32px 48px;
   margin-bottom: 20px;
 }
 .laura-perf__stat {
