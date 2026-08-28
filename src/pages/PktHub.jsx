@@ -170,6 +170,35 @@ function formatNumber(value) {
   return new Intl.NumberFormat('pt-BR').format(value || 0)
 }
 
+// Leads de teste/pessoais identificados manualmente pelo time de tráfego (não são leads
+// reais de campanha) — excluídos da contagem de "Formulários preenchidos" e da taxa de
+// conversão. Reconhecidos por telefone (fonte confiável, alguns reaproveitam o mesmo nome
+// "TESTE X" em programas diferentes) e, como reforço, por nome contendo "teste".
+const EXCLUDED_LEAD_PHONES = new Set([
+  '5519983192233', // Matheus Esposito (GEF) — enviou 2x em teste
+  '5511975002126', // Ricardo Queiroz (GEF)
+  '5519994681431', // "TESTE GEF Numero 1" / "anderson" / "TESTE CLEVEL Numero 1" — mesmo telefone de teste, reaproveitado em GEF e C-Level
+  '5519998404988', // "Anderson Tavares TESTE" (GEF)
+  '5511998547589', // "Teste 02" (C-Level)
+])
+
+function isRealLead(lead) {
+  if (lead?.phone && EXCLUDED_LEAD_PHONES.has(String(lead.phone))) return false
+  if ((lead?.person_name || '').toLowerCase().includes('teste')) return false
+  return true
+}
+
+// A taxa de conversão precisa ser calculada em cima do mesmo número que a UI
+// mostra como "Formulários preenchidos" (dado real da Laura), não em cima do
+// campo "leads" que vem cru do próprio Meta Ads (métrica auto-reportada pela
+// plataforma) — os dois eram exibidos lado a lado como se fossem a mesma coisa.
+function computeConversionRate(data) {
+  const forms = data?.formsSubmitted ?? data?.leads ?? 0
+  const views = data?.pageViews || 0
+  if (views <= 0) return null
+  return Number(((forms / views) * 100).toFixed(1))
+}
+
 function formatLeadDate(iso) {
   if (!iso) return ''
   const date = new Date(iso)
@@ -223,7 +252,19 @@ function LauraPerformancePanel() {
   const [showLeadsModal, setShowLeadsModal] = useState(false)
 
   const ordered = PROGRAMS
-    .map((p) => ({ ...p, data: programs.find((d) => d.program_id === p.id) }))
+    .map((p) => {
+      const raw = programs.find((d) => d.program_id === p.id)
+      if (!raw) return { ...p, data: undefined }
+      // campaigns vem do backend com 1 item por ANÚNCIO (não por campanha) —
+      // deriva a contagem real de campanhas distintas a partir do campaign_id.
+      const campaignCount = new Set((raw.campaigns || []).map((c) => c.campaign_id)).size
+      // remove leads de teste/pessoais antes de contar "formulários preenchidos"
+      // e de calcular a taxa de conversão em cima deles.
+      const formsSubmittedList = (raw.formsSubmittedList || []).filter(isRealLead)
+      const data = { ...raw, campaignCount, formsSubmittedList, formsSubmitted: formsSubmittedList.length }
+      data.conversionRate = computeConversionRate(data)
+      return { ...p, data }
+    })
     .filter((p) => p.data)
 
   const active = ordered.find((p) => p.id === selectedId) || ordered[0]
@@ -282,7 +323,7 @@ function LauraPerformancePanel() {
           <div className="laura-perf__detail-header">
             <h3 className="laura-perf__detail-title" style={{ color: active.accentColor }}>{active.name}</h3>
             <span className="laura-perf__detail-badge">
-              {active.data.campaigns.length} campanha{active.data.campaigns.length === 1 ? '' : 's'} da agência
+              {active.data.campaignCount} campanha{active.data.campaignCount === 1 ? '' : 's'} da agência
             </span>
           </div>
 
@@ -308,10 +349,14 @@ function LauraPerformancePanel() {
 
           <ul className="laura-perf__campaigns">
             {active.data.campaigns.map((c) => (
-              <li key={c.campaign_id} className="laura-perf__campaign-row">
-                <span className="laura-perf__campaign-name" title={c.campaign_name}>{c.campaign_name}</span>
+              // cada item é um ANÚNCIO (não uma campanha) — o campaign_id se repete
+              // entre os anúncios da mesma campanha, então a key precisa incluir o ad_id.
+              <li key={c.ad_id || `${c.campaign_id}|${c.ad_name}`} className="laura-perf__campaign-row">
+                <span className="laura-perf__campaign-name" title={c.campaign_name}>{c.ad_name || c.campaign_name}</span>
                 <span>{formatNumber(c.page_views)} views</span>
-                <span>{formatNumber(c.leads)} forms</span>
+                {/* "leads" aqui é a métrica auto-reportada pelo Meta Ads por anúncio —
+                    não é o formulário real da Laura (esse é o "Formulários preenchidos" acima) */}
+                <span>{formatNumber(c.leads)} leads (Meta)</span>
               </li>
             ))}
           </ul>
