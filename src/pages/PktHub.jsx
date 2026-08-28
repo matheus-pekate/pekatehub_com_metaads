@@ -188,6 +188,15 @@ function isRealLead(lead) {
   return true
 }
 
+// maiúsculo, sem acento, sem espaço/traço/pontuação — pra comparar "C- LEVEL",
+// "C-Level" e "CLEVEL" como a mesma coisa.
+function normalizeToken(str) {
+  return (str || '')
+    .toUpperCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^A-Z0-9]/g, '')
+}
+
 // A taxa de conversão precisa ser calculada em cima do mesmo número que a UI
 // mostra como "Formulários preenchidos" (dado real da Laura), não em cima do
 // campo "leads" que vem cru do próprio Meta Ads (métrica auto-reportada pela
@@ -255,13 +264,37 @@ function LauraPerformancePanel() {
     .map((p) => {
       const raw = programs.find((d) => d.program_id === p.id)
       if (!raw) return { ...p, data: undefined }
+
+      // filtro de segurança: só considera anúncios cujo nome bate com o
+      // programa (ex: só anúncio com "C-LEVEL" no nome entra no card C-Level),
+      // pra um anúncio de outro funil nunca "vazar" pro card errado.
+      const rawCampaigns = raw.campaigns || []
+      const campaigns = p.matchToken
+        ? rawCampaigns.filter((c) => normalizeToken(`${c.ad_name || ''} ${c.campaign_name || ''}`).includes(p.matchToken))
+        : rawCampaigns
+
+      // visualizações e leads do Meta recalculados a partir dos anúncios já
+      // filtrados, pra o total do card sempre bater com a lista mostrada embaixo.
+      const pageViews = campaigns.reduce((sum, c) => sum + (c.page_views || 0), 0)
+      const metaLeads = campaigns.reduce((sum, c) => sum + (c.leads || 0), 0)
+
       // campaigns vem do backend com 1 item por ANÚNCIO (não por campanha) —
       // deriva a contagem real de campanhas distintas a partir do campaign_id.
-      const campaignCount = new Set((raw.campaigns || []).map((c) => c.campaign_id)).size
+      const campaignCount = new Set(campaigns.map((c) => c.campaign_id)).size
+
       // remove leads de teste/pessoais antes de contar "formulários preenchidos"
       // e de calcular a taxa de conversão em cima deles.
       const formsSubmittedList = (raw.formsSubmittedList || []).filter(isRealLead)
-      const data = { ...raw, campaignCount, formsSubmittedList, formsSubmitted: formsSubmittedList.length }
+
+      const data = {
+        ...raw,
+        campaigns,
+        campaignCount,
+        pageViews,
+        leads: metaLeads,
+        formsSubmittedList,
+        formsSubmitted: formsSubmittedList.length,
+      }
       data.conversionRate = computeConversionRate(data)
       return { ...p, data }
     })
