@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchLauraPerformance, fetchWonDeals } from '../services/metaAdsApi'
+import { fetchLauraPerformance } from '../services/metaAdsApi'
 import { REFRESH_INTERVAL_MINUTES } from '../config/metaAds'
 
 export function useLauraPerformance() {
@@ -11,25 +11,13 @@ export function useLauraPerformance() {
     let cancelled = false
 
     function load() {
-      // Ganhos é dado complementar (mesma fonte usada no Comando Meta Ads) —
-      // se esse webhook falhar, não pode derrubar o resto da aba de performance.
-      Promise.all([
-        fetchLauraPerformance(),
-        fetchWonDeals().catch(() => []),
-      ])
-        .then(([perfPrograms, wonPrograms]) => {
+      // Ganhos não vem mais daqui — o LauraPerformancePanel calcula direto da
+      // etapa "Ganho" do funil de SDR da Laura (useLauraFunil), que é a fonte
+      // real do funil dela por programa.
+      fetchLauraPerformance()
+        .then((perfPrograms) => {
           if (cancelled) return
-          const wonById = new Map(wonPrograms.map((p) => [p.program_id, p]))
-          const merged = perfPrograms.map((p) => {
-            const won = wonById.get(p.program_id)
-            return {
-              ...p,
-              totalWon: won?.totalWon ?? 0,
-              totalWonValue: won?.totalWonValue ?? 0,
-              wonDeals: won?.deals ?? [],
-            }
-          })
-          setPrograms(merged)
+          setPrograms(perfPrograms)
           setLoading(false)
           setError(null)
         })
