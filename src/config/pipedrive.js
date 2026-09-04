@@ -32,7 +32,7 @@ export const PROGRAMS = [
     startDate: '2026-08-24',
     goal: 40,
     price: 48900,
-    revenueGoal: 1800000,
+    revenueGoal: 1711500,
     pipelineId: 84,
     pipelineName: '2026 - FDC - Pós-Negócios (T12)',
     winStageId: 421, // Efetivado
@@ -57,7 +57,7 @@ export const PROGRAMS = [
     startDate: '2026-06-15',
     goal: 30,
     price: 6150,
-    revenueGoal: 184500,
+    revenueGoal: 172480,
     pipelineId: 78,
     pipelineName: 'FDC Abertos - Gestão Comercial (GECOM)',
     winStageId: 384, // Efetivado
@@ -81,7 +81,7 @@ export const PROGRAMS = [
     startDate: '2026-10-06',
     goal: 35,
     price: 33880,
-    revenueGoal: 1185800,
+    revenueGoal: 1084160,
     pipelineId: 42,
     pipelineName: 'FDC Abertos - Jornada C-Level (C-Level)',
     winStageId: 216, // Inscrito
@@ -104,7 +104,7 @@ export const PROGRAMS = [
     startDate: '2026-10-19',
     goal: 35,
     price: 8340,
-    revenueGoal: 291900,
+    revenueGoal: 233520,
     pipelineId: 73,
     pipelineName: 'FDC Abertos - Gestão Financeira (GEF)',
     winStageId: 360, // Inscrito
@@ -127,7 +127,7 @@ export const PROGRAMS = [
     startDate: '2026-12-18',
     goal: 20,
     price: 23700,
-    revenueGoal: 474000,
+    revenueGoal: 663600,
     pipelineId: 43,
     pipelineName: 'FDC - PDD Avulso (médias empresas)',
     winStageId: 221, // Efetivado
