@@ -301,6 +301,12 @@ function WonListModal({ programName, accentColor, deals, onClose }) {
 
 function LauraPerformancePanel() {
   const { programs, loading, error } = useLauraPerformance()
+  // Ganhos aqui vem direto da etapa "Ganho" do funil de SDR da Laura no
+  // Pipedrive (pipeline 88), filtrado pelo programa específico — não mais do
+  // feed genérico de ganhos por nome de anúncio/campanha (não tinha relação
+  // real com o funil da Laura e sempre aparecia zerado).
+  const { stages: funilStages } = useLauraFunil()
+  const ganhoStage = funilStages.find((s) => s.stage_id === 450)
   const [selectedId, setSelectedId] = useState(null)
   const [showLeadsModal, setShowLeadsModal] = useState(false)
   const [showWonModal, setShowWonModal] = useState(false)
@@ -344,14 +350,16 @@ function LauraPerformancePanel() {
         }
       }
 
-      // "ganhos" vem do Pipedrive do programa inteiro (histórico completo, anos
-      // de negócios de outras campanhas) — aplica o mesmo filtro por nome de
-      // anúncio/campanha, senão um negócio antigo sem relação com a campanha
-      // "LP COM FORMULÁRIO" apareceria contado aqui.
-      const rawWonDeals = raw.wonDeals || []
-      const wonDeals = p.matchToken
-        ? rawWonDeals.filter((d) => normalizeToken(`${d.ad_name || ''} ${d.campaign_name || ''} ${d.adset_name || ''}`).includes(p.matchToken))
-        : rawWonDeals
+      // "ganhos" vem só da etapa "Ganho" do funil de SDR da Laura (pipeline 88
+      // no Pipedrive), filtrado pelo nome do programa (ex: só "GEF" no card
+      // GEF) — nunca mistura com negócios ganhos de outros funis/campanhas.
+      const wonFromFunil = ganhoStage ? ganhoStage.people.filter((person) => person.programa === p.name) : []
+      const wonDeals = wonFromFunil.map((d) => ({
+        deal_id: d.deal_id,
+        person_name: d.person_name,
+        deal_value: d.value,
+        won_time: d.stage_change_time || d.add_time,
+      }))
       const totalWon = wonDeals.length
       const totalWonValue = Number(wonDeals.reduce((sum, d) => sum + (Number(d.deal_value) || 0), 0).toFixed(2))
 
@@ -452,15 +460,17 @@ function LauraPerformancePanel() {
               <span className="laura-perf__stat-value">{active.data.conversionRate != null ? `${active.data.conversionRate}%` : '—'}</span>
               <span className="laura-perf__stat-label">Taxa de conversão</span>
             </div>
-            <button
-              type="button"
-              className="laura-perf__stat laura-perf__stat--clickable"
-              onClick={() => setShowWonModal(true)}
-              title="Ver quais negócios foram ganhos"
-            >
-              <span className="laura-perf__stat-value">{formatNumber(active.data.totalWon)}</span>
-              <span className="laura-perf__stat-label">Ganhos ↗</span>
-            </button>
+            {active.data.totalWon > 0 && (
+              <button
+                type="button"
+                className="laura-perf__stat laura-perf__stat--clickable"
+                onClick={() => setShowWonModal(true)}
+                title="Ver quais negócios foram ganhos"
+              >
+                <span className="laura-perf__stat-value">{formatNumber(active.data.totalWon)}</span>
+                <span className="laura-perf__stat-label">Ganhos ↗</span>
+              </button>
+            )}
           </div>
 
           <ul className="laura-perf__campaigns">
