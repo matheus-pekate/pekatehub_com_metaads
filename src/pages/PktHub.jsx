@@ -460,17 +460,15 @@ function LauraPerformancePanel() {
               <span className="laura-perf__stat-value">{active.data.conversionRate != null ? `${active.data.conversionRate}%` : '—'}</span>
               <span className="laura-perf__stat-label">Taxa de conversão</span>
             </div>
-            {active.data.totalWon > 0 && (
-              <button
-                type="button"
-                className="laura-perf__stat laura-perf__stat--clickable"
-                onClick={() => setShowWonModal(true)}
-                title="Ver quais negócios foram ganhos"
-              >
-                <span className="laura-perf__stat-value">{formatNumber(active.data.totalWon)}</span>
-                <span className="laura-perf__stat-label">Ganhos ↗</span>
-              </button>
-            )}
+            <button
+              type="button"
+              className="laura-perf__stat laura-perf__stat--clickable"
+              onClick={() => setShowWonModal(true)}
+              title="Ver quais negócios foram ganhos"
+            >
+              <span className="laura-perf__stat-value">{formatNumber(active.data.totalWon)}</span>
+              <span className="laura-perf__stat-label">Ganhos ↗</span>
+            </button>
           </div>
 
           <ul className="laura-perf__campaigns">
