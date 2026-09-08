@@ -1106,10 +1106,64 @@
   width: 260px;
   min-width: 220px;
   border-right: 1px solid rgba(48,50,51,.08);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.agent-chats__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 12px;
+  padding: 0 10px;
+  border: 1px solid rgba(48,50,51,.12);
+  border-radius: 8px;
+  background: #F5F0EB;
+  color: #366368;
+  flex-shrink: 0;
+}
+
+.agent-chats__search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  font-family: 'Lato', system-ui, sans-serif;
+  font-size: 13px;
+  color: #08373f;
+  min-width: 0;
+}
+
+.agent-chats__search-input::placeholder {
+  color: #a0a0a0;
+}
+
+.agent-chats__search-input:focus {
+  outline: none;
+}
+
+.agent-chats__search-clear {
+  border: none;
+  background: none;
+  color: #a0a0a0;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+
+.agent-chats__search-clear:hover {
+  color: #CB5B36;
+}
+
+.agent-chats__list-items {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: 8px 0;
+  padding: 4px 0 8px;
 }
 
 .agent-chats__empty {

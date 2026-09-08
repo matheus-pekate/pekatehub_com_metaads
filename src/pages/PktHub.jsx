@@ -590,6 +590,7 @@ function LauraPage() {
   const [photos, setPhotos] = useState({})
   const [selected, setSelected] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [chatSearch, setChatSearch] = useState('')
   const bottomRef = useRef(null)
 
   useEffect(() => {
@@ -611,6 +612,10 @@ function LauraPage() {
   }, [selected, chats])
 
   const keys = sortKeysByRecency(chats)
+  const chatSearchDigits = chatSearch.replace(/\D/g, '')
+  const filteredKeys = chatSearchDigits
+    ? keys.filter(key => key.replace('chat-history_', '').includes(chatSearchDigits))
+    : keys
   const sortedMessages = selected ? sortByTime((chats[selected] || []).map(parseMessage)) : []
   const messages = withDaySeparators(sortedMessages)
 
@@ -639,36 +644,61 @@ function LauraPage() {
         <div className="agent-chats">
           {/* Lista de conversas */}
           <aside className="agent-chats__list">
-            {loading && <p className="agent-chats__empty">Carregando...</p>}
-            {!loading && keys.length === 0 && <p className="agent-chats__empty">Nenhuma conversa.</p>}
-            {keys.map(key => {
-              const msgs = sortByTime(chats[key].map(parseMessage))
-              const first = msgs[0]
-              const last = msgs[msgs.length - 1]
-              return (
+            <div className="agent-chats__search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Buscar por telefone..."
+                value={chatSearch}
+                onChange={(e) => setChatSearch(e.target.value)}
+                className="agent-chats__search-input"
+              />
+              {chatSearch && (
                 <button
-                  key={key}
-                  className={`agent-chat-item ${selected === key ? 'agent-chat-item--active' : ''}`}
-                  onClick={() => setSelected(key)}
-                >
-                  <div className="agent-chat-item__dates">
-                    <span className="agent-chat-item__date-row">
-                      <span className="agent-chat-item__date-label">Início</span>
-                      <span className="agent-chat-item__date-value">{formatShortDate(first?.time)}</span>
-                    </span>
-                    <span className="agent-chat-item__date-row">
-                      <span className="agent-chat-item__date-label">Última</span>
-                      <span className="agent-chat-item__date-value">{formatShortDate(last?.time)}</span>
-                    </span>
-                  </div>
-                  <div className="agent-chat-item__info">
-                    <span className="agent-chat-item__phone">{formatPhone(key)}</span>
-                    <span className="agent-chat-item__preview">{last?.text?.slice(0, 40)}…</span>
-                  </div>
-                  <span className="agent-chat-item__count">{msgs.length}</span>
-                </button>
-              )
-            })}
+                  type="button"
+                  className="agent-chats__search-clear"
+                  onClick={() => setChatSearch('')}
+                  aria-label="Limpar busca"
+                >✕</button>
+              )}
+            </div>
+            <div className="agent-chats__list-items">
+              {loading && <p className="agent-chats__empty">Carregando...</p>}
+              {!loading && keys.length === 0 && <p className="agent-chats__empty">Nenhuma conversa.</p>}
+              {!loading && keys.length > 0 && filteredKeys.length === 0 && (
+                <p className="agent-chats__empty">Nenhuma conversa com esse número.</p>
+              )}
+              {filteredKeys.map(key => {
+                const msgs = sortByTime(chats[key].map(parseMessage))
+                const first = msgs[0]
+                const last = msgs[msgs.length - 1]
+                return (
+                  <button
+                    key={key}
+                    className={`agent-chat-item ${selected === key ? 'agent-chat-item--active' : ''}`}
+                    onClick={() => setSelected(key)}
+                  >
+                    <div className="agent-chat-item__dates">
+                      <span className="agent-chat-item__date-row">
+                        <span className="agent-chat-item__date-label">Início</span>
+                        <span className="agent-chat-item__date-value">{formatShortDate(first?.time)}</span>
+                      </span>
+                      <span className="agent-chat-item__date-row">
+                        <span className="agent-chat-item__date-label">Última</span>
+                        <span className="agent-chat-item__date-value">{formatShortDate(last?.time)}</span>
+                      </span>
+                    </div>
+                    <div className="agent-chat-item__info">
+                      <span className="agent-chat-item__phone">{formatPhone(key)}</span>
+                      <span className="agent-chat-item__preview">{last?.text?.slice(0, 40)}…</span>
+                    </div>
+                    <span className="agent-chat-item__count">{msgs.length}</span>
+                  </button>
+                )
+              })}
+            </div>
           </aside>
 
           {/* Janela de mensagens */}
