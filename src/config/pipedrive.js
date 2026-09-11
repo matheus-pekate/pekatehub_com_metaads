@@ -127,7 +127,7 @@ export const PROGRAMS = [
     startDate: '2026-12-18',
     goal: 20,
     price: 23700,
-    revenueGoal: 663600,
+    revenueGoal: 480000,
     pipelineId: 43,
     pipelineName: 'FDC - PDD Avulso (médias empresas)',
     winStageId: 221, // Efetivado
