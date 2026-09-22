@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { fetchAllDealsByPipeline, fetchUserActivities, fetchUserActivitiesInRange, fetchUsers, fetchGoals } from '../services/pipedriveApi.js'
+import { fetchAllDealsByPipeline, fetchUserActivitiesInRange, fetchUsers, fetchGoals } from '../services/pipedriveApi.js'
 import { SELLERS, filterDealsBySingleProgram } from './useSellerData.js'
 import { PROGRAMS } from '../config/pipedrive.js'
 
@@ -155,20 +155,29 @@ function progressPctOf(goal, count, revenue) {
   return Math.round((progressCount / goal.target) * 1000) / 10
 }
 
+// Quantas oportunidades (leads qualificados) o vendedor precisou trabalhar,
+// em média, pra fechar 1 negócio — inverso da taxa de conversão qualificado
+// → ganho, no período de referência (lookback).
+function oppsPerDeal(qualifiedLookbackCount, wonLookbackCount) {
+  return wonLookbackCount > 0 && qualifiedLookbackCount > 0
+    ? Math.round((qualifiedLookbackCount / wonLookbackCount) * 10) / 10
+    : null
+}
+
 // Fábrica: gera o hook do painel de metas semanais para um conjunto de
 // vendedores + programas (usada tanto pelo B2C quanto pelo espelho B2B).
 // Cada vendedor "normal" (`buildDealsMetricRow`) carrega DUAS metas por
 // programa (e um total agregado): negócio fechado e leads qualificados.
-// `activityLookbackDays` define a janela usada pra calcular "quantos
-// contatos, em média, o vendedor precisa até fechar 1 negócio" — precisa
-// ser ampla o bastante pra pegar uma amostra razoável de deals ganhos
-// (o B2B tem ciclo de venda bem mais longo que o B2C). Vendedores com
-// `goalMetric` (ex.: SDR cuja meta é atividade, não negócio) usam uma
-// lógica de meta/realizado totalmente à parte — ver `buildActivityMetricRow`.
+// `activityLookbackDays` define a janela usada pra calcular "quantas
+// oportunidades qualificadas, em média, o vendedor precisa trabalhar até
+// fechar 1 negócio" — precisa ser ampla o bastante pra pegar uma amostra
+// razoável de deals ganhos (o B2B tem ciclo de venda bem mais longo que o
+// B2C). Vendedores com `goalMetric` (ex.: SDR cuja meta é atividade, não
+// negócio) usam uma lógica de meta/realizado totalmente à parte — ver
+// `buildActivityMetricRow`.
 export function createWeeklyGoalsHook(sellers, programs, { activityLookbackDays = 90 } = {}) {
   return function useWeeklyGoalsHook({ enabled = true } = {}) {
     const [allDeals, setAllDeals] = useState([])
-    const [activitiesMap, setActivitiesMap] = useState({})
     const [goalActivitiesMap, setGoalActivitiesMap] = useState({})
     const [avatarMap, setAvatarMap] = useState({})
     const [goals, setGoals] = useState([])
@@ -204,13 +213,6 @@ export function createWeeklyGoalsHook(sellers, programs, { activityLookbackDays 
           avatars[u.id] = pics?.['128'] || pics?.['512'] || pics?.['original'] || u.icon_url || null
         })
         setAvatarMap(avatars)
-
-        const actResults = await Promise.all(
-          sellers.map(async (s) => ({ id: s.id, acts: (await fetchUserActivities(s.id, activityLookbackDays)) || [] }))
-        )
-        const map = {}
-        actResults.forEach(({ id, acts }) => { map[id] = acts })
-        setActivitiesMap(map)
 
         // Vendedores com meta de atividade (ex.: SDR — "reunião agendada")
         // precisam de TODAS as atividades do tipo (concluídas ou não), já
@@ -261,7 +263,6 @@ export function createWeeklyGoalsHook(sellers, programs, { activityLookbackDays 
     // pra próxima virada de ano/turma sem precisar mexer em código.
     function buildDealsMetricRow(s) {
       const sellerDeals = allDeals.filter((d) => d.owner_id === s.id || d.user_id === s.id)
-      const sellerActivities = activitiesMap[s.id] || []
 
       const wonThisWeek = wonInRange(sellerDeals, weekStart, weekEnd)
       const revenueThisWeek = wonThisWeek.reduce((sum, d) => sum + (d.value || 0), 0)
@@ -270,9 +271,6 @@ export function createWeeklyGoalsHook(sellers, programs, { activityLookbackDays 
         const wt = d.won_time || d.close_time
         return wt ? new Date(wt) >= lookbackStart : false
       })
-      const avgContactsPerDeal = wonLookback.length > 0 && sellerActivities.length > 0
-        ? Math.round((sellerActivities.length / wonLookback.length) * 10) / 10
-        : null
       const closedGoal = matchDealsWonGoal(goals, s.id, now, null)
       const closedProgressPct = progressPctOf(closedGoal, wonThisWeek.length, revenueThisWeek)
 
@@ -288,10 +286,6 @@ export function createWeeklyGoalsHook(sellers, programs, { activityLookbackDays 
           const wt = d.won_time || d.close_time
           return wt ? new Date(wt) >= lookbackStart : false
         })
-        const programActivities = sellerActivities.filter((a) => dealById[a.deal_id]?.pipeline_id === cfg.pipelineId)
-        const programAvgContacts = programWonLookback.length > 0 && programActivities.length > 0
-          ? Math.round((programActivities.length / programWonLookback.length) * 10) / 10
-          : null
         const closedProgramGoal = matchDealsWonGoal(goals, s.id, now, cfg.pipelineId)
         const closedProgramProgressPct = progressPctOf(closedProgramGoal, programWonThisWeek.length, programRevenueThisWeek)
 
@@ -312,7 +306,7 @@ export function createWeeklyGoalsHook(sellers, programs, { activityLookbackDays 
             wonThisWeek: programWonThisWeek.length,
             revenueThisWeek: programRevenueThisWeek,
             wonLookbackCount: programWonLookback.length,
-            avgContactsPerDeal: programAvgContacts,
+            oppsPerDeal: oppsPerDeal(programQualifiedLookback.length, programWonLookback.length),
             goal: closedProgramGoal,
             progressPct: closedProgramProgressPct,
           },
@@ -337,7 +331,7 @@ export function createWeeklyGoalsHook(sellers, programs, { activityLookbackDays 
           wonThisWeek: wonThisWeek.length,
           revenueThisWeek,
           wonLookbackCount: wonLookback.length,
-          avgContactsPerDeal,
+          oppsPerDeal: oppsPerDeal(qualifiedLookbackTotal, wonLookback.length),
           goal: closedGoal,
           progressPct: closedProgressPct,
         },
@@ -391,7 +385,6 @@ export function createWeeklyGoalsHook(sellers, programs, { activityLookbackDays 
         wonThisWeek: thisWeek.length,
         revenueThisWeek: 0,
         wonLookbackCount: lookback.length,
-        avgContactsPerDeal: null,
         goal,
         progressPct,
         programs: [],

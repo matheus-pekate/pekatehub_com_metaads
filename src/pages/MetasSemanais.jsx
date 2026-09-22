@@ -63,11 +63,11 @@ function ProgressCell({ pct }) {
   )
 }
 
-function CadenceCell({ value, notApplicable }) {
+function OppsCell({ value, notApplicable }) {
   if (notApplicable) return <span className="mw-dash">não se aplica</span>
   if (value == null) {
     return (
-      <span className="mw-dash" title="Sem negócios ganhos suficientes no período de referência para calcular a média">
+      <span className="mw-dash" title="Sem negócios ganhos e/ou leads qualificados suficientes no período de referência para calcular a média">
         dados insuficientes
       </span>
     )
@@ -75,12 +75,12 @@ function CadenceCell({ value, notApplicable }) {
   return (
     <div className="mw-cadence">
       <span className="mw-cadence__num">{value}</span>
-      <span className="mw-cadence__unit">contatos / negócio fechado</span>
+      <span className="mw-cadence__unit">oportunidades qualificadas / negócio fechado</span>
     </div>
   )
 }
 
-function MetricRow({ indent, programLabel, programDot, metricTag, goal, count, metricLabelPlural, revenue, showRevenue, progressPct, cadenceValue, cadenceNotApplicable }) {
+function MetricRow({ indent, programLabel, programDot, metricTag, goal, count, metricLabelPlural, revenue, showRevenue, progressPct, oppsValue, oppsNotApplicable }) {
   return (
     <tr className={`mw-row ${indent ? 'mw-row--program' : 'mw-row--total'}`}>
       <td className="mw-td mw-td--program">
@@ -98,7 +98,7 @@ function MetricRow({ indent, programLabel, programDot, metricTag, goal, count, m
         </div>
       </td>
       <td className="mw-td mw-td--progress"><ProgressCell pct={progressPct} /></td>
-      <td className="mw-td mw-td--cadence"><CadenceCell value={cadenceValue} notApplicable={cadenceNotApplicable} /></td>
+      <td className="mw-td mw-td--cadence"><OppsCell value={oppsValue} notApplicable={oppsNotApplicable} /></td>
     </tr>
   )
 }
@@ -138,7 +138,7 @@ function SellerBlock({ row }) {
               <th className="mw-th">Meta semanal</th>
               <th className="mw-th">Realizado</th>
               <th className="mw-th">% da meta</th>
-              <th className="mw-th">Cadência até fechar</th>
+              <th className="mw-th">Oportunidades p/ 1 fechado</th>
             </tr>
           </thead>
           <tbody>
@@ -156,7 +156,7 @@ function SellerBlock({ row }) {
                     </div>
                   </td>
                   <td className="mw-td mw-td--progress"><ProgressCell pct={row.progressPct} /></td>
-                  <td className="mw-td mw-td--cadence"><CadenceCell notApplicable /></td>
+                  <td className="mw-td mw-td--cadence"><OppsCell notApplicable /></td>
                 </tr>
                 <tr className="mw-row">
                   <td className="mw-td mw-td--program" colSpan={5}>
@@ -174,12 +174,12 @@ function SellerBlock({ row }) {
                   programLabel="Total (todos os programas)" metricTag="Negócio fechado"
                   goal={row.closed.goal} count={row.closed.wonThisWeek} metricLabelPlural="negócios"
                   revenue={row.closed.revenueThisWeek} showRevenue
-                  progressPct={row.closed.progressPct} cadenceValue={row.closed.avgContactsPerDeal}
+                  progressPct={row.closed.progressPct} oppsValue={row.closed.oppsPerDeal}
                 />
                 <MetricRow
                   programLabel="Total (todos os programas)" metricTag="Leads qualificados"
                   goal={row.qualified.goal} count={row.qualified.countThisWeek} metricLabelPlural="leads"
-                  progressPct={row.qualified.progressPct} cadenceNotApplicable
+                  progressPct={row.qualified.progressPct} oppsNotApplicable
                 />
 
                 {row.programs.flatMap((p) => [
@@ -188,13 +188,13 @@ function SellerBlock({ row }) {
                     programLabel={p.shortName} programDot={p.accentColor} metricTag="Negócio fechado"
                     goal={p.closed.goal} count={p.closed.wonThisWeek} metricLabelPlural="negócios"
                     revenue={p.closed.revenueThisWeek} showRevenue
-                    progressPct={p.closed.progressPct} cadenceValue={p.closed.avgContactsPerDeal}
+                    progressPct={p.closed.progressPct} oppsValue={p.closed.oppsPerDeal}
                   />,
                   <MetricRow
                     key={`${p.programId}-qualified`} indent
                     programLabel={p.shortName} programDot={p.accentColor} metricTag="Leads qualificados"
                     goal={p.qualified.goal} count={p.qualified.countThisWeek} metricLabelPlural="leads"
-                    progressPct={p.qualified.progressPct} cadenceNotApplicable
+                    progressPct={p.qualified.progressPct} oppsNotApplicable
                   />,
                 ])}
               </>
@@ -213,9 +213,9 @@ function SegmentPanel({ segment, data }) {
   const teamWon = dealRows.reduce((sum, r) => sum + r.closed.wonThisWeek, 0)
   const teamRevenue = dealRows.reduce((sum, r) => sum + r.closed.revenueThisWeek, 0)
   const teamQualified = dealRows.reduce((sum, r) => sum + r.qualified.countThisWeek, 0)
-  const cadenceValues = dealRows.filter((r) => r.closed.avgContactsPerDeal != null).map((r) => r.closed.avgContactsPerDeal)
-  const teamCadence = cadenceValues.length > 0
-    ? Math.round((cadenceValues.reduce((a, b) => a + b, 0) / cadenceValues.length) * 10) / 10
+  const oppsValues = dealRows.filter((r) => r.closed.oppsPerDeal != null).map((r) => r.closed.oppsPerDeal)
+  const teamOpps = oppsValues.length > 0
+    ? Math.round((oppsValues.reduce((a, b) => a + b, 0) / oppsValues.length) * 10) / 10
     : null
   const standbyCount = dealRows.filter((r) => !r.closed.goal).length + activityRows.filter((r) => !r.goal).length
 
@@ -257,8 +257,8 @@ function SegmentPanel({ segment, data }) {
               <span className="mw-kpi__value">{teamQualified}</span>
             </div>
             <div className="mw-kpi">
-              <span className="mw-kpi__label">Média de contatos p/ fechar 1 negócio</span>
-              <span className="mw-kpi__value">{teamCadence != null ? teamCadence : '—'}</span>
+              <span className="mw-kpi__label">Oportunidades p/ fechar 1 negócio</span>
+              <span className="mw-kpi__value">{teamOpps != null ? teamOpps : '—'}</span>
               <span className="mw-kpi__detail">média do time · últimos {activityLookbackDays} dias</span>
             </div>
             {activityRows.length > 0 && (
@@ -392,7 +392,8 @@ export function MetasSemanais() {
           <p className="mw-intro">
             Duas metas semanais por programa, para cada vendedor: <b>negócio fechado</b> e <b>leads qualificados</b>
             (deal que chegou ou passou do estágio "Qualificado"), sempre comparadas ao que já foi realizado na semana
-            corrente. A cadência de contatos até fechar 1 negócio também é calculada por programa. Todos os programas
+            corrente. Quantas oportunidades qualificadas, em média, precisam ser trabalhadas até fechar 1 negócio também
+            é calculado por programa. Todos os programas
             configurados aparecem pra todo mundo — mesmo sem histórico ainda —, então o painel já funciona quando uma
             nova turma/ano começar. Vendedores/programas sem meta ativa no Pipedrive ficam em <b>standby</b> em vez de
             receber um número inventado.
