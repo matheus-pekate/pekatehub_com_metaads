@@ -36,6 +36,7 @@ export const PROGRAMS = [
     pipelineId: 84,
     pipelineName: '2026 - FDC - Pós-Negócios (T12)',
     winStageId: 421, // Efetivado
+    qualifiedStageId: 417, // Qualificado
     convertedFilter: {
       customField: 'ceb81f259b83cf46c12f4acc7dfdc8ac97d057a8', // Turma
       value: 528, // CPS-12
@@ -61,6 +62,7 @@ export const PROGRAMS = [
     pipelineId: 78,
     pipelineName: 'FDC Abertos - Gestão Comercial (GECOM)',
     winStageId: 384, // Efetivado
+    qualifiedStageId: 381, // Qualificado
     convertedFilter: {
       customField: 'ceb81f259b83cf46c12f4acc7dfdc8ac97d057a8', // Turma
       value: 524, // CPS-08
@@ -78,13 +80,14 @@ export const PROGRAMS = [
     id: 'clevel',
     name: 'Jornada C-Level',
     shortName: 'C-Level',
-    startDate: '2026-10-06',
+    startDate: '2027-03-10',
     goal: 35,
     price: 33880,
     revenueGoal: 1084160,
     pipelineId: 42,
     pipelineName: 'FDC Abertos - Jornada C-Level (C-Level)',
     winStageId: 216, // Inscrito
+    qualifiedStageId: 215, // Qualificado
     convertedFilter: {
       customField: 'ceb81f259b83cf46c12f4acc7dfdc8ac97d057a8', // Turma
       value: 520, // CPS-04
@@ -108,6 +111,7 @@ export const PROGRAMS = [
     pipelineId: 73,
     pipelineName: 'FDC Abertos - Gestão Financeira (GEF)',
     winStageId: 360, // Inscrito
+    qualifiedStageId: 357, // Qualificado
     convertedFilter: {
       customField: 'ceb81f259b83cf46c12f4acc7dfdc8ac97d057a8', // Turma
       value: 521, // CPS-05
@@ -131,6 +135,7 @@ export const PROGRAMS = [
     pipelineId: 43,
     pipelineName: 'FDC - PDD Avulso (médias empresas)',
     winStageId: 221, // Efetivado
+    qualifiedStageId: 218, // Qualificado
     wonThisYear: true,
     stages: [
       { id: 236, name: 'Cliente Potencial', sub: 'Entrada do funil' },
@@ -157,6 +162,7 @@ export const PROGRAMS_B2B = [
     pipelineId: 3,
     pipelineName: 'FDC ME - PAEX',
     accentColor: '#08373F',
+    qualifiedStageId: 14, // Oportunidade Qualificada
     goal: 16, // contratos (anual 2026)
     revenueGoal: 5_700_000, // anual 2026
     stages: [
@@ -176,6 +182,7 @@ export const PROGRAMS_B2B = [
     pipelineId: 63,
     pipelineName: 'FDC - Programas GE',
     accentColor: '#2DA8A8',
+    qualifiedStageId: 307, // Oportunidade Qualificada
     revenueGoal: 1_100_000, // anual 2026
     stages: [
       { id: 306, name: 'Cliente Potencial' },
@@ -193,6 +200,7 @@ export const PROGRAMS_B2B = [
     pipelineId: 65,
     pipelineName: 'FDC ME - Customizados',
     accentColor: '#CB5B36',
+    qualifiedStageId: 318, // Oportunidade Qualificada
     revenueGoal: 1_600_000, // anual 2026
     stages: [
       { id: 317, name: 'Cliente Potencial' },
@@ -211,6 +219,7 @@ export const PROGRAMS_B2B = [
     pipelineId: 7,
     pipelineName: 'PKT - Consultorias',
     accentColor: '#7B61FF',
+    qualifiedStageId: 39, // Oportunidade Qualificada
     revenueGoal: 1_000_000, // anual 2026
     stages: [
       { id: 37,  name: 'Cliente potencial' },

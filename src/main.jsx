@@ -7,6 +7,7 @@ import { PekateB2BDash } from './pages/PekateB2BDash.jsx'
 import { PktHub } from './pages/PktHub.jsx'
 import { SellerAnalysis } from './pages/SellerAnalysis.jsx'
 import { SellerRanking } from './pages/SellerRanking.jsx'
+import { MetasSemanais } from './pages/MetasSemanais.jsx'
 import { LauraChats } from './pages/LauraChats.jsx'
 import { MetaAdsDash } from './pages/MetaAdsDash.jsx'
 import { ComandoEventos } from './pages/ComandoEventos.jsx'
@@ -24,6 +25,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/comando-b2b" element={<PekateB2BDash />} />
           <Route path="/seller-analysis" element={<SellerAnalysis />} />
           <Route path="/seller-ranking" element={<SellerRanking />} />
+          <Route path="/metas-semanais" element={<MetasSemanais />} />
           <Route path="/laura-chats" element={<LauraChats />} />
           <Route path="/meta-ads" element={<MetaAdsDash />} />
           <Route path="/eventos" element={<ComandoEventos />} />

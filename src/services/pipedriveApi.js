@@ -68,7 +68,11 @@ export async function fetchDealDetails(dealId) {
 // (formato YYYY-MM-DD) — pagina por `start`/`next_start`, pois vendedores com
 // maior volume passam de 500 atividades em janelas mais largas (ex.: 180+
 // dias / ano inteiro) e a API limita a resposta a 500 itens por página.
-async function fetchActivitiesInDateRange(userId, startDate, endDate) {
+// `done`: 1 = só concluídas (padrão — usado pra métricas de volume de
+// contato já realizado), 0 = só pendentes, null = as duas (usado pra metas
+// do tipo "agendado", onde o que importa é ter marcado a atividade, não se
+// ela já aconteceu).
+async function fetchActivitiesInDateRange(userId, startDate, endDate, { done = 1 } = {}) {
   const all = []
   let start = 0
   while (true) {
@@ -77,7 +81,7 @@ async function fetchActivitiesInDateRange(userId, startDate, endDate) {
     url.searchParams.set('user_id', userId)
     url.searchParams.set('start_date', startDate)
     if (endDate) url.searchParams.set('end_date', endDate)
-    url.searchParams.set('done', 1)
+    if (done !== null) url.searchParams.set('done', done)
     url.searchParams.set('limit', 500)
     url.searchParams.set('start', start)
 
@@ -95,16 +99,31 @@ async function fetchActivitiesInDateRange(userId, startDate, endDate) {
 }
 
 // Busca atividades recentes (últimos N dias, contados de hoje) de um usuário.
-export async function fetchUserActivities(userId, sinceDays = 7) {
+export async function fetchUserActivities(userId, sinceDays = 7, opts) {
   const since = new Date()
   since.setDate(since.getDate() - sinceDays)
-  return fetchActivitiesInDateRange(userId, since.toISOString().slice(0, 10), null)
+  return fetchActivitiesInDateRange(userId, since.toISOString().slice(0, 10), null, opts)
 }
 
 // Busca atividades de um usuário num intervalo fixo — usado pelo modo
 // "ano-calendário" (ex.: Comando B2B), onde o período não é relativo a hoje.
-export async function fetchUserActivitiesInRange(userId, startDate, endDate) {
-  return fetchActivitiesInDateRange(userId, startDate, endDate)
+export async function fetchUserActivitiesInRange(userId, startDate, endDate, opts) {
+  return fetchActivitiesInDateRange(userId, startDate, endDate, opts)
+}
+
+// Busca metas configuradas no Pipedrive (Goals API). Esse serviço usa o
+// prefixo `/v1/` sem o `/api/` — diferente do resto da API v1 do Pipedrive
+// (peculiaridade confirmada testando o endpoint: `/api/v1/goals/find` dá
+// 404, só `/v1/goals/find` funciona).
+export async function fetchGoals() {
+  const url = new URL(`${PIPEDRIVE_BASE_URL}/v1/goals/find`)
+  url.searchParams.set('api_token', TOKEN)
+
+  const res = await fetch(url.toString())
+  if (!res.ok) throw new Error(`Pipedrive API error: ${res.status} on /v1/goals/find`)
+  const json = await res.json()
+  if (!json.success) throw new Error('Pipedrive API returned success=false on /v1/goals/find')
+  return json.data
 }
 
 // Busca due_date/marked_as_done_time de um conjunto de atividades pelos ids

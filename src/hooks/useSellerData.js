@@ -3,14 +3,13 @@ import { fetchAllDealsByPipeline, fetchUserActivities, fetchUserActivitiesInRang
 import { PROGRAMS } from '../config/pipedrive.js'
 
 export const SELLERS = [
-  { id: 15308928, name: 'Kelvem Vieira' },
   { id: 22690703, name: 'Itallo Oliveira' },
   { id: 15066063, name: 'Fernando' },
 ]
 
 const MS_PER_DAY = 86400000
 
-function filterDealsBySingleProgram(deals, cfg) {
+export function filterDealsBySingleProgram(deals, cfg) {
   let filtered = deals.filter((d) => d.pipeline_id === cfg.pipelineId)
   if (cfg.convertedFilter) {
     const { customField, value } = cfg.convertedFilter
