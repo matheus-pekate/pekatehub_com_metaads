@@ -15,7 +15,7 @@ function inRange(dateStr, [start, end]) {
 
 // Processa os deals de um programa B2B: funil sempre no estado atual,
 // receita/conversão/alertas/vendedores filtrados pelo ano selecionado.
-function processB2BProgram(program, deals, range, userMap) {
+export function processB2BProgram(program, deals, range, userMap) {
   const stageMap = {}
   program.stages.forEach((s) => {
     stageMap[s.id] = { ...s, count: 0, value: 0 }

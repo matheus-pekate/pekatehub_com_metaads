@@ -3,4 +3,5 @@
 /api/workflows  /.netlify/functions/workflows  200
 /api/general-docs  /.netlify/functions/general-docs  200
 /api/metas-semanais  /.netlify/functions/metas-semanais  200
+/api/comando  /.netlify/functions/comando  200
 /*  /index.html  200

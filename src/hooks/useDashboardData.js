@@ -10,7 +10,7 @@ function toLocalDateStr(date) {
 }
 
 // Processa os deals de um programa e retorna métricas calculadas
-function processProgramDeals(program, deals, userMap, activitiesById = {}) {
+export function processProgramDeals(program, deals, userMap, activitiesById = {}) {
   // Filtra todos os deals pela turma quando configurado
   let filtered = deals
   if (program.convertedFilter) {
