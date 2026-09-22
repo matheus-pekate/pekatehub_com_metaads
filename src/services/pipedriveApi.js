@@ -1,6 +1,11 @@
 import { PIPEDRIVE_BASE_URL } from '../config/pipedrive.js'
 
-const TOKEN = import.meta.env.VITE_PIPEDRIVE_TOKEN
+// Funciona tanto no browser (Vite injeta import.meta.env no build do cliente)
+// quanto em Netlify Functions (Node puro, onde import.meta.env não existe —
+// cai pro process.env, que a Netlify já preenche com as mesmas env vars do
+// site, incluindo as VITE_*) — permite reusar este arquivo inteiro nos dois
+// lados sem duplicar as chamadas à API do Pipedrive.
+const TOKEN = import.meta.env?.VITE_PIPEDRIVE_TOKEN || (typeof process !== 'undefined' ? process.env.VITE_PIPEDRIVE_TOKEN : undefined)
 
 // Utilitário base de fetch
 async function pipedriveGet(path, params = {}) {
