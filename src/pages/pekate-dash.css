@@ -281,6 +281,7 @@
 .pkt-pgm[data-color="azul"]    { --pgm-accent: #1E6CB6; --pgm-accent-soft: #d4e6f5; }
 .pkt-pgm[data-color="lilas"]   { --pgm-accent: var(--fdc-lilas);   --pgm-accent-soft: #e9dcf2; }
 .pkt-pgm[data-color="rosa"]    { --pgm-accent: #E84393;            --pgm-accent-soft: #fce4f0; }
+.pkt-pgm[data-color="verde"]   { --pgm-accent: var(--positivo);    --pgm-accent-soft: #d9ebe1; }
 
 .pkt-pgm__head {
   display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
