@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-const COLOR_BY_ID = { pos: 'laranja', gecom: 'teal', clevel: 'azul', gef: 'lilas', pdd: 'rosa' }
+const COLOR_BY_ID = { pos: 'laranja', gecom: 'teal', clevel: 'azul', gef: 'lilas', pdd: 'rosa', pdc: 'verde' }
 
 const TURMA_LABELS = {
   517:'CPS-01',518:'CPS-02',519:'CPS-03',520:'CPS-04',521:'CPS-05',
@@ -11,7 +11,7 @@ const TURMA_LABELS = {
   542:'CBV-01',543:'CBV-02',544:'CBV-03',545:'CBV-04',546:'CBV-05',
   547:'ATB-01',548:'ATB-02',549:'ATB-03',550:'ATB-04',551:'ATB-05',
 }
-const ORDER = ['gecom', 'pos', 'clevel', 'gef', 'pdd']
+const ORDER = ['gecom', 'pos', 'clevel', 'gef', 'pdd', 'pdc']
 
 function daysUntil(dateStr) {
   if (!dateStr) return 0
@@ -29,6 +29,7 @@ function isEncerrado(program) {
 
 function deriveBadge(goalPercent, goal, converted, closed) {
   if (closed) return { label: 'Encerrado', variant: 'encerrado' }
+  if (!goal) return { label: 'Sem meta', variant: 'ativo' }
   if (goalPercent >= 100) return { label: 'Meta batida', variant: 'batida' }
   if (goalPercent >= 90) {
     const missing = Math.max(0, goal - converted)
@@ -65,10 +66,10 @@ function PulseCard({ program, color, active, onSelect }) {
 
       <div className="pkt-pgm__hero">
         <div className="pkt-pgm__pct">
-          {pctDisplay}<sup>%</sup>
+          {dynamicGoal > 0 ? <>{pctDisplay}<sup>%</sup></> : '—'}
         </div>
         <div className="pkt-pgm__count">
-          <div className="pkt-pgm__count-num">{converted}<small> / {dynamicGoal}</small></div>
+          <div className="pkt-pgm__count-num">{converted}{dynamicGoal > 0 && <small> / {dynamicGoal}</small>}</div>
           <div className="pkt-pgm__count-label">Convertidos</div>
         </div>
       </div>

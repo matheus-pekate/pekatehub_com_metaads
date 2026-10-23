@@ -39,7 +39,10 @@ function trimSellers(sellers) {
 
 function summarizeB2CProgram(p) {
   const daysTxt = p.marcoText ? ` · ${p.marcoText}` : ''
-  return `${p.shortName} — ${p.converted}/${p.dynamicGoal} matriculados (${p.goalPercent}% da meta) · ` +
+  const goalTxt = p.dynamicGoal > 0
+    ? `${p.converted}/${p.dynamicGoal} matriculados (${p.goalPercent}% da meta)`
+    : `${p.converted} matriculados (sem meta definida)`
+  return `${p.shortName} — ${goalTxt} · ` +
     `${formatBRL(p.totalWonValue)} arrecadado · ${p.totalActive} leads ativos · ` +
     `${p.alerts.critico.count} críticos, ${p.alerts.oportunidade.count} prontos pra fechar${daysTxt}`
 }

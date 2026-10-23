@@ -36,6 +36,7 @@ export function processProgramDeals(program, deals, userMap, activitiesById = {}
   const currentYear = new Date().getFullYear()
   const wonDeals = filtered.filter((d) => {
     if (d.status !== 'won') return false
+    if (program.wonSince) return (d.won_time || '') >= program.wonSince
     if (program.wonThisYear) {
       const wonYear = d.won_time ? new Date(d.won_time).getFullYear() : null
       return wonYear === currentYear

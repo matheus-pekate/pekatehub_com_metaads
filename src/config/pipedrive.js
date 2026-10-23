@@ -146,6 +146,30 @@ export const PROGRAMS = [
     ],
     accentColor: '#E84393',
   },
+  {
+    id: 'pdc',
+    name: 'Conselheiros',
+    shortName: 'PDC',
+    startDate: '2027-04-26',
+    goal: 0, // meta ainda não definida
+    price: 32900, // produto "56. PA - PDC" no Pipedrive
+    revenueGoal: 0, // meta ainda não definida
+    pipelineId: 46,
+    pipelineName: 'FDC Abertos - Conselheiros Consórcio (PDC)',
+    winStageId: 233, // Efetivado
+    qualifiedStageId: 235, // Qualificado
+    // Os negócios da turma abr/2027 não têm o campo Turma preenchido, então
+    // os ganhos são recortados pela data (vendas começaram em out/2026).
+    wonSince: '2026-10-01',
+    stages: [
+      { id: 230, name: 'Cliente Potencial', sub: 'Entrada do funil' },
+      { id: 235, name: 'Qualificado',       sub: 'SQL · briefing feito',            verb: 'qualificam' },
+      { id: 231, name: 'Em Negociação',     sub: 'Proposta enviada',                verb: 'negociam' },
+      { id: 232, name: 'Inscrito',          sub: 'Boleto / contrato',               verb: 'inscrevem' },
+      { id: 233, name: 'Efetivado',         sub: 'Matriculado · contado na meta',   verb: 'efetivam' },
+    ],
+    accentColor: '#2D6A4F',
+  },
 ]
 
 // ============================================================
