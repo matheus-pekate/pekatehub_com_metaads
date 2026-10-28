@@ -6,7 +6,7 @@ const MONTH_NAMES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'se
 
 const pad = (n) => (n < 10 ? '0' + n : '' + n)
 
-export function Topbar({ paused, onTogglePause, onOpenRoulette, onOpenReport }) {
+export function Topbar({ year: selectedYear, onChangeYear, paused, onTogglePause, onOpenRoulette, onOpenReport }) {
   const navigate = useNavigate()
   const [now, setNow] = useState(() => new Date())
 
@@ -40,6 +40,13 @@ export function Topbar({ paused, onTogglePause, onOpenRoulette, onOpenReport }) 
       </div>
 
       <div className="pkt-topbar__spacer"></div>
+
+      {selectedYear && (
+        <button className="pkt-year-btn" onClick={onChangeYear} title="Trocar o ano das turmas">
+          <span className="pkt-meta-block__label">Turmas</span>
+          <span className="pkt-year-btn__value">{selectedYear} <span aria-hidden>⇄</span></span>
+        </button>
+      )}
 
       <div className="pkt-topbar__cycle">
         <div className="pkt-meta-block">

@@ -14,8 +14,11 @@ export function processProgramDeals(program, deals, userMap, activitiesById = {}
   // Filtra todos os deals pela turma quando configurado
   let filtered = deals
   if (program.convertedFilter) {
-    const { customField, value } = program.convertedFilter
-    filtered = deals.filter((d) => d.custom_fields?.[customField] === value)
+    const { customField, value, includeUnset } = program.convertedFilter
+    filtered = deals.filter((d) => {
+      const fv = d.custom_fields?.[customField]
+      return fv === value || (includeUnset && fv == null)
+    })
   }
 
   const stageMap = {}

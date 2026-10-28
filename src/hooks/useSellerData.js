@@ -12,10 +12,10 @@ const MS_PER_DAY = 86400000
 export function filterDealsBySingleProgram(deals, cfg) {
   let filtered = deals.filter((d) => d.pipeline_id === cfg.pipelineId)
   if (cfg.convertedFilter) {
-    const { customField, value } = cfg.convertedFilter
+    const { customField, value, includeUnset } = cfg.convertedFilter
     filtered = filtered.filter((d) => {
       const fv = d.custom_fields?.[customField]
-      return fv === value || fv === String(value)
+      return fv === value || fv === String(value) || (includeUnset && fv == null)
     })
   }
   return filtered

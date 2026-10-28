@@ -27,6 +27,7 @@ export const EXCLUDED_SELLER_IDS = [14821606] // Admin Pekatê
 export const PROGRAMS = [
   {
     id: 'pos',
+    year: 2026, // ano das turmas no seletor do Comando B2C
     name: 'Pós-Graduação em Gestão',
     shortName: 'Pós-Gestão',
     startDate: '2026-08-24',
@@ -53,6 +54,7 @@ export const PROGRAMS = [
   },
   {
     id: 'gecom',
+    year: 2026, // ano das turmas no seletor do Comando B2C
     name: 'Gestão Comercial',
     shortName: 'GECOM',
     startDate: '2026-06-15',
@@ -78,6 +80,7 @@ export const PROGRAMS = [
   },
   {
     id: 'clevel',
+    year: 2027, // ano das turmas no seletor do Comando B2C
     name: 'Jornada C-Level',
     shortName: 'C-Level',
     startDate: '2027-03-10',
@@ -102,6 +105,7 @@ export const PROGRAMS = [
   },
   {
     id: 'gef',
+    year: 2026, // ano das turmas no seletor do Comando B2C
     name: 'Gestão Econômica-Financeira',
     shortName: 'GEF',
     startDate: '2026-10-19',
@@ -126,6 +130,7 @@ export const PROGRAMS = [
   },
   {
     id: 'pdd',
+    year: 2026, // ano das turmas no seletor do Comando B2C
     name: 'PDD Avulso',
     shortName: 'PDD',
     startDate: '2026-12-18',
@@ -148,18 +153,25 @@ export const PROGRAMS = [
   },
   {
     id: 'pdc',
+    year: 2027, // ano das turmas no seletor do Comando B2C
     name: 'Conselheiros',
     shortName: 'PDC',
     startDate: '2027-04-26',
-    goal: 0, // meta ainda não definida
+    goal: 55,
     price: 32900, // produto "56. PA - PDC" no Pipedrive
-    revenueGoal: 0, // meta ainda não definida
+    revenueGoal: 1811000,
     pipelineId: 46,
     pipelineName: 'FDC Abertos - Conselheiros Consórcio (PDC)',
     winStageId: 233, // Efetivado
     qualifiedStageId: 235, // Qualificado
-    // Os negócios da turma abr/2027 não têm o campo Turma preenchido, então
-    // os ganhos são recortados pela data (vendas começaram em out/2026).
+    convertedFilter: {
+      customField: 'ceb81f259b83cf46c12f4acc7dfdc8ac97d057a8', // Turma
+      value: 517, // CPS-01
+      // Boa parte dos negócios da turma ainda está com o campo Turma vazio:
+      // esses também contam, e os ganhos são recortados pela data (vendas
+      // começaram em out/2026) pra não puxar turmas antigas sem Turma.
+      includeUnset: true,
+    },
     wonSince: '2026-10-01',
     stages: [
       { id: 230, name: 'Cliente Potencial', sub: 'Entrada do funil' },
@@ -170,6 +182,12 @@ export const PROGRAMS = [
     ],
     accentColor: '#2D6A4F',
   },
+]
+
+// Anos oferecidos na tela de seleção do Comando B2C (/pekate-dash).
+export const B2C_YEARS = [
+  { year: 2026, label: 'Turmas encerradas' },
+  { year: 2027, label: 'Turmas em venda' },
 ]
 
 // ============================================================
