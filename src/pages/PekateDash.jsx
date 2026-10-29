@@ -134,12 +134,13 @@ function ComandoB2C({ year, dashboard, onChangeYear }) {
             />
           </div>
           {data?.programs && <PulseRow programs={data.programs} activeId={activeId} onSelect={handleManualSelect} />}
-          <AlertsStrip lastUpdated={lastUpdated} program={activeProgram} onSelectAlert={(key) => setActiveAlertKey(key)} />
+          <AlertsStrip layout={year >= 2027 ? '2027' : undefined} lastUpdated={lastUpdated} program={activeProgram} onSelectAlert={(key) => setActiveAlertKey(key)} />
           {data?.programs && (
             <>
               <FocusRow
                 program={data.programs.find((p) => p.id === activeId)}
                 allSellers={data.sellers}
+                showRecent={year >= 2027}
               />
               <FunnelRow program={data.programs.find((p) => p.id === activeId)} />
             </>

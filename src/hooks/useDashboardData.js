@@ -161,6 +161,33 @@ export function processProgramDeals(program, deals, userMap, activitiesById = {}
   const pendenciaDeals = pendencia.map(toAlertDeal).sort((a, b) => b.idle - a.idle)
   const oportunidadeDeals = oportunidade.map(toAlertDeal).sort((a, b) => b.idle - a.idle)
 
+  // Leads sem avanço (painel 2027): abertos sem nenhuma próxima atividade
+  // agendada, ou com a próxima atividade já vencida sem ser feita.
+  const daysSinceDate = (dateStr) => Math.floor((now - new Date(dateStr + 'T00:00:00')) / msPerDay)
+  const semAtividadeDeals = openDeals
+    .filter((d) => !d.next_activity_id)
+    .map(toAlertDeal)
+    .sort((a, b) => b.idle - a.idle)
+  const atrasadaDeals = openDeals
+    .map((d) => ({ deal: d, due: d.next_activity_id ? activitiesById[d.next_activity_id]?.due_date : null }))
+    .filter(({ due }) => due && due < todayStr)
+    .map(({ deal, due }) => ({ ...toAlertDeal(deal), overdue: daysSinceDate(due) }))
+    .sort((a, b) => b.overdue - a.overdue)
+  const semAvancoCount = semAtividadeDeals.length + atrasadaDeals.length
+
+  // Oportunidades novas necessárias: quantas precisam entrar no funil pra
+  // fechar os alunos que faltam, na taxa de conversão atual do programa.
+  const remainingStudents = Math.max(0, dynamicGoal - converted)
+  const neededOpps = remainingStudents > 0 && conversionRate > 0
+    ? Math.ceil(remainingStudents / (conversionRate / 100))
+    : 0
+  let novasText
+  if (dynamicGoal > 0 && remainingStudents === 0) novasText = 'Meta batida · nenhuma nova necessária'
+  else if (conversionRate === 0) novasText = 'Sem conversões ainda para calcular'
+  else novasText = `${neededOpps.toLocaleString('pt-BR')} novas oportunidades`
+
+  const newDeals7d = filtered.filter((d) => d.add_time && now - new Date(d.add_time) <= 7 * msPerDay).length
+
   const daysToStart = program.startDate
     ? Math.ceil((new Date(program.startDate + 'T00:00:00') - now) / msPerDay)
     : null
@@ -182,6 +209,20 @@ export function processProgramDeals(program, deals, userMap, activitiesById = {}
     pendencia: { count: pendencia.length, text: pendencia.length > 0 ? `${pendencia.length} ${pendencia.length === 1 ? 'lead aguarda' : 'leads aguardam'} follow-up` : 'Nenhuma pendência', deals: pendenciaDeals },
     oportunidade: { count: oportunidade.length, text: oportunidade.length > 0 ? `${oportunidade.length} ${oportunidade.length === 1 ? 'lead pronto' : 'leads prontos'} para fechar` : 'Nenhuma oportunidade avançada', deals: oportunidadeDeals },
     marco: { text: marcoText || 'Sem marcos próximos' },
+    semAvanco: {
+      count: semAvancoCount,
+      text: semAvancoCount > 0 ? `${semAvancoCount} ${semAvancoCount === 1 ? 'lead sem avanço' : 'leads sem avanço'}` : 'Todos os leads com próximo passo',
+      groups: [
+        { key: 'semAtividade', label: 'Sem atividade', hint: 'Nenhuma próxima atividade agendada', deals: semAtividadeDeals },
+        { key: 'atrasada', label: 'Atividade atrasada', hint: 'Próxima atividade vencida sem ser feita', deals: atrasadaDeals },
+      ],
+    },
+    novas: {
+      text: novasText,
+      sub: remainingStudents > 0 && conversionRate > 0
+        ? `Faltam ${remainingStudents} alunos · conversão de ${conversionRate.toFixed(1).replace('.', ',')}%`
+        : 'Com base na meta e na taxa de conversão',
+    },
   }
 
   return {
@@ -196,6 +237,7 @@ export function processProgramDeals(program, deals, userMap, activitiesById = {}
     forecastCount,
     conversionRate,
     totalDealsCount,
+    newDeals7d,
     totalActive,
     goalPercent: Math.min(100, goalPct),
     sellers: Object.values(sellerMap).sort((a, b) => b.converted - a.converted),
