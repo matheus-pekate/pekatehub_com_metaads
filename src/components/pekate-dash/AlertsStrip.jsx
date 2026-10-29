@@ -8,13 +8,23 @@ const ALERT_SLOTS = [
   { key: 'marco',        variant: 'marco',     tag: 'Próximo marco',               sub: 'Progresso da meta e prazo da turma', clickable: false },
 ]
 
+// Turmas 2027: "Leads sem avanço" e "Oportunidades necessárias" no lugar de
+// Crítico e Pendência.
+const ALERT_SLOTS_2027 = [
+  { key: 'semAvanco',    variant: 'critico',   tag: 'Leads sem avanço',            sub: 'Sem atividade ou com atividade atrasada', clickable: true },
+  { key: 'novas',        variant: 'pendencia', tag: 'Oportunidades necessárias',   sub: 'Com base na meta e na taxa de conversão', clickable: false },
+  ALERT_SLOTS[2],
+  ALERT_SLOTS[3],
+]
+
 function formatTime(date) {
   if (!date) return '--:--'
   return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
-export function AlertsStrip({ lastUpdated, program, onSelectAlert }) {
+export function AlertsStrip({ lastUpdated, program, onSelectAlert, layout }) {
   const alerts = program?.alerts
+  const slots = layout === '2027' ? ALERT_SLOTS_2027 : ALERT_SLOTS
 
   return (
     <section className="pkt-alerts">
@@ -33,7 +43,7 @@ export function AlertsStrip({ lastUpdated, program, onSelectAlert }) {
         </div>
       </div>
 
-      {ALERT_SLOTS.map(({ key, variant, tag, sub, clickable }) => {
+      {slots.map(({ key, variant, tag, sub, clickable }) => {
         const alert = alerts?.[key]
         const hasCount = alert?.count != null && alert.count > 0
         const isClickable = clickable && hasCount
@@ -53,7 +63,7 @@ export function AlertsStrip({ lastUpdated, program, onSelectAlert }) {
                 <span className="pkt-alert__placeholder">Carregando...</span>
               )}
             </div>
-            <span className="pkt-alert__sub">{sub}</span>
+            <span className="pkt-alert__sub">{alert?.sub || sub}</span>
             {hasCount && (
               <span className="pkt-alert__count">⚠️</span>
             )}

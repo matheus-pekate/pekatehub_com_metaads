@@ -1,6 +1,6 @@
 import { formatBRL } from './format.js'
 
-export function KpiStack({ program }) {
+export function KpiStack({ program, showRecent }) {
   const {
     name,
     totalWonValue = 0,
@@ -12,6 +12,7 @@ export function KpiStack({ program }) {
     forecastCount = 0,
     conversionRate = 0,
     totalDealsCount = 0,
+    newDeals7d = 0,
   } = program || {}
 
   return (
@@ -49,6 +50,13 @@ export function KpiStack({ program }) {
           <strong>{converted}</strong> {converted === 1 ? 'ganho' : 'ganhos'} de <strong>{totalDealsCount}</strong> oportunidades criadas
         </span>
       </div>
+
+      {showRecent && (
+        <div className="pkt-kpi pkt-kpi--inline">
+          <span className="pkt-kpi__label">Criadas nos últimos 7 dias</span>
+          <span className="pkt-kpi__value">{newDeals7d}</span>
+        </div>
+      )}
     </aside>
   )
 }
