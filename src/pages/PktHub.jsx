@@ -205,11 +205,13 @@ function normalizeToken(str) {
 // mostra como "Formulários preenchidos" (dado real da Laura), não em cima do
 // campo "leads" que vem cru do próprio Meta Ads (métrica auto-reportada pela
 // plataforma) — os dois eram exibidos lado a lado como se fossem a mesma coisa.
+// PDD/C-Level não têm LP (o lead preenche o formulário nativo do Meta Ads), então
+// não existe visualização de página — a base passa a ser o clique no anúncio.
 function computeConversionRate(data) {
   const forms = data?.formsSubmitted ?? data?.leads ?? 0
-  const views = data?.pageViews || 0
-  if (views <= 0) return null
-  return Number(((forms / views) * 100).toFixed(1))
+  const base = data?.source === 'meta_form' ? (data?.clicks || 0) : (data?.pageViews || 0)
+  if (base <= 0) return null
+  return Number(((forms / base) * 100).toFixed(1))
 }
 
 function formatLeadDate(iso) {
@@ -242,8 +244,9 @@ function LeadsListModal({ programName, accentColor, leads, onClose }) {
               <div key={`${lead.phone || idx}-${lead.created_at || idx}`} className="laura-perf-leads__row">
                 <div className="laura-perf-leads__row-main">
                   <span className="laura-perf-leads__row-name">{lead.person_name || 'Sem nome'}</span>
+                  {/* form do Meta (PDD/C-Level) só traz o nome da campanha, sem o anúncio */}
                   <span className="laura-perf-leads__row-ad" title={lead.campaign_name || ''}>
-                    {lead.ad_name || 'Anúncio não identificado'}
+                    {lead.ad_name || lead.campaign_name || 'Anúncio não identificado'}
                   </span>
                 </div>
                 <div className="laura-perf-leads__row-meta">
@@ -259,8 +262,8 @@ function LeadsListModal({ programName, accentColor, leads, onClose }) {
   )
 }
 
-// Ganhos aqui é sempre restrito às campanhas "LP COM FORMULÁRIO" da própria
-// Laura (GEF/C-Level hoje) — o merge já vem filtrado por program_id no hook.
+// Ganhos aqui vem da etapa "Ganho" do funil de SDR da Laura, já filtrado pelo
+// programa do card (ver LauraPerformancePanel).
 function WonListModal({ programName, accentColor, deals, onClose }) {
   return (
     <div className="laura-perf-leads-overlay" onClick={onClose}>
@@ -329,7 +332,9 @@ function LauraPerformancePanel() {
       // visualizações e leads do Meta recalculados a partir dos anúncios já
       // filtrados, pra o total do card sempre bater com a lista mostrada embaixo.
       const pageViews = campaigns.reduce((sum, c) => sum + (c.page_views || 0), 0)
+      const clicks = campaigns.reduce((sum, c) => sum + (c.clicks || 0), 0)
       const metaLeads = campaigns.reduce((sum, c) => sum + (c.leads || 0), 0)
+      const isMetaForm = raw.source === 'meta_form'
 
       // campaigns vem do backend com 1 item por ANÚNCIO (não por campanha) —
       // deriva a contagem real de campanhas distintas a partir do campaign_id.
@@ -342,14 +347,47 @@ function LauraPerformancePanel() {
       // formulário real por anúncio (pra bater com o total de cima, em vez do
       // "leads" que o Meta Ads reporta por conta própria pra cada anúncio).
       // Lead sem ad_name (ex: preencheu sem UTM de anúncio) cai no bucket "sem anúncio".
+      // No form do Meta (PDD/C-Level) o lead só traz o nome da campanha, então
+      // lá a lista e a contagem são por campanha em vez de por anúncio.
       const formsByAdName = new Map()
       let unattributedForms = 0
       for (const lead of formsSubmittedList) {
-        if (lead.ad_name) {
-          formsByAdName.set(lead.ad_name, (formsByAdName.get(lead.ad_name) || 0) + 1)
+        const key = isMetaForm ? lead.campaign_name : lead.ad_name
+        if (key) {
+          formsByAdName.set(key, (formsByAdName.get(key) || 0) + 1)
         } else {
           unattributedForms += 1
         }
+      }
+
+      // linhas da lista de baixo: 1 por anúncio (LP) ou 1 por campanha (form Meta)
+      let rows = campaigns.map((c) => ({
+        key: c.ad_id || `${c.campaign_id}|${c.ad_name}`,
+        name: c.ad_name || c.campaign_name,
+        title: c.campaign_name,
+        page_views: c.page_views || 0,
+        clicks: c.clicks || 0,
+        forms: formsByAdName.get(c.ad_name) || 0,
+      }))
+      if (isMetaForm) {
+        const byCampaign = new Map()
+        for (const c of campaigns) {
+          const row = byCampaign.get(c.campaign_name) || {
+            key: c.campaign_id || c.campaign_name,
+            name: c.campaign_name,
+            title: c.campaign_name,
+            page_views: 0,
+            clicks: 0,
+            forms: formsByAdName.get(c.campaign_name) || 0,
+          }
+          row.clicks += c.clicks || 0
+          byCampaign.set(c.campaign_name, row)
+        }
+        // formulário de campanha que já saiu do snapshot (pausada) continua aparecendo
+        for (const [name, count] of formsByAdName) {
+          if (!byCampaign.has(name)) byCampaign.set(name, { key: name, name, title: name, page_views: 0, clicks: 0, forms: count })
+        }
+        rows = [...byCampaign.values()]
       }
 
       // "ganhos" vem só da etapa "Ganho" do funil de SDR da Laura (pipeline 88
@@ -368,8 +406,10 @@ function LauraPerformancePanel() {
       const data = {
         ...raw,
         campaigns,
-        campaignCount,
+        campaignCount: isMetaForm ? rows.length : campaignCount,
+        rows,
         pageViews,
+        clicks,
         leads: metaLeads,
         formsSubmittedList,
         formsSubmitted: formsSubmittedList.length,
@@ -440,15 +480,23 @@ function LauraPerformancePanel() {
           <div className="laura-perf__detail-header">
             <h3 className="laura-perf__detail-title" style={{ color: active.accentColor }}>{active.name}</h3>
             <span className="laura-perf__detail-badge">
-              {active.data.campaignCount} campanha{active.data.campaignCount === 1 ? '' : 's'} da agência
+              {active.data.campaignCount} campanha{active.data.campaignCount === 1 ? '' : 's'}
+              {active.data.source === 'meta_form' ? ' · formulário do Meta Ads' : ' da agência · LP'}
             </span>
           </div>
 
           <div className="laura-perf__stats">
-            <div className="laura-perf__stat">
-              <span className="laura-perf__stat-value">{formatNumber(active.data.pageViews)}</span>
-              <span className="laura-perf__stat-label">Visualizações de página</span>
-            </div>
+            {active.data.source === 'meta_form' ? (
+              <div className="laura-perf__stat">
+                <span className="laura-perf__stat-value">{formatNumber(active.data.clicks)}</span>
+                <span className="laura-perf__stat-label">Cliques no anúncio</span>
+              </div>
+            ) : (
+              <div className="laura-perf__stat">
+                <span className="laura-perf__stat-value">{formatNumber(active.data.pageViews)}</span>
+                <span className="laura-perf__stat-label">Visualizações de página</span>
+              </div>
+            )}
             <button
               type="button"
               className="laura-perf__stat laura-perf__stat--clickable"
@@ -474,15 +522,24 @@ function LauraPerformancePanel() {
           </div>
 
           <ul className="laura-perf__campaigns">
-            {active.data.campaigns.map((c) => (
-              // cada item é um ANÚNCIO (não uma campanha) — o campaign_id se repete
-              // entre os anúncios da mesma campanha, então a key precisa incluir o ad_id.
-              <li key={c.ad_id || `${c.campaign_id}|${c.ad_name}`} className="laura-perf__campaign-row">
-                <span className="laura-perf__campaign-name" title={c.campaign_name}>{c.ad_name || c.campaign_name}</span>
-                <span>{formatNumber(c.page_views)} views</span>
-                {/* formulário real da Laura por anúncio (mesma fonte do "Formulários
-                    preenchidos" acima) — não a métrica que o Meta Ads reporta sozinho. */}
-                <span>{formatNumber(active.data.formsByAdName.get(c.ad_name) || 0)} formulários</span>
+            {active.data.rows.length === 0 && active.data.unattributedForms === 0 && (
+              <li className="laura-perf__campaign-row">
+                <span className="laura-perf__campaign-name">Nenhuma campanha ativa no Meta Ads ainda</span>
+              </li>
+            )}
+            {active.data.rows.map((r) => (
+              // LP: cada item é um ANÚNCIO (o campaign_id se repete entre os anúncios
+              // da mesma campanha, por isso a key usa o ad_id). Form Meta: 1 por campanha.
+              <li key={r.key} className="laura-perf__campaign-row">
+                <span className="laura-perf__campaign-name" title={r.title}>{r.name}</span>
+                <span>
+                  {active.data.source === 'meta_form'
+                    ? `${formatNumber(r.clicks)} cliques`
+                    : `${formatNumber(r.page_views)} views`}
+                </span>
+                {/* formulário real da Laura (mesma fonte do "Formulários preenchidos"
+                    acima) — não a métrica que o Meta Ads reporta sozinho. */}
+                <span>{formatNumber(r.forms)} formulários</span>
               </li>
             ))}
             {active.data.unattributedForms > 0 && (
@@ -499,7 +556,9 @@ function LauraPerformancePanel() {
       )}
 
       <p className="laura-perf__footnote">
-        Considera apenas campanhas do Meta Ads com "LP COM FORMULÁRIO" no nome (gerenciadas pela agência de tráfego).
+        {active?.data.source === 'meta_form'
+          ? `${active.name}: leads do formulário nativo do Meta Ads (sem LP) — conversão = formulários ÷ cliques no anúncio.`
+          : 'Considera apenas campanhas do Meta Ads com "LP COM FORMULÁRIO" no nome (gerenciadas pela agência de tráfego).'}
       </p>
 
       {showLeadsModal && active && (
@@ -569,7 +628,17 @@ function LauraFunilPanel() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <span className="laura-funil__card-name">{p.person_name || p.title}</span>
+                    <span className="laura-funil__card-head">
+                      <span className="laura-funil__card-name">{p.person_name || p.title}</span>
+                      {p.programa && (
+                        <span
+                          className="laura-funil__card-program"
+                          style={{ '--prog-color': PROGRAMS.find((pg) => pg.name === p.programa)?.accentColor || '#64748B' }}
+                        >
+                          {p.programa}
+                        </span>
+                      )}
+                    </span>
                     <span className="laura-funil__card-date">{formatLeadDate(p.stage_change_time || p.add_time)}</span>
                   </a>
                 ))}
