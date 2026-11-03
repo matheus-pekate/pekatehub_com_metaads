@@ -659,9 +659,13 @@ function LauraPage() {
   const [subTab, setSubTab] = useState('Funis')
   const [chats, setChats] = useState({})
   const [photos, setPhotos] = useState({})
+  const [dealsByPhone, setDealsByPhone] = useState({})
+  const [programFilter, setProgramFilter] = useState('Todos')
   const [selected, setSelected] = useState(null)
   const [loading, setLoading] = useState(true)
   const bottomRef = useRef(null)
+  // programa de cada conversa: telefone -> negócio (pipedrive_conversa_sync) -> programa no funil da Laura
+  const { stages: funilStages } = useLauraFunil()
 
   useEffect(() => {
     fetch('/api/chats')
@@ -670,6 +674,7 @@ function LauraPage() {
         const c = data.chats || {}
         setChats(c)
         setPhotos(data.photos || {})
+        setDealsByPhone(data.deals || {})
         const first = sortKeysByRecency(c)[0]
         if (first) setSelected(first)
         setLoading(false)
@@ -681,7 +686,30 @@ function LauraPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [selected, chats])
 
-  const keys = sortKeysByRecency(chats)
+  const programByDeal = {}
+  for (const stage of funilStages) {
+    for (const p of stage.people || []) {
+      if (p.programa) programByDeal[p.deal_id] = p.programa
+    }
+  }
+  const programOf = (key) => programByDeal[dealsByPhone[key.replace('chat-history_', '')]] || null
+  const programColor = (name) => PROGRAMS.find((pg) => pg.name === name)?.accentColor || '#64748B'
+
+  const allKeys = sortKeysByRecency(chats)
+  const programCounts = {}
+  for (const key of allKeys) {
+    const prog = programOf(key) || 'Sem programa'
+    programCounts[prog] = (programCounts[prog] || 0) + 1
+  }
+  const filterOptions = [
+    ...PROGRAMS.map((pg) => pg.name).filter((name) => programCounts[name]),
+    ...Object.keys(programCounts).filter((name) => name !== 'Sem programa' && !PROGRAMS.some((pg) => pg.name === name)),
+    ...(programCounts['Sem programa'] ? ['Sem programa'] : []),
+  ]
+  const keys = programFilter === 'Todos'
+    ? allKeys
+    : allKeys.filter((key) => (programOf(key) || 'Sem programa') === programFilter)
+  const selectedProgram = selected ? programOf(selected) : null
   const sortedMessages = selected ? sortByTime((chats[selected] || []).map(parseMessage)) : []
   const messages = withDaySeparators(sortedMessages)
 
@@ -706,6 +734,27 @@ function LauraPage() {
       </div>
 
       {/* Conversas */}
+      {subTab === 'Conversas' && !loading && allKeys.length > 0 && (
+        <div className="agent-chat-filters">
+          {['Todos', ...filterOptions].map((name) => (
+            <button
+              key={name}
+              className={`agent-chat-filter ${programFilter === name ? 'agent-chat-filter--active' : ''}`}
+              style={name !== 'Todos' && name !== 'Sem programa' ? { '--prog-color': programColor(name) } : undefined}
+              onClick={() => {
+                setProgramFilter(name)
+                const firstOfProgram = name === 'Todos'
+                  ? allKeys[0]
+                  : allKeys.find((key) => (programOf(key) || 'Sem programa') === name)
+                if (firstOfProgram) setSelected(firstOfProgram)
+              }}
+            >
+              {name}
+              <span className="agent-chat-filter__count">{name === 'Todos' ? allKeys.length : programCounts[name]}</span>
+            </button>
+          ))}
+        </div>
+      )}
       {subTab === 'Conversas' && (
         <div className="agent-chats">
           {/* Lista de conversas */}
@@ -716,6 +765,7 @@ function LauraPage() {
               const msgs = sortByTime(chats[key].map(parseMessage))
               const first = msgs[0]
               const last = msgs[msgs.length - 1]
+              const programa = programOf(key)
               return (
                 <button
                   key={key}
@@ -733,7 +783,14 @@ function LauraPage() {
                     </span>
                   </div>
                   <div className="agent-chat-item__info">
-                    <span className="agent-chat-item__phone">{formatPhone(key)}</span>
+                    <span className="agent-chat-item__head">
+                      <span className="agent-chat-item__phone">{formatPhone(key)}</span>
+                      {programa && (
+                        <span className="laura-funil__card-program" style={{ '--prog-color': programColor(programa) }}>
+                          {programa}
+                        </span>
+                      )}
+                    </span>
                     <span className="agent-chat-item__preview">{last?.text?.slice(0, 40)}…</span>
                   </div>
                   <span className="agent-chat-item__count">{msgs.length}</span>
@@ -764,7 +821,14 @@ function LauraPage() {
                     {formatPhone(selected).slice(-2)}
                   </div>
                   <div>
-                    <span className="agent-chat-item__phone">{formatPhone(selected)}</span>
+                    <span className="agent-chat-item__head">
+                      <span className="agent-chat-item__phone">{formatPhone(selected)}</span>
+                      {selectedProgram && (
+                        <span className="laura-funil__card-program" style={{ '--prog-color': programColor(selectedProgram) }}>
+                          {selectedProgram}
+                        </span>
+                      )}
+                    </span>
                     <span className="agent-chat-item__preview">{sortedMessages.length} mensagens</span>
                   </div>
                 </div>
