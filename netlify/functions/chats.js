@@ -16,16 +16,19 @@ export const handler = async (event) => {
 
   try {
     const client = getSupabase()
-    const [{ data, error }, { data: photoRows, error: photoError }] = await Promise.all([
+    const [{ data, error }, { data: photoRows, error: photoError }, { data: syncRows, error: syncError }] = await Promise.all([
       client
         .from('chat_messages')
         .select('phone, message')
         .order('phone', { ascending: true })
         .order('id', { ascending: true }),
       client.from('chat_profile_photos').select('phone, photo_url'),
+      // telefone -> negócio do Pipedrive (o front cruza com o funil da Laura pra achar o programa)
+      client.from('pipedrive_conversa_sync').select('phone, deal_id'),
     ])
     if (error) throw error
     if (photoError) throw photoError
+    if (syncError) throw syncError
 
     const chats = {}
     for (const row of data || []) {
@@ -39,10 +42,15 @@ export const handler = async (event) => {
       if (row.photo_url) photos[row.phone] = row.photo_url
     }
 
+    const deals = {}
+    for (const row of syncRows || []) {
+      if (row.deal_id) deals[row.phone] = row.deal_id
+    }
+
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ total: Object.keys(chats).length, chats, photos }),
+      body: JSON.stringify({ total: Object.keys(chats).length, chats, photos, deals }),
     }
   } catch (err) {
     console.error(err)
