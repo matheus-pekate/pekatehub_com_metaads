@@ -655,6 +655,8 @@ function LauraFunilPanel() {
 }
 
 /* ── Sub-página da Laura ── */
+const CHATS_REFRESH_MS = 60 * 1000
+
 function LauraPage() {
   const [subTab, setSubTab] = useState('Funis')
   const [chats, setChats] = useState({})
@@ -668,23 +670,38 @@ function LauraPage() {
   const { stages: funilStages } = useLauraFunil()
 
   useEffect(() => {
-    fetch('/api/chats')
-      .then(r => r.json())
-      .then(data => {
-        const c = data.chats || {}
-        setChats(c)
-        setPhotos(data.photos || {})
-        setDealsByPhone(data.deals || {})
-        const first = sortKeysByRecency(c)[0]
-        if (first) setSelected(first)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
+    let cancelled = false
+
+    function load() {
+      fetch('/api/chats')
+        .then(r => r.json())
+        .then(data => {
+          if (cancelled) return
+          const c = data.chats || {}
+          setChats(c)
+          setPhotos(data.photos || {})
+          setDealsByPhone(data.deals || {})
+          // no recarregamento automático mantém a conversa que a pessoa está lendo
+          setSelected(prev => prev || sortKeysByRecency(c)[0] || null)
+          setLoading(false)
+        })
+        .catch(() => { if (!cancelled) setLoading(false) })
+    }
+
+    load()
+    const interval = setInterval(load, CHATS_REFRESH_MS)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
   }, [])
 
+  // só rola pro fim ao trocar de conversa ou quando chega mensagem nova nela,
+  // pra o recarregamento automático não puxar a tela de quem está lendo
+  const selectedCount = selected ? (chats[selected] || []).length : 0
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-  }, [selected, chats])
+  }, [selected, selectedCount])
 
   const programByDeal = {}
   for (const stage of funilStages) {
