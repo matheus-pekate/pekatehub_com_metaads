@@ -137,6 +137,26 @@ function sortKeysByRecency(chats) {
   return Object.keys(chats).sort((a, b) => getLastMessageTime(chats[b]) - getLastMessageTime(chats[a]))
 }
 
+// Programa pelo texto da própria conversa — só é usado quando o vínculo
+// telefone -> negócio -> funil da Laura não resolve. Isso acontece (1) logo que o
+// lead chega, até o sync de 15 min ligar o telefone ao negócio, e (2) quando o
+// negócio já saiu do pipeline 88 (foi passado pro vendedor) e some do funil.
+// Ordem das mensagens da Laura = a primeira que cita um programa vence.
+const PROGRAM_TEXT_PATTERNS = [
+  { name: 'PDD', regex: /\bPDD\b|Desenvolvimento de Dirigentes/i },
+  { name: 'GEF', regex: /\bGEF\b|Gestão Econômica Financeira/i },
+  { name: 'C-Level', regex: /C-?\s?Level/i },
+]
+
+function inferProgramFromChat(rawMessages) {
+  const aiMessages = (rawMessages || []).filter((raw) => raw.startsWith('AI'))
+  for (const raw of aiMessages) {
+    const found = PROGRAM_TEXT_PATTERNS.find((p) => p.regex.test(raw))
+    if (found) return found.name
+  }
+  return null
+}
+
 function withDaySeparators(messages) {
   const out = []
   let lastDay = null
@@ -709,7 +729,8 @@ function LauraPage() {
       if (p.programa) programByDeal[p.deal_id] = p.programa
     }
   }
-  const programOf = (key) => programByDeal[dealsByPhone[key.replace('chat-history_', '')]] || null
+  const programOf = (key) =>
+    programByDeal[dealsByPhone[key.replace('chat-history_', '')]] || inferProgramFromChat(chats[key])
   const programColor = (name) => PROGRAMS.find((pg) => pg.name === name)?.accentColor || '#64748B'
 
   const allKeys = sortKeysByRecency(chats)
