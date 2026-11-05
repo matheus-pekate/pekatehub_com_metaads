@@ -12,12 +12,12 @@
   --branco: #ffffff;
   --off-white: #f7f5f0;
   --bege: #ede8dd;
-  --linha: rgba(48, 50, 51, .10);
-  --linha-strong: rgba(48, 50, 51, .18);
+  --linha: rgba(var(--t-ink2), .10);
+  --linha-strong: rgba(var(--t-ink2), .18);
 
   min-height: 100vh;
-  background: var(--off-white);
-  color: var(--petroleo);
+  background: var(--t-cream-off);
+  color: var(--t-text);
   font-family: "Lato", "Helvetica Neue", Arial, sans-serif;
   padding: 28px 40px 60px;
 }
@@ -36,8 +36,8 @@
   height: 40px;
   border-radius: 10px;
   border: 1px solid var(--linha-strong);
-  background: var(--branco);
-  color: var(--petroleo);
+  background: var(--t-surface);
+  color: var(--t-text);
   font-size: 18px;
   display: flex;
   align-items: center;
@@ -54,7 +54,7 @@
   font-size: 13px;
   letter-spacing: .04em;
   text-transform: uppercase;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
 }
 
 .pkt-eventos-topbar__name {
@@ -79,7 +79,7 @@
   gap: 24px;
   font-size: 14px;
   font-weight: 700;
-  color: var(--petroleo-mid);
+  color: var(--t-text-teal-2);
 }
 
 .pkt-eventos-topbar__stat {
@@ -92,11 +92,11 @@
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 800;
   font-size: 24px;
-  color: var(--petroleo);
+  color: var(--t-text);
 }
 
 .pkt-eventos-topbar__error {
-  color: var(--laranja);
+  color: var(--t-accent);
   font-size: 13px;
 }
 
@@ -105,14 +105,14 @@
   height: 40px;
   border-radius: 10px;
   border: 1px solid var(--linha-strong);
-  background: var(--branco);
+  background: var(--t-surface);
   cursor: pointer;
   font-size: 18px;
 }
 
 /* ── Grid de eventos ── */
 .pkt-eventos-empty {
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   font-size: 16px;
   padding: 60px 0;
   text-align: center;
@@ -128,7 +128,7 @@
 .pkt-eventos-card {
   display: flex;
   flex-direction: column;
-  background: var(--branco);
+  background: var(--t-surface);
   border: 1px solid var(--linha);
   border-radius: 14px;
   overflow: hidden;
@@ -174,7 +174,7 @@
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: .04em;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
 }
 
 .pkt-eventos-card__title {
@@ -192,7 +192,7 @@
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 800;
   font-size: 22px;
-  color: var(--petroleo);
+  color: var(--t-text);
   margin-bottom: 4px;
 }
 
@@ -205,7 +205,7 @@
 
 .pkt-eventos-stats--empty {
   font-size: 12px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   font-style: italic;
 }
 
@@ -226,11 +226,11 @@
   align-items: center;
   gap: 6px;
   border: 1px solid var(--linha-strong);
-  background: var(--branco);
+  background: var(--t-surface);
   border-radius: 999px;
   padding: 5px 12px;
   font-size: 13px;
-  color: var(--petroleo-mid);
+  color: var(--t-text-teal-2);
   cursor: pointer;
   transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
@@ -247,7 +247,7 @@
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 800;
   font-size: 16px;
-  color: var(--petroleo);
+  color: var(--t-text);
 }
 
 .pkt-eventos-stats__pill:hover {
@@ -255,7 +255,7 @@
 }
 
 .pkt-eventos-stats__pill--open {
-  background: var(--petroleo);
+  background: var(--t-fill);
   border-color: var(--petroleo);
   color: var(--branco);
 }
@@ -275,12 +275,12 @@
 
 .pkt-eventos-stats__pill--categoria {
   border-color: var(--linha);
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
 }
 
 .pkt-eventos-stats__pill--categoria:hover {
   border-color: var(--laranja);
-  color: var(--laranja);
+  color: var(--t-accent);
 }
 
 /* ── Visão geral (rodapé da página) ── */
@@ -300,7 +300,7 @@
 
 .pkt-eventos-overview__subtitle {
   font-size: 13px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   margin: 0 0 20px;
 }
 
@@ -314,7 +314,7 @@
   display: flex;
   align-items: center;
   gap: 24px;
-  background: var(--branco);
+  background: var(--t-surface);
   border: 1px solid var(--linha);
   border-radius: 14px;
   padding: 20px 24px;
@@ -346,7 +346,7 @@
 
 .pkt-eventos-overview__pie-center span {
   font-size: 11px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   text-transform: uppercase;
   letter-spacing: .03em;
 }
@@ -374,17 +374,17 @@
 }
 
 .pkt-eventos-overview__legend-label {
-  color: var(--petroleo);
+  color: var(--t-text);
   font-weight: 700;
 }
 
 .pkt-eventos-overview__legend-value {
-  color: var(--petroleo-mid);
+  color: var(--t-text-teal-2);
   margin-left: auto;
 }
 
 .pkt-eventos-overview__tooltip {
-  background: var(--branco);
+  background: var(--t-surface);
   border: 1px solid var(--linha-strong);
   border-radius: 8px;
   padding: 8px 12px;
@@ -407,7 +407,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: var(--branco);
+  background: var(--t-surface);
   border: 1px solid var(--linha);
   border-radius: 14px;
   padding: 20px;
@@ -418,18 +418,18 @@
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 900;
   font-size: 32px;
-  color: var(--laranja);
+  color: var(--t-accent);
 }
 
 .pkt-eventos-overview__stat-label {
   font-size: 13px;
   font-weight: 700;
-  color: var(--petroleo);
+  color: var(--t-text);
 }
 
 .pkt-eventos-overview__stat-hint {
   font-size: 11.5px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
 }
 
 @media (max-width: 720px) {
@@ -452,7 +452,7 @@
 
 .pkt-eventos-modal {
   position: relative;
-  background: var(--off-white);
+  background: var(--t-cream-off);
   border-radius: 16px;
   width: min(1040px, 94vw);
   max-height: 82vh;
@@ -471,7 +471,7 @@
   height: 32px;
   border-radius: 8px;
   border: 1px solid var(--linha-strong);
-  background: var(--branco);
+  background: var(--t-surface);
   cursor: pointer;
   font-size: 14px;
 }
@@ -491,11 +491,11 @@
 
 .pkt-eventos-modal__subtitle {
   font-size: 13px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
 }
 
 .pkt-eventos-modal__state {
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   font-size: 14px;
   padding: 40px 0;
   text-align: center;
@@ -509,16 +509,16 @@
 
 .pkt-eventos-filter {
   border: 1px solid var(--linha-strong);
-  background: var(--branco);
+  background: var(--t-surface);
   border-radius: 999px;
   padding: 6px 16px;
   font-size: 13px;
   cursor: pointer;
-  color: var(--petroleo-mid);
+  color: var(--t-text-teal-2);
 }
 
 .pkt-eventos-filter--active {
-  background: var(--petroleo);
+  background: var(--t-fill);
   border-color: var(--petroleo);
   color: var(--branco);
 }
@@ -531,7 +531,7 @@
   border-color: var(--linha);
   font-size: 12px;
   padding: 4px 12px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
 }
 
 .pkt-eventos-filter--sub.pkt-eventos-filter--active {
@@ -565,8 +565,8 @@
 .pkt-eventos-export {
   margin-left: auto;
   border: 1px solid var(--laranja);
-  background: var(--branco);
-  color: var(--laranja);
+  background: var(--t-surface);
+  color: var(--t-accent);
   border-radius: 999px;
   padding: 6px 16px;
   font-size: 13px;
@@ -609,7 +609,7 @@
 }
 
 .pkt-eventos-participants__evento {
-  color: var(--petroleo-mid);
+  color: var(--t-text-teal-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -622,33 +622,33 @@
 }
 
 .pkt-eventos-participants__nome-link {
-  color: var(--petroleo);
+  color: var(--t-text);
   text-decoration: none;
   border-bottom: 1px dashed var(--petroleo-light);
   width: fit-content;
 }
 
 .pkt-eventos-participants__nome-link:hover {
-  color: var(--laranja);
+  color: var(--t-accent);
   border-bottom-color: var(--laranja);
 }
 
 .pkt-eventos-participants__cargo {
   font-size: 11.5px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .pkt-eventos-participants__phone {
-  color: var(--petroleo-mid);
+  color: var(--t-text-teal-2);
   white-space: nowrap;
 }
 
 .pkt-eventos-situacao {
   font-size: 12.5px;
-  color: var(--petroleo-mid);
+  color: var(--t-text-teal-2);
   white-space: nowrap;
 }
 
@@ -656,12 +656,12 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .04em;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   border-bottom: 1px solid var(--linha-strong);
 }
 
 .pkt-eventos-participants__email {
-  color: var(--petroleo-mid);
+  color: var(--t-text-teal-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -672,7 +672,7 @@
   align-items: center;
   gap: 6px;
   font-weight: 700;
-  color: var(--status-color, var(--petroleo));
+  color: var(--status-color, var(--t-text));
 }
 
 .pkt-eventos-status::before {
@@ -680,7 +680,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--status-color, var(--petroleo));
+  background: var(--status-color, var(--t-fill));
 }
 
 @keyframes pktFadeIn {

@@ -16,13 +16,13 @@
 .rk-section__title {
   font-size: 16px;
   font-weight: 800;
-  color: #08373f;
+  color: var(--t-text);
   margin: 0 0 18px;
 }
 .rk-section__sub {
   font-weight: 400;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--t-text-3b);
   margin-left: 6px;
 }
 
@@ -197,7 +197,7 @@
 }
 .rk-podium__col--r1 .rk-podium__badge {
   background: #D4A843;
-  color: #08373f;
+  color: var(--t-text);
   width: 24px;
   height: 24px;
   font-size: 12px;
@@ -295,9 +295,9 @@
   gap: 18px;
   margin-top: 16px;
   padding: 10px 16px;
-  background: #fff;
+  background: var(--t-surface);
   border-radius: 10px;
-  border: 1px solid rgba(48, 50, 51, .08);
+  border: 1px solid rgba(var(--t-ink2), .08);
 }
 .rk-legend__item {
   display: flex;
@@ -323,14 +323,14 @@
 .rk-legend__name {
   font-size: 12px;
   font-weight: 600;
-  color: #366368;
+  color: var(--t-text-teal);
 }
 
 /* ==================== RADAR ==================== */
 .rk-radar-wrap {
-  background: #fff;
+  background: var(--t-surface);
   border-radius: 14px;
-  border: 1px solid rgba(48, 50, 51, .08);
+  border: 1px solid rgba(var(--t-ink2), .08);
   padding: 20px;
 }
 
@@ -345,9 +345,9 @@
 }
 
 .rk-chart-card {
-  background: #fff;
+  background: var(--t-surface);
   border-radius: 14px;
-  border: 1px solid rgba(48, 50, 51, .08);
+  border: 1px solid rgba(var(--t-ink2), .08);
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -355,12 +355,12 @@
 .rk-chart-card__title {
   font-size: 13px;
   font-weight: 700;
-  color: #08373f;
+  color: var(--t-text);
   margin: 0 0 2px;
 }
 .rk-chart-card__bench {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--t-text-3b);
   margin-bottom: 8px;
 }
 .rk-chart-card__body {
@@ -370,12 +370,12 @@
 
 /* ==================== TOOLTIP ==================== */
 .rk-tooltip {
-  background: #fff;
-  border: 1px solid rgba(48, 50, 51, .12);
+  background: var(--t-surface);
+  border: 1px solid rgba(var(--t-ink2), .12);
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 12px;
-  color: #08373f;
+  color: var(--t-text);
   box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
 }
 .rk-tooltip__label {
@@ -397,9 +397,9 @@
 
 /* ==================== DETAIL TABLE ==================== */
 .rk-table-wrap {
-  background: #fff;
+  background: var(--t-surface);
   border-radius: 14px;
-  border: 1px solid rgba(48, 50, 51, .08);
+  border: 1px solid rgba(var(--t-ink2), .08);
   overflow: hidden;
 }
 .rk-table {
@@ -412,37 +412,37 @@
   text-align: right;
   font-weight: 800;
   font-size: 13px;
-  border-bottom: 2px solid rgba(48, 50, 51, .08);
+  border-bottom: 2px solid rgba(var(--t-ink2), .08);
   white-space: nowrap;
 }
 .rk-table__th--metric {
   text-align: left;
-  color: #6b7280;
+  color: var(--t-text-3b);
   font-weight: 600;
   width: 180px;
 }
 .rk-table__th--team {
-  color: #6b7280;
+  color: var(--t-text-3b);
   font-style: italic;
 }
 .rk-table__td {
   padding: 10px 16px;
   text-align: right;
-  color: #08373f;
+  color: var(--t-text);
   font-variant-numeric: tabular-nums;
-  border-bottom: 1px solid rgba(48, 50, 51, .04);
+  border-bottom: 1px solid rgba(var(--t-ink2), .04);
 }
 .rk-table__td--metric {
   text-align: left;
   font-weight: 600;
-  color: #366368;
+  color: var(--t-text-teal);
 }
 .rk-table__td--team {
-  color: #6b7280;
+  color: var(--t-text-3b);
   font-style: italic;
 }
 .rk-table__row--alt {
-  background: rgba(48, 50, 51, .015);
+  background: rgba(var(--t-ink2), .015);
 }
 
 /* ==================== RESPONSIVE ==================== */

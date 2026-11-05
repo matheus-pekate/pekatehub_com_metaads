@@ -1,0 +1,181 @@
+/* =================================================================
+   TEMA — claro / escuro
+   O valor claro de cada --t-* é a cor original do hub; o escuro é a
+   variante do modo noturno. A preferência (auto/claro/escuro) é
+   aplicada em <html data-theme>; sem preferência, segue o computador.
+   ================================================================= */
+
+:root {
+  color-scheme: light;
+  --t-ink: 8, 55, 63;
+  --t-ink2: 48, 50, 51;
+  --t-bg: #f5f0eb;
+  --t-surface: #ffffff;
+  --t-cream-off: #f7f5f0;
+  --t-cream-2: #faf7f4;
+  --t-cream-3: #f0ece6;
+  --t-bege: #ede8dd;
+  --t-gray-pale: #ececec;
+  --t-orange-pale: #fde4cd;
+  --t-orange-pale-2: #fbd4ac;
+  --t-green-pale: #e7f1ec;
+  --t-green-pale-2: #d4edda;
+  --t-green-pale-3: #d3e6dd;
+  --t-purple-pale: #f3e8f8;
+  --t-purple-line: #e2cfee;
+  --t-red-pale: #fde8e8;
+  --t-teal-pale: #d8e3e4;
+  --t-teal-pale-2: #e8eeef;
+  --t-line-x: #dcdcdc;
+  --t-fill: #08373f;
+  --t-fill-2: #0a4951;
+  --t-fill-deep: #052a30;
+  --t-fill-3: #366368;
+  --t-text: #08373f;
+  --t-text-ink: #1a1c1d;
+  --t-text-2: #4a4d4f;
+  --t-text-2b: #303233;
+  --t-text-teal: #366368;
+  --t-text-teal-2: #0a4951;
+  --t-text-3: #9a9d9f;
+  --t-text-3b: #6b7280;
+  --t-text-3c: #6b6e70;
+  --t-text-3d: #a0a0a0;
+  --t-accent: #cb5b36;
+  --t-positive: #2d6a4f;
+  --t-positive-2: #2d8a5a;
+  --t-critical: #b22222;
+  --t-critical-2: #c0392b;
+  --t-critical-3: #b3261e;
+  --t-bar-muted: #e3ddd0;
+  --t-line-dark: #052a30;
+  --t-series: #08373f;
+  --t-series-navy: #1a2a36;
+  --t-positive-3: #1a6b3c;
+  --t-red-pale-2: #f8dcd8;
+  --t-red-pale-3: #f2c6c0;
+  --t-cream-4: #eee7de;
+  --t-cream-5: #ebe3d8;
+  --t-cream-6: #faf8f5;
+  --t-teal-pale-3: #e4eeef;
+  --t-teal-pale-4: #eef4f3;
+  --t-line-y: #cccccc;
+}
+
+/* Escuro — escolha manual */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --t-ink: 232, 241, 242;
+  --t-ink2: 226, 234, 235;
+  --t-bg: #0b1a1d;
+  --t-surface: #12272b;
+  --t-cream-off: #152b2f;
+  --t-cream-2: #152b2f;
+  --t-cream-3: #183136;
+  --t-bege: #1b3338;
+  --t-gray-pale: #1d3438;
+  --t-orange-pale: #3b2a1d;
+  --t-orange-pale-2: #4a3322;
+  --t-green-pale: #17332a;
+  --t-green-pale-2: #1a3a2e;
+  --t-green-pale-3: #1d3d31;
+  --t-purple-pale: #2a1f35;
+  --t-purple-line: #43315a;
+  --t-red-pale: #3a1f1f;
+  --t-teal-pale: #1d3a3f;
+  --t-teal-pale-2: #1b353a;
+  --t-line-x: #2c4448;
+  --t-fill: #0f4a54;
+  --t-fill-2: #135864;
+  --t-fill-deep: #0a3239;
+  --t-fill-3: #2f6a73;
+  --t-text: #e6eff0;
+  --t-text-ink: #e6eff0;
+  --t-text-2: #b4c3c5;
+  --t-text-2b: #c3d0d2;
+  --t-text-teal: #8dbcc1;
+  --t-text-teal-2: #7fb0b6;
+  --t-text-3: #7f9295;
+  --t-text-3b: #8a9a9d;
+  --t-text-3c: #8a9a9d;
+  --t-text-3d: #7f9295;
+  --t-accent: #ef7a50;
+  --t-positive: #5cc489;
+  --t-positive-2: #5cc489;
+  --t-critical: #f07a7a;
+  --t-critical-2: #f07a7a;
+  --t-critical-3: #f07a7a;
+  --t-bar-muted: #2a4448;
+  --t-line-dark: #cfe3e5;
+  --t-series: #4a9aa5;
+  --t-series-navy: #6c8ea5;
+  --t-positive-3: #5cc489;
+  --t-red-pale-2: #4a2626;
+  --t-red-pale-3: #5a3030;
+  --t-cream-4: #1b3338;
+  --t-cream-5: #1d3a3f;
+  --t-cream-6: #0f2326;
+  --t-teal-pale-3: #1d3a3f;
+  --t-teal-pale-4: #16302f;
+  --t-line-y: #35504f;
+}
+
+/* Escuro — automático (segue o computador) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    color-scheme: dark;
+    --t-ink: 232, 241, 242;
+    --t-ink2: 226, 234, 235;
+    --t-bg: #0b1a1d;
+    --t-surface: #12272b;
+    --t-cream-off: #152b2f;
+    --t-cream-2: #152b2f;
+    --t-cream-3: #183136;
+    --t-bege: #1b3338;
+    --t-gray-pale: #1d3438;
+    --t-orange-pale: #3b2a1d;
+    --t-orange-pale-2: #4a3322;
+    --t-green-pale: #17332a;
+    --t-green-pale-2: #1a3a2e;
+    --t-green-pale-3: #1d3d31;
+    --t-purple-pale: #2a1f35;
+    --t-purple-line: #43315a;
+    --t-red-pale: #3a1f1f;
+    --t-teal-pale: #1d3a3f;
+    --t-teal-pale-2: #1b353a;
+    --t-line-x: #2c4448;
+    --t-fill: #0f4a54;
+    --t-fill-2: #135864;
+    --t-fill-deep: #0a3239;
+    --t-fill-3: #2f6a73;
+    --t-text: #e6eff0;
+    --t-text-ink: #e6eff0;
+    --t-text-2: #b4c3c5;
+    --t-text-2b: #c3d0d2;
+    --t-text-teal: #8dbcc1;
+    --t-text-teal-2: #7fb0b6;
+    --t-text-3: #7f9295;
+    --t-text-3b: #8a9a9d;
+    --t-text-3c: #8a9a9d;
+    --t-text-3d: #7f9295;
+    --t-accent: #ef7a50;
+    --t-positive: #5cc489;
+    --t-positive-2: #5cc489;
+    --t-critical: #f07a7a;
+    --t-critical-2: #f07a7a;
+    --t-critical-3: #f07a7a;
+    --t-bar-muted: #2a4448;
+    --t-line-dark: #cfe3e5;
+    --t-series: #4a9aa5;
+    --t-series-navy: #6c8ea5;
+    --t-positive-3: #5cc489;
+    --t-red-pale-2: #4a2626;
+    --t-red-pale-3: #5a3030;
+    --t-cream-4: #1b3338;
+    --t-cream-5: #1d3a3f;
+    --t-cream-6: #0f2326;
+    --t-teal-pale-3: #1d3a3f;
+    --t-teal-pale-4: #16302f;
+    --t-line-y: #35504f;
+  }
+}

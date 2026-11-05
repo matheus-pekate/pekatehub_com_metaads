@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f0eb;
+  background: var(--t-bg);
   font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
   padding: 24px;
 }
@@ -11,7 +11,7 @@
 .login-card {
   width: 100%;
   max-width: 420px;
-  background: #ffffff;
+  background: var(--t-surface);
   border-radius: 16px;
   padding: 40px 36px;
   box-shadow: 0 20px 60px rgba(8, 55, 63, 0.12);
@@ -30,7 +30,7 @@
   font-style: italic;
   font-weight: 900;
   font-size: 28px;
-  color: #08373f;
+  color: var(--t-text);
   margin: 0 0 12px;
 }
 
@@ -42,7 +42,7 @@
 .login-subtitle {
   font-size: 14px;
   line-height: 1.5;
-  color: #4a4d4f;
+  color: var(--t-text-2);
   margin: 0 0 24px;
 }
 
@@ -53,12 +53,13 @@
 }
 
 .login-input {
+  background: var(--t-surface);
   padding: 12px 14px;
-  border: 1px solid rgba(8, 55, 63, 0.18);
+  border: 1px solid rgba(var(--t-ink), 0.18);
   border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
-  color: #08373f;
+  color: var(--t-text);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -78,7 +79,7 @@
   padding: 12px 14px;
   border: none;
   border-radius: 8px;
-  background: #08373f;
+  background: var(--t-fill);
   color: #fff;
   font-weight: 700;
   font-size: 14px;
@@ -87,7 +88,7 @@
 }
 
 .login-submit:hover:not(:disabled) {
-  background: #0a4951;
+  background: var(--t-fill-2);
 }
 
 .login-submit:disabled {
@@ -98,7 +99,7 @@
 .login-error {
   margin-top: 12px;
   font-size: 13px;
-  color: #c0392b;
+  color: var(--t-critical-2);
 }
 
 .login-link-again {
@@ -106,7 +107,7 @@
   align-self: flex-start;
   background: none;
   border: none;
-  color: #08373f;
+  color: var(--t-text);
   font-size: 13px;
   font-weight: 700;
   text-decoration: underline;

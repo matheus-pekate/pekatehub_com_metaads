@@ -41,7 +41,7 @@ export function AdDetailModal({ ad, accentColor, onClose }) {
           </div>
         </div>
         <div className="pkt-ad-detail__legend">
-          <span><i className="pkt-ad-detail__legend-swatch" style={{ background: accentColor || '#08373f' }} /> Leads/dia</span>
+          <span><i className="pkt-ad-detail__legend-swatch" style={{ background: accentColor || 'var(--t-series)' }} /> Leads/dia</span>
           <span><i className="pkt-ad-detail__legend-swatch pkt-ad-detail__legend-swatch--line" /> CPL/dia</span>
         </div>
         <div className="pkt-ad-detail__body">
@@ -67,29 +67,29 @@ export function AdDetailModal({ ad, accentColor, onClose }) {
                   axisLine={false}
                   tickLine={false}
                   allowDecimals={false}
-                  tick={{ fill: 'rgba(48,50,51,0.35)', fontSize: 11, fontFamily: 'Lato' }}
+                  tick={{ fill: 'rgba(var(--t-ink2), 0.35)', fontSize: 11, fontFamily: 'Lato' }}
                 />
                 <YAxis
                   yAxisId="cpl"
                   orientation="right"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: 'rgba(48,50,51,0.35)', fontSize: 11, fontFamily: 'Lato' }}
+                  tick={{ fill: 'rgba(var(--t-ink2), 0.35)', fontSize: 11, fontFamily: 'Lato' }}
                   tickFormatter={(v) => formatBRL(v)}
                 />
-                <Tooltip content={<AdDetailTooltip />} cursor={{ fill: 'rgba(8,55,63,0.05)' }} />
+                <Tooltip content={<AdDetailTooltip />} cursor={{ fill: 'rgba(var(--t-ink), 0.05)' }} />
                 <Bar yAxisId="leads" dataKey="leads" radius={[4, 4, 0, 0]} barSize={36} isAnimationActive={false}>
                   {chartData.map((entry, index) => (
-                    <Cell key={index} fill={accentColor || '#08373f'} />
+                    <Cell key={index} fill={accentColor || 'var(--t-series)'} />
                   ))}
                 </Bar>
                 <Line
                   yAxisId="cpl"
                   dataKey="cpl"
-                  stroke="#052a30"
+                  stroke="var(--t-line-dark)"
                   strokeWidth={3}
-                  dot={{ r: 4, fill: '#ffffff', stroke: '#052a30', strokeWidth: 2 }}
-                  activeDot={{ r: 5, fill: '#052a30' }}
+                  dot={{ r: 4, fill: 'var(--t-surface)', stroke: 'var(--t-line-dark)', strokeWidth: 2 }}
+                  activeDot={{ r: 5, fill: 'var(--t-line-dark)' }}
                   connectNulls
                   isAnimationActive={false}
                 />

@@ -2,7 +2,7 @@
 .lc-layout {
   display: flex;
   height: 100vh;
-  background: #f5f0eb;
+  background: var(--t-bg);
   font-family: 'Inter', sans-serif;
 }
 
@@ -10,8 +10,8 @@
 .lc-sidebar {
   width: 300px;
   min-width: 260px;
-  background: #fff;
-  border-right: 1px solid rgba(48, 50, 51, .10);
+  background: var(--t-surface);
+  border-right: 1px solid rgba(var(--t-ink2), .10);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -19,7 +19,7 @@
 
 .lc-sidebar__header {
   padding: 20px 16px 16px;
-  border-bottom: 1px solid rgba(48, 50, 51, .08);
+  border-bottom: 1px solid rgba(var(--t-ink2), .08);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -31,7 +31,7 @@
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: #4a4d4f;
+  color: var(--t-text-2);
   background: none;
   border: none;
   cursor: pointer;
@@ -50,18 +50,18 @@
   height: 44px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #fde4cd;
+  border: 2px solid var(--t-orange-pale);
 }
 .lc-agent-name {
   display: block;
   font-weight: 800;
   font-size: 14px;
-  color: #08373f;
+  color: var(--t-text);
 }
 .lc-agent-role {
   display: block;
   font-size: 11px;
-  color: #4a4d4f;
+  color: var(--t-text-2);
 }
 
 .lc-sidebar__list {
@@ -83,8 +83,8 @@
   font-family: inherit;
   transition: background .15s;
 }
-.lc-chat-item:hover { background: #faf7f4; }
-.lc-chat-item--active { background: #fde4cd; }
+.lc-chat-item:hover { background: var(--t-cream-2); }
+.lc-chat-item--active { background: var(--t-orange-pale); }
 
 .lc-chat-item__dates {
   width: 46px;
@@ -103,12 +103,12 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .03em;
-  color: #9a9d9f;
+  color: var(--t-text-3);
 }
 .lc-chat-item__date-value {
   font-size: 11px;
   font-weight: 700;
-  color: #08373f;
+  color: var(--t-text);
 }
 .lc-chat-item__info {
   flex: 1;
@@ -120,14 +120,14 @@
 .lc-chat-item__phone {
   font-size: 13px;
   font-weight: 700;
-  color: #08373f;
+  color: var(--t-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .lc-chat-item__preview {
   font-size: 11px;
-  color: #6b6e70;
+  color: var(--t-text-3c);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -145,10 +145,10 @@
 .lc-empty {
   padding: 24px 16px;
   font-size: 13px;
-  color: #6b6e70;
+  color: var(--t-text-3c);
   text-align: center;
 }
-.lc-empty--error { color: #c0392b; }
+.lc-empty--error { color: var(--t-critical-2); }
 
 /* Main chat window */
 .lc-main {
@@ -163,7 +163,7 @@
   display: grid;
   place-items: center;
   font-size: 14px;
-  color: #9a9d9f;
+  color: var(--t-text-3);
 }
 
 .lc-chat-header {
@@ -171,14 +171,14 @@
   align-items: center;
   gap: 12px;
   padding: 16px 24px;
-  background: #fff;
-  border-bottom: 1px solid rgba(48, 50, 51, .08);
+  background: var(--t-surface);
+  border-bottom: 1px solid rgba(var(--t-ink2), .08);
 }
 .lc-chat-header__avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #08373f;
+  background: var(--t-fill);
   color: #fff;
   font-size: 13px;
   font-weight: 700;
@@ -191,18 +191,18 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid rgba(48, 50, 51, .1);
+  border: 1px solid rgba(var(--t-ink2), .1);
 }
 .lc-chat-header__phone {
   display: block;
   font-weight: 800;
   font-size: 15px;
-  color: #08373f;
+  color: var(--t-text);
 }
 .lc-chat-header__count {
   display: block;
   font-size: 11px;
-  color: #6b6e70;
+  color: var(--t-text-3c);
 }
 
 /* Messages */
@@ -223,9 +223,9 @@
 .lc-day-separator span {
   font-size: 11px;
   font-weight: 700;
-  color: #6b6e70;
-  background: #fff;
-  border: 1px solid rgba(48, 50, 51, .09);
+  color: var(--t-text-3c);
+  background: var(--t-surface);
+  border: 1px solid rgba(var(--t-ink2), .09);
   border-radius: 999px;
   padding: 4px 14px;
   text-transform: capitalize;
@@ -249,20 +249,20 @@
   white-space: pre-wrap;
 }
 .lc-bubble--ai .lc-bubble__text {
-  background: #fff;
-  color: #1a1c1d;
+  background: var(--t-surface);
+  color: var(--t-text-ink);
   border-bottom-left-radius: 3px;
-  border: 1px solid rgba(48,50,51,.09);
+  border: 1px solid rgba(var(--t-ink2), .09);
 }
 .lc-bubble--user .lc-bubble__text {
-  background: #08373f;
+  background: var(--t-fill);
   color: #fff;
   border-bottom-right-radius: 3px;
 }
 
 .lc-bubble__time {
   font-size: 10px;
-  color: #9a9d9f;
+  color: var(--t-text-3);
   align-self: flex-end;
 }
 .lc-bubble--ai .lc-bubble__time { align-self: flex-start; }

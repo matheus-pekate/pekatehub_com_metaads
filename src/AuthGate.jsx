@@ -24,7 +24,7 @@ export function AuthGate({ children }) {
   }, [])
 
   if (session === undefined) {
-    return <div style={{ minHeight: '100vh', background: '#f5f0eb' }} />
+    return <div style={{ minHeight: '100vh', background: 'var(--t-bg)' }} />
   }
 
   if (!session) {

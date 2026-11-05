@@ -25,8 +25,8 @@
   --branco: #ffffff;
   --off-white: #f7f5f0;
   --bege: #ede8dd;
-  --linha: rgba(48, 50, 51, .10);
-  --linha-strong: rgba(48, 50, 51, .18);
+  --linha: rgba(var(--t-ink2), .10);
+  --linha-strong: rgba(var(--t-ink2), .18);
   --positivo: #2d6a4f;
   --atencao: #cb5b36;
   --pgm-accent: var(--laranja-vivo);
@@ -36,9 +36,9 @@
   width: 1920px; height: 1080px;
   transform: translate(-50%, -50%) scale(var(--stage-scale, 1));
   transform-origin: center center;
-  background: var(--off-white);
+  background: var(--t-cream-off);
   overflow: hidden;
-  color: var(--petroleo);
+  color: var(--t-text);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   display: grid;
@@ -59,8 +59,8 @@
   width: 40px; height: 40px;
   border-radius: 10px;
   border: 1px solid var(--linha-strong);
-  background: var(--branco);
-  color: var(--petroleo);
+  background: var(--t-surface);
+  color: var(--t-text);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
 }
@@ -79,7 +79,7 @@
   font-size: 13px;
   letter-spacing: .04em;
   text-transform: uppercase;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
 }
 
 .pkt-meta-topbar__name {
@@ -106,7 +106,7 @@
 
 .pkt-meta-status__label {
   font-size: 12px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   text-transform: uppercase;
   letter-spacing: .04em;
 }
@@ -134,7 +134,7 @@
 
 .pkt-meta-clock__seconds {
   font-size: 15px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   margin-left: 2px;
 }
 
@@ -143,8 +143,8 @@
   width: 40px; height: 40px;
   border-radius: 10px;
   border: 1px solid var(--linha-strong);
-  background: var(--branco);
-  color: var(--petroleo);
+  background: var(--t-surface);
+  color: var(--t-text);
   font-size: 16px;
   cursor: pointer;
   flex: none;
@@ -182,7 +182,7 @@
 
 .pkt-meta-pill {
   --pill-accent: var(--laranja-vivo);
-  background: var(--branco);
+  background: var(--t-surface);
   border: 2px solid transparent;
   border-radius: 14px;
   padding: 14px 16px;
@@ -221,14 +221,14 @@
 .pkt-meta-pill__stats small {
   font-size: 10px;
   font-weight: 600;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
   text-transform: uppercase;
   margin-left: 3px;
 }
 
 .pkt-meta-pill__muted {
   font-size: 12px;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
 }
 
 /* ── Painel de detalhe do programa ativo ── */
@@ -237,7 +237,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: var(--branco);
+  background: var(--t-surface);
   border: 1px solid var(--linha);
   border-radius: 18px;
   padding: 26px 30px;
@@ -262,13 +262,13 @@
   font-weight: 700;
   padding: 5px 14px;
   border-radius: 999px;
-  background: var(--petroleo-pale);
-  color: var(--petroleo);
+  background: var(--t-teal-pale);
+  color: var(--t-text);
 }
 
 .pkt-meta-detail__badge--muted {
   background: var(--linha);
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
 }
 
 .pkt-meta-detail__stats {
@@ -293,7 +293,7 @@
 .pkt-meta-detail__stats-group-caption {
   font-size: 11px;
   font-weight: 700;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
   text-transform: uppercase;
   letter-spacing: .04em;
 }
@@ -314,7 +314,7 @@
 .pkt-meta-detail__stats-right-caption {
   font-size: 11px;
   font-weight: 700;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
   text-transform: uppercase;
   letter-spacing: .04em;
 }
@@ -338,7 +338,7 @@
 
 .pkt-meta-detail__stat-label {
   font-size: 13px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   text-transform: uppercase;
   letter-spacing: .03em;
   margin-top: 4px;
@@ -360,7 +360,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
   font-size: 16px;
 }
 
@@ -372,7 +372,7 @@
 }
 
 .pkt-meta-recent__card {
-  background: var(--off-white);
+  background: var(--t-cream-off);
   border: 1px solid var(--linha);
   border-left: 4px solid var(--pgm-accent);
   border-radius: 12px;
@@ -390,7 +390,7 @@
 
 .pkt-meta-recent__label {
   font-size: 12px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   text-transform: uppercase;
   letter-spacing: .03em;
   margin-top: 4px;
@@ -401,7 +401,7 @@
   transition: background .15s ease, transform .15s ease;
 }
 .pkt-meta-recent__card--clickable:hover {
-  background: color-mix(in srgb, var(--pgm-accent) 8%, var(--off-white));
+  background: color-mix(in srgb, var(--pgm-accent) 8%, var(--t-cream-off));
   transform: translateY(-1px);
 }
 
@@ -417,8 +417,8 @@
   align-items: center;
   gap: 6px;
   border: 1px solid var(--linha);
-  background: var(--branco);
-  color: var(--petroleo-light);
+  background: var(--t-surface);
+  color: var(--t-text-teal);
   border-radius: 999px;
   padding: 6px 14px;
   font-size: 13px;
@@ -460,7 +460,7 @@
 .pkt-meta-progchart__title {
   font-size: 12.5px;
   font-weight: 700;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   text-transform: uppercase;
   letter-spacing: .03em;
 }
@@ -468,7 +468,7 @@
   display: flex;
   gap: 16px;
   font-size: 12px;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
 }
 .pkt-meta-progchart__swatch {
   display: inline-block;
@@ -479,7 +479,7 @@
 }
 .pkt-meta-progchart__swatch--line {
   border-radius: 50%;
-  background: #052a30;
+  background: var(--t-fill-deep);
 }
 .pkt-meta-progchart__body {
   flex: 1;
@@ -490,7 +490,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
   font-size: 14px;
 }
 .pkt-meta-progchart__state--error {
@@ -581,11 +581,11 @@
 }
 
 .pkt-meta-ads__header {
-  background: var(--off-white);
+  background: var(--t-cream-off);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .04em;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   font-weight: 700;
 }
 
@@ -596,7 +596,7 @@
 }
 
 .pkt-meta-ads__row--best {
-  background: color-mix(in srgb, var(--pgm-accent) 8%, var(--branco));
+  background: color-mix(in srgb, var(--pgm-accent) 8%, var(--t-surface));
   font-weight: 700;
 }
 
@@ -628,15 +628,15 @@
   object-fit: cover;
   margin-right: 10px;
   flex: none;
-  background: var(--off-white);
+  background: var(--t-cream-off);
 }
 
 .pkt-meta-ads__more {
   padding: 8px 18px;
   font-size: 12px;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
   border-top: 1px solid var(--linha);
-  background: var(--off-white);
+  background: var(--t-cream-off);
 }
 
 .pkt-meta-ads__row--clickable {
@@ -644,7 +644,7 @@
   transition: background .15s ease;
 }
 .pkt-meta-ads__row--clickable:hover {
-  background: color-mix(in srgb, var(--pgm-accent) 10%, var(--branco));
+  background: color-mix(in srgb, var(--pgm-accent) 10%, var(--t-surface));
 }
 
 /* ── Modal de detalhe do anúncio (clique, só em tela com mouse) ── */
@@ -662,7 +662,7 @@
   to   { opacity: 1; }
 }
 .pkt-ad-detail {
-  background: var(--branco);
+  background: var(--t-surface);
   border-radius: 16px;
   width: 720px;
   height: 480px;
@@ -684,14 +684,14 @@
   width: 32px; height: 32px;
   border-radius: 50%;
   border: 1px solid var(--linha);
-  background: var(--branco);
-  color: var(--petroleo-light);
+  background: var(--t-surface);
+  color: var(--t-text-teal);
   cursor: pointer;
   font-size: 14px;
 }
 .pkt-ad-detail__close:hover {
-  background: var(--bege);
-  color: var(--petroleo);
+  background: var(--t-bege);
+  color: var(--t-text);
 }
 .pkt-ad-detail__header {
   display: flex;
@@ -709,17 +709,17 @@
   font-size: 20px;
   font-weight: 800;
   margin: 0;
-  color: var(--petroleo);
+  color: var(--t-text);
 }
 .pkt-ad-detail__subtitle {
   font-size: 13px;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
 }
 .pkt-ad-detail__legend {
   display: flex;
   gap: 18px;
   font-size: 12px;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
 }
 .pkt-ad-detail__legend-swatch {
   display: inline-block;
@@ -730,7 +730,7 @@
 }
 .pkt-ad-detail__legend-swatch--line {
   border-radius: 50%;
-  background: #052a30;
+  background: var(--t-fill-deep);
 }
 .pkt-ad-detail__body {
   flex: none;
@@ -741,7 +741,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
   font-size: 15px;
   text-align: center;
 }
@@ -749,7 +749,7 @@
   color: var(--atencao);
 }
 .pkt-ad-detail__tooltip {
-  background: var(--petroleo);
+  background: var(--t-fill);
   color: var(--branco);
   border-radius: 8px;
   padding: 8px 12px;
@@ -769,7 +769,7 @@
 
 /* ── Modal de Convertidos e Ganhos (mesma base visual do modal de anúncio) ── */
 .pkt-won-deals {
-  background: var(--branco);
+  background: var(--t-surface);
   border-radius: 16px;
   width: 1240px;
   height: 740px;
@@ -820,32 +820,32 @@
   gap: 4px;
   padding: 14px 18px;
   border-radius: 12px;
-  background: var(--off-white);
+  background: var(--t-cream-off);
 }
 .pkt-roi__stat-value {
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 800;
   font-size: 26px;
-  color: var(--petroleo);
+  color: var(--t-text);
 }
 .pkt-roi__stat-label {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .06em;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
 }
 .pkt-roi__stat--return .pkt-roi__stat-value { color: var(--pgm-accent); }
-.pkt-roi__stat--positive .pkt-roi__stat-value { color: var(--positivo); }
+.pkt-roi__stat--positive .pkt-roi__stat-value { color: var(--t-positive); }
 .pkt-roi__stat--negative .pkt-roi__stat-value { color: var(--atencao); }
 .pkt-won-deals__row:first-child {
   border-top: none;
 }
 .pkt-won-deals__row--header {
-  background: var(--off-white);
+  background: var(--t-cream-off);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .04em;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   font-weight: 700;
   position: sticky;
   top: 0;
@@ -857,7 +857,7 @@
   white-space: nowrap;
 }
 .pkt-lost-deals__person-link {
-  color: var(--petroleo);
+  color: var(--t-text);
   text-decoration: none;
   cursor: pointer;
 }
@@ -878,7 +878,7 @@
 }
 .pkt-won-deals__ad-meta {
   font-size: 12px;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -886,17 +886,17 @@
 .pkt-won-deals__ad-unknown {
   font-size: 13px;
   font-style: italic;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
 }
 .pkt-won-deals__date {
   font-variant-numeric: tabular-nums;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
   text-align: right;
 }
 
 /* ── Modal de Perdidos (mesma base do modal de Convertidos e Ganhos, + resumo de motivos) ── */
 .pkt-lost-deals {
-  background: var(--branco);
+  background: var(--t-surface);
   border-radius: 16px;
   width: 1200px;
   height: 740px;
@@ -914,14 +914,14 @@
   gap: 10px;
   padding: 14px 18px;
   border-radius: 12px;
-  background: var(--off-white);
+  background: var(--t-cream-off);
   flex-shrink: 0;
 }
 .pkt-lost-deals__reasons-title {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .04em;
-  color: var(--petroleo-light);
+  color: var(--t-text-teal);
   font-weight: 700;
 }
 .pkt-lost-deals__reasons-body {
@@ -980,7 +980,7 @@
   font-size: 13px;
   font-weight: 700;
   text-align: right;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
 }
 .pkt-lost-deals__row--header,
 .pkt-lost-deals__row {
@@ -988,7 +988,7 @@
 }
 .pkt-lost-deals__reason-cell {
   font-size: 13px;
-  color: var(--carvao-soft);
+  color: var(--t-text-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1002,7 +1002,7 @@
   border-radius: 10px;
   background: color-mix(in srgb, var(--pgm-accent) 10%, transparent);
   font-size: 13px;
-  color: var(--petroleo);
+  color: var(--t-text);
   flex-shrink: 0;
 }
 .pkt-lost-deals__filter-bar strong {
@@ -1010,8 +1010,8 @@
 }
 .pkt-lost-deals__filter-clear {
   border: none;
-  background: var(--branco);
-  color: var(--petroleo);
+  background: var(--t-surface);
+  color: var(--t-text);
   font-size: 12px;
   font-weight: 700;
   padding: 5px 12px;
@@ -1021,6 +1021,6 @@
   transition: background .15s ease;
 }
 .pkt-lost-deals__filter-clear:hover {
-  background: var(--off-white);
+  background: var(--t-cream-off);
 }
 

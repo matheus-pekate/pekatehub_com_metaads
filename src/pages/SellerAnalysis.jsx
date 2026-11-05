@@ -30,9 +30,9 @@ const STAGE_COLORS = {
   'Cliente Potencial': '#f5dfc1',
   'Qualificado': '#fe8f20',
   'Em Negociação': '#cb5b36',
-  'Inscrito': '#08373f',
+  'Inscrito': 'var(--t-series)',
   'Entrevista': '#2d6a4f',
-  'Efetivado': '#1a2a36',
+  'Efetivado': 'var(--t-series-navy)',
 }
 
 // Programas B2B têm listas de stages distintas por pipeline (sem nome canônico
@@ -566,14 +566,14 @@ export function SellerAnalysis() {
                               return [-r, -Math.round(r * 2 / 3), -Math.round(r / 3), 0]
                             })()}
                             tickFormatter={(v) => v === 0 ? (metrics.isCurrentPeriod ? 'hoje' : 'fim') : `D${v}`}
-                            tick={{ fontSize: 10, fill: '#366368' }}
+                            tick={{ fontSize: 10, fill: 'var(--t-text-teal)' }}
                             axisLine={false}
                             tickLine={false}
                           />
                           <Tooltip
                             labelFormatter={(v) => v === 0 && metrics.isCurrentPeriod ? 'Hoje' : `${Math.abs(v)} dias antes do fim do período`}
                             formatter={(v) => [v, 'Atividades']}
-                            contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid rgba(48,50,51,.12)' }}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid rgba(var(--t-ink2), .12)', background: 'var(--t-surface)', color: 'var(--t-text)' }}
                           />
                           <Area
                             type="monotone"
@@ -583,7 +583,7 @@ export function SellerAnalysis() {
                             fill="url(#volGrad)"
                             dot={(props) =>
                               props.payload.daysAgo === 0 && metrics.isCurrentPeriod
-                                ? <circle key="today" cx={props.cx} cy={props.cy} r={4} fill="#08373f" />
+                                ? <circle key="today" cx={props.cx} cy={props.cy} r={4} fill="var(--t-series)" />
                                 : null
                             }
                           />
@@ -598,7 +598,7 @@ export function SellerAnalysis() {
                     <div className="sa-mix__rows">
                       {[
                         { label: 'Ligações', count: metrics.activities.calls, color: '#fe8f20' },
-                        { label: 'Reuniões', count: metrics.activities.meetings, color: '#08373f' },
+                        { label: 'Reuniões', count: metrics.activities.meetings, color: 'var(--t-series)' },
                         { label: 'E-mails', count: metrics.activities.emails, color: '#a0a0a0' },
                       ].map((ch) => (
                         <div key={ch.label} className="sa-mix__row">

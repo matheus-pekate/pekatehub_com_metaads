@@ -8,7 +8,7 @@ import './pkt-hub.css'
 import './seller-analysis.css'
 import './seller-ranking.css'
 
-const SELLER_COLORS = ['#fe8f20', '#08373f', '#cb5b36']
+const SELLER_COLORS = ['#fe8f20', 'var(--t-series)', '#cb5b36']
 
 function formatBRL(value) {
   if (value == null) return 'R$ 0'
@@ -350,10 +350,10 @@ export function SellerRanking() {
                 <div className="rk-radar-wrap">
                   <ResponsiveContainer width="100%" height={340}>
                     <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="72%">
-                      <PolarGrid stroke="rgba(48,50,51,.10)" />
+                      <PolarGrid stroke="rgba(var(--t-ink2), .10)" />
                       <PolarAngleAxis
                         dataKey="dimension"
-                        tick={{ fontSize: 12, fill: '#366368' }}
+                        tick={{ fontSize: 12, fill: 'var(--t-text-teal)' }}
                       />
                       {sellersData.map((s, i) => (
                         <Radar
@@ -373,7 +373,7 @@ export function SellerRanking() {
                         wrapperStyle={{ fontSize: 12, paddingTop: 12 }}
                       />
                       <Tooltip
-                        contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid rgba(48,50,51,.12)' }}
+                        contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid rgba(var(--t-ink2), .12)', background: 'var(--t-surface)', color: 'var(--t-text)' }}
                         formatter={(v) => `${v}%`}
                       />
                     </RadarChart>
@@ -395,7 +395,7 @@ export function SellerRanking() {
                     <div className="rk-chart-card__body">
                       <ResponsiveContainer width="100%" height={180}>
                         <BarChart data={revenueData} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
-                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#366368' }} axisLine={false} tickLine={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--t-text-teal)' }} axisLine={false} tickLine={false} />
                           <YAxis hide />
                           <Tooltip content={<CustomBarTooltip formatter={formatCompactBRL} />} />
                           <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={52}>
@@ -413,9 +413,9 @@ export function SellerRanking() {
                     <div className="rk-chart-card__body">
                       <ResponsiveContainer width="100%" height={180}>
                         <BarChart data={conversionData} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
-                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#366368' }} axisLine={false} tickLine={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--t-text-teal)' }} axisLine={false} tickLine={false} />
                           <YAxis hide />
-                          <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid rgba(48,50,51,.12)' }} />
+                          <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid rgba(var(--t-ink2), .12)', background: 'var(--t-surface)', color: 'var(--t-text)' }} />
                           <Bar dataKey="won" stackId="a" fill="#2d6a4f" radius={[0, 0, 0, 0]} maxBarSize={52} name="Won" />
                           <Bar dataKey="lost" stackId="a" fill="#c0392b" radius={[6, 6, 0, 0]} maxBarSize={52} name="Lost" />
                         </BarChart>
@@ -430,7 +430,7 @@ export function SellerRanking() {
                     <div className="rk-chart-card__body">
                       <ResponsiveContainer width="100%" height={180}>
                         <BarChart data={rateData} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
-                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#366368' }} axisLine={false} tickLine={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--t-text-teal)' }} axisLine={false} tickLine={false} />
                           <YAxis hide />
                           <Tooltip content={<CustomBarTooltip formatter={(v) => `${v}%`} />} />
                           <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={52}>
@@ -448,7 +448,7 @@ export function SellerRanking() {
                     <div className="rk-chart-card__body">
                       <ResponsiveContainer width="100%" height={180}>
                         <BarChart data={ticketData} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
-                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#366368' }} axisLine={false} tickLine={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--t-text-teal)' }} axisLine={false} tickLine={false} />
                           <YAxis hide />
                           <Tooltip content={<CustomBarTooltip formatter={formatCompactBRL} />} />
                           <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={52}>
@@ -474,11 +474,11 @@ export function SellerRanking() {
                     <div className="rk-chart-card__body">
                       <ResponsiveContainer width="100%" height={200}>
                         <BarChart data={activityData} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
-                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#366368' }} axisLine={false} tickLine={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--t-text-teal)' }} axisLine={false} tickLine={false} />
                           <YAxis hide />
-                          <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid rgba(48,50,51,.12)' }} />
+                          <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid rgba(var(--t-ink2), .12)', background: 'var(--t-surface)', color: 'var(--t-text)' }} />
                           <Bar dataKey="calls" stackId="a" fill="#fe8f20" radius={[0, 0, 0, 0]} maxBarSize={52} name="Ligações" />
-                          <Bar dataKey="meetings" stackId="a" fill="#08373f" radius={[0, 0, 0, 0]} maxBarSize={52} name="Reuniões" />
+                          <Bar dataKey="meetings" stackId="a" fill="var(--t-series)" radius={[0, 0, 0, 0]} maxBarSize={52} name="Reuniões" />
                           <Bar dataKey="emails" stackId="a" fill="#a0a0a0" radius={[6, 6, 0, 0]} maxBarSize={52} name="E-mails" />
                           <Legend verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
                         </BarChart>
@@ -493,7 +493,7 @@ export function SellerRanking() {
                     <div className="rk-chart-card__body">
                       <ResponsiveContainer width="100%" height={200}>
                         <BarChart data={velocityData} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
-                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#366368' }} axisLine={false} tickLine={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--t-text-teal)' }} axisLine={false} tickLine={false} />
                           <YAxis hide />
                           <Tooltip content={<CustomBarTooltip formatter={(v) => `${v} dias`} />} />
                           <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={52}>
