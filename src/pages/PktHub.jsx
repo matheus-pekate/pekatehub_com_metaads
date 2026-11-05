@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, LabelList, ResponsiveContainer } from 'recharts'
 import { GeneralDocsGrid } from '../components/docs/GeneralDocsGrid'
+import { ThemeToggle } from '../components/layout/ThemeToggle'
 import { useDashboardData } from '../hooks/useDashboardData'
 import { useB2BDashboardData } from '../hooks/useB2BDashboardData'
 import { useEventosData } from '../hooks/useEventosData'
@@ -954,6 +955,7 @@ export function PktHub() {
         </div>
 
         <div className="hub-sidebar__bottom">
+          <ThemeToggle />
           <div className="hub-sidebar__user">
             <div className="hub-sidebar__avatar">PB</div>
             <div>
@@ -1034,19 +1036,19 @@ export function PktHub() {
                   {!loadingDashboard && chartData.length > 0 && (
                     <ResponsiveContainer width="100%" height={280}>
                       <BarChart data={chartData} margin={{ top: 24, right: 16, left: 8, bottom: 8 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(48,50,51,.08)" />
-                        <XAxis dataKey="shortName" tick={{ fontSize: 12, fill: '#4a4d4f' }} axisLine={{ stroke: 'rgba(48,50,51,.15)' }} tickLine={false} />
-                        <YAxis tick={{ fontSize: 11, fill: '#9a9d9f' }} axisLine={false} tickLine={false} width={48} tickFormatter={(v) => formatCompactBRL(v)} />
-                        <Tooltip content={<ProgramChartTooltip />} cursor={{ fill: 'rgba(48,50,51,.04)' }} />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(var(--t-ink2), .08)" />
+                        <XAxis dataKey="shortName" tick={{ fontSize: 12, fill: 'var(--t-text-2)' }} axisLine={{ stroke: 'rgba(var(--t-ink2), .15)' }} tickLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: 'var(--t-text-3)' }} axisLine={false} tickLine={false} width={48} tickFormatter={(v) => formatCompactBRL(v)} />
+                        <Tooltip content={<ProgramChartTooltip />} cursor={{ fill: 'rgba(var(--t-ink2), .04)' }} />
                         <Legend wrapperStyle={{ fontSize: 12 }} formatter={(value) => (value === 'meta' ? 'Meta' : 'Atual')} />
-                        <Bar dataKey="meta" name="meta" fill="#e3ddd0" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                          <LabelList dataKey="meta" position="top" formatter={formatCompactBRL} style={{ fontSize: 11, fill: '#9a9d9f' }} />
+                        <Bar dataKey="meta" name="meta" fill="var(--t-bar-muted)" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                          <LabelList dataKey="meta" position="top" formatter={formatCompactBRL} style={{ fontSize: 11, fill: 'var(--t-text-3)' }} />
                         </Bar>
                         <Bar dataKey="atual" name="atual" radius={[4, 4, 0, 0]} isAnimationActive={false}>
                           {chartData.map((d) => (
                             <Cell key={d.shortName} fill={d.accentColor} />
                           ))}
-                          <LabelList dataKey="atual" position="top" formatter={formatCompactBRL} style={{ fontSize: 12, fontWeight: 700, fill: '#08373f' }} />
+                          <LabelList dataKey="atual" position="top" formatter={formatCompactBRL} style={{ fontSize: 12, fontWeight: 700, fill: 'var(--t-text)' }} />
                         </Bar>
                       </BarChart>
                     </ResponsiveContainer>
@@ -1064,19 +1066,19 @@ export function PktHub() {
                   {!loadingB2B && b2bChartData.length > 0 && (
                     <ResponsiveContainer width="100%" height={280}>
                       <BarChart data={b2bChartData} margin={{ top: 24, right: 16, left: 8, bottom: 8 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(48,50,51,.08)" />
-                        <XAxis dataKey="shortName" tick={{ fontSize: 12, fill: '#4a4d4f' }} axisLine={{ stroke: 'rgba(48,50,51,.15)' }} tickLine={false} />
-                        <YAxis tick={{ fontSize: 11, fill: '#9a9d9f' }} axisLine={false} tickLine={false} width={48} tickFormatter={(v) => formatCompactBRL(v)} />
-                        <Tooltip content={<ProgramChartTooltip />} cursor={{ fill: 'rgba(48,50,51,.04)' }} />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(var(--t-ink2), .08)" />
+                        <XAxis dataKey="shortName" tick={{ fontSize: 12, fill: 'var(--t-text-2)' }} axisLine={{ stroke: 'rgba(var(--t-ink2), .15)' }} tickLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: 'var(--t-text-3)' }} axisLine={false} tickLine={false} width={48} tickFormatter={(v) => formatCompactBRL(v)} />
+                        <Tooltip content={<ProgramChartTooltip />} cursor={{ fill: 'rgba(var(--t-ink2), .04)' }} />
                         <Legend wrapperStyle={{ fontSize: 12 }} formatter={(value) => (value === 'meta' ? 'Meta' : 'Atual')} />
-                        <Bar dataKey="meta" name="meta" fill="#e3ddd0" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                          <LabelList dataKey="meta" position="top" formatter={formatCompactBRL} style={{ fontSize: 11, fill: '#9a9d9f' }} />
+                        <Bar dataKey="meta" name="meta" fill="var(--t-bar-muted)" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                          <LabelList dataKey="meta" position="top" formatter={formatCompactBRL} style={{ fontSize: 11, fill: 'var(--t-text-3)' }} />
                         </Bar>
                         <Bar dataKey="atual" name="atual" radius={[4, 4, 0, 0]} isAnimationActive={false}>
                           {b2bChartData.map((d) => (
                             <Cell key={d.shortName} fill={d.accentColor} />
                           ))}
-                          <LabelList dataKey="atual" position="top" formatter={formatCompactBRL} style={{ fontSize: 12, fontWeight: 700, fill: '#08373f' }} />
+                          <LabelList dataKey="atual" position="top" formatter={formatCompactBRL} style={{ fontSize: 12, fontWeight: 700, fill: 'var(--t-text)' }} />
                         </Bar>
                       </BarChart>
                     </ResponsiveContainer>

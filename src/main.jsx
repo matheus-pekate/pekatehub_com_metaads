@@ -12,6 +12,7 @@ import { LauraChats } from './pages/LauraChats.jsx'
 import { MetaAdsDash } from './pages/MetaAdsDash.jsx'
 import { ComandoEventos } from './pages/ComandoEventos.jsx'
 import { DocsWiki } from './pages/DocsWiki.jsx'
+import './theme.css'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(

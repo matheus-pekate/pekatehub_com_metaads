@@ -33,7 +33,7 @@ export function ProgramDailyChart({ programId, accentColor }) {
       <div className="pkt-meta-progchart__header">
         <span className="pkt-meta-progchart__title">Performance diária · últimos 30 dias (todos os anúncios)</span>
         <div className="pkt-meta-progchart__legend">
-          <span><i className="pkt-meta-progchart__swatch" style={{ background: accentColor || '#08373f' }} /> Leads/dia</span>
+          <span><i className="pkt-meta-progchart__swatch" style={{ background: accentColor || 'var(--t-series)' }} /> Leads/dia</span>
           <span><i className="pkt-meta-progchart__swatch pkt-meta-progchart__swatch--line" /> CPL/dia</span>
         </div>
       </div>
@@ -60,7 +60,7 @@ export function ProgramDailyChart({ programId, accentColor }) {
                 tickLine={false}
                 allowDecimals={false}
                 width={26}
-                tick={{ fill: 'rgba(48,50,51,0.35)', fontSize: 11, fontFamily: 'Lato' }}
+                tick={{ fill: 'rgba(var(--t-ink2), 0.35)', fontSize: 11, fontFamily: 'Lato' }}
               />
               <YAxis
                 yAxisId="cpl"
@@ -68,19 +68,19 @@ export function ProgramDailyChart({ programId, accentColor }) {
                 axisLine={false}
                 tickLine={false}
                 width={60}
-                tick={{ fill: 'rgba(48,50,51,0.35)', fontSize: 11, fontFamily: 'Lato' }}
+                tick={{ fill: 'rgba(var(--t-ink2), 0.35)', fontSize: 11, fontFamily: 'Lato' }}
                 tickFormatter={(v) => formatBRL(v)}
               />
-              <Tooltip content={<ProgramDailyTooltip />} cursor={{ fill: 'rgba(8,55,63,0.05)' }} />
+              <Tooltip content={<ProgramDailyTooltip />} cursor={{ fill: 'rgba(var(--t-ink), 0.05)' }} />
               <Bar yAxisId="leads" dataKey="leads" radius={[3, 3, 0, 0]} isAnimationActive={false}>
                 {chartData.map((entry, index) => (
-                  <Cell key={index} fill={accentColor || '#08373f'} />
+                  <Cell key={index} fill={accentColor || 'var(--t-series)'} />
                 ))}
               </Bar>
               <Line
                 yAxisId="cpl"
                 dataKey="cpl"
-                stroke="#052a30"
+                stroke="var(--t-line-dark)"
                 strokeWidth={2}
                 dot={false}
                 connectNulls

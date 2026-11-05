@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PKT-HUB</title>
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      // Aplica a preferência de tema antes da primeira pintura (ver src/lib/theme.js)
+      try {
+        var t = localStorage.getItem('pkt-theme')
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t)
+      } catch (e) {}
+    </script>
     <!-- build-marker: laura-chats-date-fix-v2 -->
     <link rel="icon" type="image/png" href="/pekate-logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

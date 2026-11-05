@@ -90,7 +90,7 @@ export function LostDealsModal({ program, onClose }) {
                           key={r.reason}
                           fill={REASON_COLORS[i % REASON_COLORS.length]}
                           opacity={selectedReason && selectedReason !== r.reason ? 0.35 : 1}
-                          stroke={selectedReason === r.reason ? '#08373f' : undefined}
+                          stroke={selectedReason === r.reason ? 'var(--t-series)' : undefined}
                           strokeWidth={selectedReason === r.reason ? 2 : 0}
                           style={{ cursor: 'pointer' }}
                         />
