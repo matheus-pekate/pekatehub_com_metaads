@@ -993,6 +993,16 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.pkt-lost-deals__reason-detail {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--t-text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .pkt-lost-deals__filter-bar {
   display: flex;
   align-items: center;
