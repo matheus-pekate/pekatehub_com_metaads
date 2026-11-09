@@ -12,6 +12,53 @@ function getSupabase() {
   return supabase
 }
 
+// Situação atual de cada negócio no Pipedrive (aberto / ganho / perdido + motivo da
+// perda). Consulta em lotes de 100 ids (limite da API v2) e guarda o resultado por
+// 60s pra o recarregamento automático da aba não bater no Pipedrive a cada minuto.
+// Se o token não estiver configurado ou o Pipedrive falhar, a aba segue funcionando
+// só que sem a etiqueta de situação (nunca derruba as conversas).
+const DEAL_BATCH = 100
+const DEAL_CACHE_MS = 60 * 1000
+const dealCache = new Map() // deal_id -> { at, info }
+
+async function fetchDealInfo(dealIds) {
+  const token = process.env.PIPEDRIVE_API_TOKEN || process.env.VITE_PIPEDRIVE_TOKEN
+  if (!token || dealIds.length === 0) return {}
+
+  const now = Date.now()
+  const info = {}
+  const missing = []
+  for (const id of dealIds) {
+    const cached = dealCache.get(id)
+    if (cached && now - cached.at < DEAL_CACHE_MS) info[id] = cached.info
+    else missing.push(id)
+  }
+
+  for (let i = 0; i < missing.length; i += DEAL_BATCH) {
+    const batch = missing.slice(i, i + DEAL_BATCH)
+    try {
+      const res = await fetch(`https://api.pipedrive.com/api/v2/deals?ids=${batch.join(',')}&limit=${DEAL_BATCH}`, {
+        headers: { 'x-api-token': token },
+      })
+      if (!res.ok) throw new Error(`Pipedrive respondeu ${res.status}`)
+      const json = await res.json()
+      for (const deal of json.data || []) {
+        const entry = {
+          status: deal.status,
+          lost_reason: deal.lost_reason || null,
+          lost_time: deal.lost_time || null,
+          won_time: deal.won_time || null,
+        }
+        info[String(deal.id)] = entry
+        dealCache.set(String(deal.id), { at: now, info: entry })
+      }
+    } catch (err) {
+      console.error('Falha ao consultar negócios no Pipedrive:', err.message)
+    }
+  }
+  return info
+}
+
 export const handler = async (event) => {
   if (event.httpMethod !== 'GET') {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) }
@@ -71,10 +118,14 @@ export const handler = async (event) => {
       if (row.deal_id) deals[row.phone] = row.deal_id
     }
 
+    // só os negócios das conversas exibidas (no máx. 80)
+    const shownDealIds = [...new Set(recentPhones.map((phone) => deals[phone]).filter(Boolean).map(String))]
+    const dealInfo = await fetchDealInfo(shownDealIds)
+
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ total: Object.keys(chats).length, chats, photos, deals }),
+      body: JSON.stringify({ total: Object.keys(chats).length, chats, photos, deals, dealInfo }),
     }
   } catch (err) {
     console.error(err)

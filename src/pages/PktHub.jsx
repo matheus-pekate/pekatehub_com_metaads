@@ -678,11 +678,31 @@ function LauraFunilPanel() {
 /* ── Sub-página da Laura ── */
 const CHATS_REFRESH_MS = 60 * 1000
 
+// Situação do negócio no Pipedrive: "Perdido · <motivo da perda do Pipedrive>" ou
+// "Ganho". Negócio aberto (ou sem negócio ligado ao telefone) não mostra nada.
+function DealStatusBadge({ info }) {
+  if (!info) return null
+  if (info.status === 'lost') {
+    const reason = info.lost_reason || 'sem motivo informado'
+    const when = info.lost_time ? ` em ${formatShortDate(info.lost_time)}` : ''
+    return (
+      <span className="agent-deal-status agent-deal-status--lost" title={`Perdido${when} · ${reason}`}>
+        Perdido · {reason}
+      </span>
+    )
+  }
+  if (info.status === 'won') {
+    return <span className="agent-deal-status agent-deal-status--won">Ganho</span>
+  }
+  return null
+}
+
 function LauraPage() {
   const [subTab, setSubTab] = useState('Funis')
   const [chats, setChats] = useState({})
   const [photos, setPhotos] = useState({})
   const [dealsByPhone, setDealsByPhone] = useState({})
+  const [dealInfo, setDealInfo] = useState({}) // deal_id -> situação atual no Pipedrive
   const [programFilter, setProgramFilter] = useState('Todos')
   const [selected, setSelected] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -702,6 +722,7 @@ function LauraPage() {
           setChats(c)
           setPhotos(data.photos || {})
           setDealsByPhone(data.deals || {})
+          setDealInfo(data.dealInfo || {})
           // no recarregamento automático mantém a conversa que a pessoa está lendo
           setSelected(prev => prev || sortKeysByRecency(c)[0] || null)
           setLoading(false)
@@ -733,6 +754,7 @@ function LauraPage() {
   const programOf = (key) =>
     programByDeal[dealsByPhone[key.replace('chat-history_', '')]] || inferProgramFromChat(chats[key])
   const programColor = (name) => PROGRAMS.find((pg) => pg.name === name)?.accentColor || '#64748B'
+  const dealInfoOf = (key) => dealInfo[dealsByPhone[key.replace('chat-history_', '')]]
 
   const allKeys = sortKeysByRecency(chats)
   const programCounts = {}
@@ -830,6 +852,7 @@ function LauraPage() {
                         </span>
                       )}
                     </span>
+                    <DealStatusBadge info={dealInfoOf(key)} />
                     <span className="agent-chat-item__preview">{last?.text?.slice(0, 40)}…</span>
                   </div>
                   <span className="agent-chat-item__count">{msgs.length}</span>
@@ -867,6 +890,7 @@ function LauraPage() {
                           {selectedProgram}
                         </span>
                       )}
+                      <DealStatusBadge info={dealInfoOf(selected)} />
                     </span>
                     <span className="agent-chat-item__preview">{sortedMessages.length} mensagens</span>
                   </div>
