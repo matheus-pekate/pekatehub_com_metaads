@@ -182,6 +182,31 @@ export const PROGRAMS = [
     ],
     accentColor: '#2D6A4F',
   },
+  {
+    id: 'ldi',
+    year: 2027, // ano das turmas no seletor do Comando B2C
+    name: 'Liderança de Impacto',
+    shortName: 'LDI',
+    startDate: '2027-06-23', // turma presencial: 23, 24 e 25 de junho
+    goal: 0, // meta de inscritos ainda a definir (0 = "Sem meta" no painel)
+    price: 7300, // produto "52. PA - Liderança de Impacto (LDI)" no Pipedrive
+    revenueGoal: 0, // a definir junto com a meta de inscritos
+    pipelineId: 71,
+    pipelineName: 'FDC Abertos - Liderança de Impacto (LDI)',
+    winStageId: 351, // Inscrito
+    qualifiedStageId: 349, // Qualificado
+    convertedFilter: {
+      customField: 'ceb81f259b83cf46c12f4acc7dfdc8ac97d057a8', // Turma
+      value: 527, // CPS-11
+    },
+    stages: [
+      { id: 348, name: 'Cliente Potencial', sub: 'Entrada do funil' },
+      { id: 349, name: 'Qualificado',       sub: 'SQL · briefing feito',       verb: 'qualificam' },
+      { id: 350, name: 'Em Negociação',     sub: 'Proposta enviada',           verb: 'negociam' },
+      { id: 351, name: 'Inscrito',          sub: 'Matriculado · contado na meta', verb: 'inscrevem' },
+    ],
+    accentColor: '#B7791F',
+  },
 ]
 
 // Anos oferecidos na tela de seleção do Comando B2C (/pekate-dash).

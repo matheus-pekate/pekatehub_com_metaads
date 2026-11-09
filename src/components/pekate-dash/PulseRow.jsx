@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-const COLOR_BY_ID = { pos: 'laranja', gecom: 'teal', clevel: 'azul', gef: 'lilas', pdd: 'rosa', pdc: 'verde' }
+const COLOR_BY_ID = { pos: 'laranja', gecom: 'teal', clevel: 'azul', gef: 'lilas', pdd: 'rosa', pdc: 'verde', ldi: 'ouro' }
 
 const TURMA_LABELS = {
   517:'CPS-01',518:'CPS-02',519:'CPS-03',520:'CPS-04',521:'CPS-05',
@@ -11,7 +11,7 @@ const TURMA_LABELS = {
   542:'CBV-01',543:'CBV-02',544:'CBV-03',545:'CBV-04',546:'CBV-05',
   547:'ATB-01',548:'ATB-02',549:'ATB-03',550:'ATB-04',551:'ATB-05',
 }
-const ORDER = ['gecom', 'pos', 'clevel', 'gef', 'pdd', 'pdc']
+const ORDER = ['gecom', 'pos', 'clevel', 'gef', 'pdd', 'pdc', 'ldi']
 
 function daysUntil(dateStr) {
   if (!dateStr) return 0

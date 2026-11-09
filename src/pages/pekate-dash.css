@@ -376,6 +376,7 @@
 .pkt-pgm[data-color="lilas"]   { --pgm-accent: var(--fdc-lilas);   --pgm-accent-soft: #e9dcf2; }
 .pkt-pgm[data-color="rosa"]    { --pgm-accent: #E84393;            --pgm-accent-soft: #fce4f0; }
 .pkt-pgm[data-color="verde"]   { --pgm-accent: var(--positivo);    --pgm-accent-soft: #d9ebe1; }
+.pkt-pgm[data-color="ouro"]    { --pgm-accent: #B7791F;            --pgm-accent-soft: #f5e8cf; }
 
 .pkt-pgm__head {
   display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
