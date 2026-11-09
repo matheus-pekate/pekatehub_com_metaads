@@ -21,6 +21,7 @@ const CAROUSEL = [
   { id: 'gef',    duration: 20000 },
   { id: 'pdd',    duration: 20000 },
   { id: 'pdc',    duration: 20000 },
+  { id: 'ldi',    duration: 20000 },
 ]
 
 const YEAR_BY_ID = Object.fromEntries(PROGRAMS.map((p) => [p.id, p.year]))
