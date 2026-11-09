@@ -170,7 +170,13 @@ export function LostDealsModal({ program, onClose }) {
                       <span className="pkt-won-deals__ad-unknown">Anúncio não disponível (perdido antes do rastreamento)</span>
                     )}
                   </span>
-                  <span className="pkt-lost-deals__reason-cell" title={deal.lost_reason}>{deal.lost_reason}</span>
+                  <span className="pkt-lost-deals__reason-cell" title={deal.lost_reason_detail || deal.lost_reason}>
+                    {deal.lost_reason}
+                    {/* texto livre que a Laura escreveu no Pipedrive (o motivo acima é o padrão em que ele foi encaixado) */}
+                    {deal.lost_reason_detail && (
+                      <small className="pkt-lost-deals__reason-detail">{deal.lost_reason_detail}</small>
+                    )}
+                  </span>
                   <span className="pkt-won-deals__date">{formatDate(deal.lost_time)}</span>
                   <span className="pkt-won-deals__date">
                     {deal.last_activity_date ? formatDate(deal.last_activity_date) : '—'}
