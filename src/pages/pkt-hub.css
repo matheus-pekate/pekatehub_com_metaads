@@ -1197,6 +1197,35 @@
   min-width: 0;
 }
 
+/* Situação do negócio no Pipedrive (Laura → Conversas) */
+.agent-deal-status {
+  --deal-color: #d64545;
+  align-self: flex-start;
+  max-width: 100%;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--deal-color);
+  background: color-mix(in srgb, var(--deal-color) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--deal-color) 35%, transparent);
+  border-radius: 999px;
+  padding: 1px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.agent-deal-status--won { --deal-color: #2d8a5f; }
+.agent-chats__winheader .agent-deal-status { max-width: 320px; }
+/* na lista o motivo pode quebrar em até 2 linhas em vez de ficar cortado */
+.agent-chat-item .agent-deal-status {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  white-space: normal;
+  border-radius: 8px;
+}
+
 .agent-chat-filters {
   display: flex;
   flex-wrap: wrap;
