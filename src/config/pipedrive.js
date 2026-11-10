@@ -189,8 +189,8 @@ export const PROGRAMS = [
     shortName: 'LDI',
     startDate: '2027-06-23', // turma presencial: 23, 24 e 25 de junho
     goal: 33, // meta de inscritos (CPS-11)
-    price: 7300, // produto "52. PA - Liderança de Impacto (LDI)" no Pipedrive
-    revenueGoal: 240900, // 33 inscritos × R$ 7.300 (preço cheio)
+    price: 8000, // valor por inscrito da turma CPS-11 (produto "52. PA - Liderança de Impacto (LDI)" no Pipedrive)
+    revenueGoal: 264000, // 33 inscritos × R$ 8.000
     pipelineId: 71,
     pipelineName: 'FDC Abertos - Liderança de Impacto (LDI)',
     winStageId: 351, // Inscrito
