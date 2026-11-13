@@ -352,6 +352,8 @@
   border-radius: 6px;
   padding: 22px 26px 20px;
   display: grid;
+  /* coluna limitada ao card: rótulo longo do pipeline trunca em vez de empurrar o conteúdo pra fora (4 cards na TV) */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto 1fr auto;
   gap: 14px;
   overflow: hidden;

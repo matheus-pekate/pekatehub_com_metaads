@@ -21,6 +21,7 @@ const SIDEBAR_ITEMS = [
   { id: 'operacao', label: 'Operação', icon: 'gear' },
   { id: 'agentes', label: 'Agentes', icon: 'bot' },
   { id: 'documentacao', label: 'Documentação', icon: 'doc' },
+  { id: 'tv', label: 'TV', icon: 'tv', href: '/tv' }, // abre a tela de TV (B2C → B2B → Marketing em loop)
 ]
 
 const AGENT_SUBTABS = ['Funis', 'Performance', 'Conversas']
@@ -77,6 +78,7 @@ function NavIcon({ type }) {
     gear: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1.08-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1.08 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001.08 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1.08z"/></>,
     bot: <><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 2v3M8 11V9a4 4 0 018 0v2"/><circle cx="9" cy="16" r="1" fill="currentColor"/><circle cx="15" cy="16" r="1" fill="currentColor"/></>,
     doc: <><path d="M14 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></>,
+    tv: <><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></>,
     target: <><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></>,
   }
   return (
@@ -969,7 +971,7 @@ export function PktHub() {
               <button
                 key={item.id}
                 className={`hub-nav-item ${activeTab === item.label ? 'hub-nav-item--active' : ''}`}
-                onClick={() => handleTabChange(item.label)}
+                onClick={() => (item.href ? navigate(item.href) : handleTabChange(item.label))}
               >
                 <NavIcon type={item.icon} />
                 <span>{item.label}</span>

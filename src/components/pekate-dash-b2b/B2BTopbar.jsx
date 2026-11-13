@@ -4,7 +4,7 @@ import { PeriodSelector } from './PeriodSelector.jsx'
 
 const pad = (n) => (n < 10 ? '0' + n : '' + n)
 
-export function B2BTopbar({ year, yearOptions, onChangeYear, paused, onTogglePause }) {
+export function B2BTopbar({ year, yearOptions, onChangeYear, lockYear, paused, onTogglePause }) {
   const navigate = useNavigate()
   const [now, setNow] = useState(() => new Date())
 
@@ -43,7 +43,7 @@ export function B2BTopbar({ year, yearOptions, onChangeYear, paused, onTogglePau
         </span>
       </div>
 
-      <PeriodSelector year={year} yearOptions={yearOptions} onChangeYear={onChangeYear} />
+      {!lockYear && <PeriodSelector year={year} yearOptions={yearOptions} onChangeYear={onChangeYear} />}
 
       <div className="pktb2b-live-pill">
         <span>Ao vivo</span>

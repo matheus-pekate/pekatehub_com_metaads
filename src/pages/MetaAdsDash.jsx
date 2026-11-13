@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useMetaAdsData } from '../hooks/useMetaAdsData'
+import { splitByActiveCampaign, autoAdvance } from '../lib/tvPrograms'
 import { useStageScale } from '../hooks/useStageScale'
 import { MetaAdsTopbar } from '../components/meta-ads/MetaAdsTopbar'
 import { ProgramStrip } from '../components/meta-ads/ProgramStrip'
@@ -13,9 +14,19 @@ import { LeadsListModal } from '../components/meta-ads/LeadsListModal'
 import './meta-ads-dash.css'
 
 export function MetaAdsDash() {
-  const { data, error, lastUpdated, refresh } = useMetaAdsData()
+  const meta = useMetaAdsData()
+  return <ComandoMarketing meta={meta} />
+}
+
+// `meta` = retorno de useMetaAdsData. `tv` (opcional) = { programIds, onCycleEnd }:
+// no Modo TV só passam os programas de programIds e, ao completar a volta,
+// avisa a TV em vez de recomeçar.
+export function ComandoMarketing({ meta, tv }) {
+  const { data, error, lastUpdated, refresh } = meta
   const stage = useStageScale()
-  const [activeIdx, setActiveIdx] = useState(0)
+  const [activeId, setActiveId] = useState(null)
+  // Clique manual num programa fora da rotação: a rotação para nele até outro clique.
+  const [pinned, setPinned] = useState(false)
   const [paused, setPaused] = useState(false)
   const [epoch, setEpoch] = useState(0)
   const [selectedAd, setSelectedAd] = useState(null)
@@ -25,16 +36,36 @@ export function MetaAdsDash() {
   const [investidoRetornoProgram, setInvestidoRetornoProgram] = useState(null)
   const [leadsListState, setLeadsListState] = useState(null)
 
-  const activeProgram = data[activeIdx]
+  // Programas sem campanha ativa vão pro fim da faixa e ficam fora da rotação
+  // automática (continuam clicáveis). Na TV, só os programas da lista da TV.
+  const { ordered, rotationIds: rotationIdsRaw } = useMemo(() => {
+    if (tv) {
+      const byId = new Map(data.map((p) => [p.id, p]))
+      const list = tv.programIds.map((id) => byId.get(id)).filter(Boolean)
+      return { ordered: list, rotationIds: list.map((p) => p.id) }
+    }
+    return splitByActiveCampaign(data)
+  }, [data, tv])
+  // Mesma referência enquanto o conteúdo não muda: o refresh dos dados (a cada
+  // 15 min) não pode reiniciar o timer da rotação.
+  const rotationKey = rotationIdsRaw.join(',')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const rotationIds = useMemo(() => rotationIdsRaw, [rotationKey])
+
+  // O estado segue o id (não o índice): quando o refresh reordena a lista, a
+  // tela continua no mesmo programa.
+  const activeProgram = ordered.find((p) => p.id === activeId) ?? ordered[0]
+  const activeProgramId = activeProgram?.id
   const duration = activeProgram?.duration ?? 20000
+  // Só um clique manual num programa fora da rotação prende a tela nele. Um
+  // programa que perdeu a campanha no refresh enquanto rodava NÃO prende.
+  const isPinned = pinned && !!activeProgram && !rotationIds.includes(activeProgram.id)
 
   const handleManualSelect = useCallback((id) => {
-    const idx = data.findIndex((p) => p.id === id)
-    if (idx >= 0) {
-      setActiveIdx(idx)
-      setEpoch((e) => e + 1)
-    }
-  }, [data])
+    setActiveId(id)
+    setPinned(!rotationIds.includes(id))
+    setEpoch((e) => e + 1)
+  }, [rotationIds])
 
   const handleSelectAd = useCallback((ad) => {
     setSelectedAd(ad)
@@ -66,14 +97,22 @@ export function MetaAdsDash() {
     setPaused(true)
   }, [])
 
+  const modalOpen = !!(selectedAd || wonDealsProgram || lostDealsProgram || openDealsProgram || investidoRetornoProgram || leadsListState)
+
   useEffect(() => {
-    if (paused || selectedAd || wonDealsProgram || lostDealsProgram || openDealsProgram || investidoRetornoProgram || leadsListState) return
+    if (paused || modalOpen || !activeProgramId) return
     const timer = setTimeout(() => {
-      setActiveIdx((i) => (i + 1) % data.length)
+      const next = autoAdvance(rotationIds, activeProgramId, isPinned)
+      if (!next) return
+      if (next.wrapped && tv) {
+        tv.onCycleEnd()
+        return
+      }
+      setActiveId(next.id)
       setEpoch((e) => e + 1)
     }, duration)
     return () => clearTimeout(timer)
-  }, [activeIdx, paused, selectedAd, wonDealsProgram, lostDealsProgram, openDealsProgram, investidoRetornoProgram, leadsListState, duration, epoch, data.length])
+  }, [activeProgramId, paused, modalOpen, isPinned, rotationIds, tv, duration, epoch])
 
   return (
     <div className="pkt-letterbox">
@@ -87,15 +126,15 @@ export function MetaAdsDash() {
         />
         <div className="pkt-meta-progress">
           <div
-            key={`${activeIdx}-${epoch}`}
+            key={`${activeProgramId}-${epoch}`}
             className="pkt-meta-progress__fill"
             style={{
               animationDuration: `${duration}ms`,
-              animationPlayState: paused ? 'paused' : 'running',
+              animationPlayState: paused || isPinned ? 'paused' : 'running',
             }}
           />
         </div>
-        <ProgramStrip programs={data} activeId={activeProgram?.id} onSelect={handleManualSelect} />
+        <ProgramStrip programs={ordered} activeId={activeProgram?.id} onSelect={handleManualSelect} />
         <ProgramDetail program={activeProgram} onSelectAd={handleSelectAd} onOpenWonDeals={handleOpenWonDeals} onOpenLostDeals={handleOpenLostDeals} onOpenOpenDeals={handleOpenOpenDeals} onOpenInvestidoRetorno={handleOpenInvestidoRetorno} onOpenLeadsList={handleOpenLeadsList} />
         {selectedAd && (
           <AdDetailModal
