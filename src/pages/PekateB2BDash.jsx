@@ -1,7 +1,8 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useB2BDashboardData } from '../hooks/useB2BDashboardData.js'
 import { useStageScale } from '../hooks/useStageScale.js'
 import { B2B_YEAR_OPTIONS, PROGRAMS_B2B } from '../config/pipedrive.js'
+import { nextInRotation } from '../lib/tvPrograms.js'
 import { B2BTopbar } from '../components/pekate-dash-b2b/B2BTopbar.jsx'
 import { B2BPulseRow } from '../components/pekate-dash-b2b/B2BPulseRow.jsx'
 import { B2BKpiStack } from '../components/pekate-dash-b2b/B2BKpiStack.jsx'
@@ -14,35 +15,57 @@ import '../pages/pekate-dash.css'
 import './pekate-dash-b2b.css'
 
 const CAROUSEL_DURATION = 20000
-const CAROUSEL = PROGRAMS_B2B.map((p) => p.id)
+const ALL_PROGRAM_IDS = PROGRAMS_B2B.map((p) => p.id)
 
 export function PekateB2BDash() {
   const [year, setYear] = useState(() => new Date().getFullYear())
+  const b2b = useB2BDashboardData(year)
+  return <ComandoB2B year={year} onChangeYear={setYear} b2b={b2b} />
+}
+
+// `b2b` = retorno de useB2BDashboardData(year). `tv` (opcional) = { programIds,
+// onCycleEnd }: no Modo TV o ano fica travado no atual, só passam os programas de
+// programIds e, ao completar a volta, avisa a TV em vez de recomeçar.
+export function ComandoB2B({ year, onChangeYear, b2b, tv }) {
   const [activeIdx, setActiveIdx] = useState(0)
   const [epoch, setEpoch] = useState(0)
   const [paused, setPaused] = useState(false)
   const [activeAlertKey, setActiveAlertKey] = useState(null)
-  const { data, lastUpdated } = useB2BDashboardData(year)
+  const { data: allData, lastUpdated } = b2b
   const stageRef = useStageScale()
 
-  const activeId = CAROUSEL[activeIdx]
+  const carousel = useMemo(
+    () => (tv ? ALL_PROGRAM_IDS.filter((id) => tv.programIds.includes(id)) : ALL_PROGRAM_IDS),
+    [tv],
+  )
+  const data = useMemo(() => {
+    if (!tv || !allData) return allData
+    return { ...allData, programs: allData.programs.filter((p) => tv.programIds.includes(p.id)) }
+  }, [allData, tv])
+
+  const activeId = carousel[activeIdx] ?? carousel[0]
 
   const handleManualSelect = useCallback((id) => {
-    const idx = CAROUSEL.findIndex((c) => c === id)
+    const idx = carousel.findIndex((c) => c === id)
     if (idx >= 0) {
       setActiveIdx(idx)
       setEpoch((e) => e + 1)
     }
-  }, [])
+  }, [carousel])
 
   useEffect(() => {
     if (paused || activeAlertKey) return
     const timer = setTimeout(() => {
-      setActiveIdx((i) => (i + 1) % CAROUSEL.length)
+      const next = nextInRotation(carousel, activeId)
+      if (next.wrapped && tv) {
+        tv.onCycleEnd()
+        return
+      }
+      setActiveIdx(carousel.indexOf(next.id))
       setEpoch((e) => e + 1)
     }, CAROUSEL_DURATION)
     return () => clearTimeout(timer)
-  }, [activeIdx, epoch, paused, activeAlertKey])
+  }, [activeIdx, epoch, paused, activeAlertKey, carousel, activeId, tv])
 
   const activeProgram = data?.programs?.find((p) => p.id === activeId)
   const accent = activeProgram?.accentColor || '#08373F'
@@ -55,7 +78,8 @@ export function PekateB2BDash() {
           <B2BTopbar
             year={year}
             yearOptions={B2B_YEAR_OPTIONS}
-            onChangeYear={setYear}
+            onChangeYear={onChangeYear}
+            lockYear={!!tv}
             paused={paused}
             onTogglePause={() => setPaused((p) => !p)}
           />

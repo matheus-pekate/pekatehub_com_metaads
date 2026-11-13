@@ -12,6 +12,7 @@ import { AlertDealsModal } from '../components/pekate-dash/AlertDealsModal.jsx'
 import { YearPicker } from '../components/pekate-dash/YearPicker.jsx'
 import { useReportData } from '../hooks/useReportData.js'
 import { PROGRAMS, B2C_YEARS } from '../config/pipedrive.js'
+import { nextInRotation } from '../lib/tvPrograms.js'
 import './pekate-dash.css'
 
 const CAROUSEL = [
@@ -79,13 +80,20 @@ function YearStage({ onSelect }) {
   )
 }
 
-function ComandoB2C({ year, dashboard, onChangeYear }) {
+// `tv` (opcional) = { programIds, onCycleEnd }: no Modo TV mostra só os programas
+// de programIds (de qualquer ano, sem seletor de ano) e, ao completar a volta,
+// avisa a TV em vez de recomeçar.
+export function ComandoB2C({ year, dashboard, onChangeYear, tv }) {
   const { data: allData, lastUpdated } = dashboard
-  const carousel = useMemo(() => CAROUSEL.filter((c) => YEAR_BY_ID[c.id] === year), [year])
-  const data = useMemo(
-    () => allData && { ...allData, programs: allData.programs?.filter((p) => p.year === year) },
-    [allData, year],
+  const carousel = useMemo(
+    () => (tv ? CAROUSEL.filter((c) => tv.programIds.includes(c.id)) : CAROUSEL.filter((c) => YEAR_BY_ID[c.id] === year)),
+    [year, tv],
   )
+  const data = useMemo(() => {
+    if (!allData) return allData
+    const keep = tv ? (p) => tv.programIds.includes(p.id) : (p) => p.year === year
+    return { ...allData, programs: allData.programs?.filter(keep) }
+  }, [allData, year, tv])
   const [activeIdx, setActiveIdx] = useState(0)
   const [paused, setPaused] = useState(false)
   const [epoch, setEpoch] = useState(0)
@@ -96,8 +104,9 @@ function ComandoB2C({ year, dashboard, onChangeYear }) {
   const stageRef = useRef(null)
   useStageFit(stageRef)
 
-  const activeId = carousel[activeIdx].id
-  const duration = carousel[activeIdx].duration
+  const current = carousel[activeIdx] ?? carousel[0]
+  const activeId = current.id
+  const duration = current.duration
 
   const handleManualSelect = useCallback((id) => {
     const idx = carousel.findIndex((c) => c.id === id)
@@ -110,14 +119,21 @@ function ComandoB2C({ year, dashboard, onChangeYear }) {
   useEffect(() => {
     if (paused || activeAlertKey) return
     const timer = setTimeout(() => {
-      setActiveIdx((i) => (i + 1) % carousel.length)
+      const next = nextInRotation(carousel.map((c) => c.id), activeId)
+      if (next.wrapped && tv) {
+        tv.onCycleEnd()
+        return
+      }
+      setActiveIdx(carousel.findIndex((c) => c.id === next.id))
       setEpoch((e) => e + 1)
     }, duration)
     return () => clearTimeout(timer)
-  }, [activeIdx, paused, duration, epoch, activeAlertKey, carousel.length])
+  }, [activeIdx, paused, duration, epoch, activeAlertKey, carousel, activeId, tv])
 
   const activeProgram = data?.programs?.find((p) => p.id === activeId)
   const accent = activeProgram?.accentColor || '#F26522'
+  // Layout de 2027 segue o ano do programa na tela (na TV os anos se misturam).
+  const isLayout2027 = (activeProgram?.year ?? year) >= 2027
 
   return (
     <div className="pkt-letterbox">
@@ -135,13 +151,13 @@ function ComandoB2C({ year, dashboard, onChangeYear }) {
             />
           </div>
           {data?.programs && <PulseRow programs={data.programs} activeId={activeId} onSelect={handleManualSelect} />}
-          <AlertsStrip layout={year >= 2027 ? '2027' : undefined} lastUpdated={lastUpdated} program={activeProgram} onSelectAlert={(key) => setActiveAlertKey(key)} />
+          <AlertsStrip layout={isLayout2027 ? '2027' : undefined} lastUpdated={lastUpdated} program={activeProgram} onSelectAlert={(key) => setActiveAlertKey(key)} />
           {data?.programs && (
             <>
               <FocusRow
                 program={data.programs.find((p) => p.id === activeId)}
                 allSellers={data.sellers}
-                showRecent={year >= 2027}
+                showRecent={isLayout2027}
               />
               <FunnelRow program={data.programs.find((p) => p.id === activeId)} />
             </>
