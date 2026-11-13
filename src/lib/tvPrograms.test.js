@@ -6,6 +6,7 @@ import {
   eligibleB2BIds,
   eligibleMarketingIds,
   nextInRotation,
+  autoAdvance,
 } from './tvPrograms.js'
 
 const ids = (list) => list.map((p) => p.id)
@@ -81,4 +82,17 @@ test('nextInRotation com um só programa sempre completa a volta', () => {
 
 test('nextInRotation com id fora da lista começa do primeiro sem contar volta', () => {
   assert.deepEqual(nextInRotation(['a', 'b'], 'zzz'), { id: 'a', wrapped: false })
+})
+
+test('autoAdvance não avança quando o programa foi fixado por clique manual', () => {
+  assert.equal(autoAdvance(['a', 'b'], 'x', true), null)
+})
+
+test('autoAdvance sai de um programa que perdeu a campanha sem clique manual', () => {
+  // estava na tela, virou inativo no refresh: a rotação segue pro primeiro da lista
+  assert.deepEqual(autoAdvance(['a', 'b'], 'x', false), { id: 'a', wrapped: false })
+})
+
+test('autoAdvance dentro da rotação segue o próximo normalmente', () => {
+  assert.deepEqual(autoAdvance(['a', 'b'], 'a', false), { id: 'b', wrapped: false })
 })

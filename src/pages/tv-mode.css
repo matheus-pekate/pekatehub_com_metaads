@@ -50,3 +50,11 @@
 .tv-empty__btn:hover {
   background: #CB5B36;
 }
+
+/* Tela neutra entre fases (carregando / fase pulada): mesmo fundo do letterbox dos
+   dashboards, pra não piscar uma tela clara entre eles. */
+.tv-loading {
+  position: fixed;
+  inset: 0;
+  background: #1a1f1f;
+}

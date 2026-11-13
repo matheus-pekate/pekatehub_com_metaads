@@ -73,7 +73,7 @@ export function TvMode() {
   }
 
   // Fase sem programas (ainda carregando ou prestes a ser pulada): tela neutra, nunca a fase vazia.
-  if (current.ids.length === 0) return <div className="tv-empty" aria-busy="true" />
+  if (current.ids.length === 0) return <div className="tv-loading" aria-busy="true" />
 
   if (phase === 'b2c') return <ComandoB2C key="b2c" dashboard={dashboard} tv={tv} />
   if (phase === 'b2b') return <ComandoB2B key="b2b" year={year} b2b={b2b} tv={tv} />

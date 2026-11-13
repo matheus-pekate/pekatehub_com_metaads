@@ -42,3 +42,11 @@ export function nextInRotation(ids, currentId) {
   if (nextIdx >= ids.length) return { id: ids[0], wrapped: true }
   return { id: ids[nextIdx], wrapped: false }
 }
+
+// Passo da rotação automática do Marketing. `pinned` = alguém clicou à mão num
+// programa fora da rotação: aí não avança (devolve null). Sem clique, um programa
+// que perdeu a campanha no refresh não prende a tela: segue pro primeiro da lista.
+export function autoAdvance(ids, currentId, pinned) {
+  if (pinned) return null
+  return nextInRotation(ids, currentId)
+}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useMetaAdsData } from '../hooks/useMetaAdsData'
-import { splitByActiveCampaign, nextInRotation } from '../lib/tvPrograms'
+import { splitByActiveCampaign, autoAdvance } from '../lib/tvPrograms'
 import { useStageScale } from '../hooks/useStageScale'
 import { MetaAdsTopbar } from '../components/meta-ads/MetaAdsTopbar'
 import { ProgramStrip } from '../components/meta-ads/ProgramStrip'
@@ -25,6 +25,8 @@ export function ComandoMarketing({ meta, tv }) {
   const { data, error, lastUpdated, refresh } = meta
   const stage = useStageScale()
   const [activeId, setActiveId] = useState(null)
+  // Clique manual num programa fora da rotação: a rotação para nele até outro clique.
+  const [pinned, setPinned] = useState(false)
   const [paused, setPaused] = useState(false)
   const [epoch, setEpoch] = useState(0)
   const [selectedAd, setSelectedAd] = useState(null)
@@ -36,7 +38,7 @@ export function ComandoMarketing({ meta, tv }) {
 
   // Programas sem campanha ativa vão pro fim da faixa e ficam fora da rotação
   // automática (continuam clicáveis). Na TV, só os programas da lista da TV.
-  const { ordered, rotationIds } = useMemo(() => {
+  const { ordered, rotationIds: rotationIdsRaw } = useMemo(() => {
     if (tv) {
       const byId = new Map(data.map((p) => [p.id, p]))
       const list = tv.programIds.map((id) => byId.get(id)).filter(Boolean)
@@ -44,19 +46,26 @@ export function ComandoMarketing({ meta, tv }) {
     }
     return splitByActiveCampaign(data)
   }, [data, tv])
+  // Mesma referência enquanto o conteúdo não muda: o refresh dos dados (a cada
+  // 15 min) não pode reiniciar o timer da rotação.
+  const rotationKey = rotationIdsRaw.join(',')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const rotationIds = useMemo(() => rotationIdsRaw, [rotationKey])
 
   // O estado segue o id (não o índice): quando o refresh reordena a lista, a
   // tela continua no mesmo programa.
   const activeProgram = ordered.find((p) => p.id === activeId) ?? ordered[0]
   const activeProgramId = activeProgram?.id
   const duration = activeProgram?.duration ?? 20000
-  // Programa inativo aberto por clique manual: a rotação para nele.
-  const inRotation = !!activeProgram && rotationIds.includes(activeProgram.id)
+  // Só um clique manual num programa fora da rotação prende a tela nele. Um
+  // programa que perdeu a campanha no refresh enquanto rodava NÃO prende.
+  const isPinned = pinned && !!activeProgram && !rotationIds.includes(activeProgram.id)
 
   const handleManualSelect = useCallback((id) => {
     setActiveId(id)
+    setPinned(!rotationIds.includes(id))
     setEpoch((e) => e + 1)
-  }, [])
+  }, [rotationIds])
 
   const handleSelectAd = useCallback((ad) => {
     setSelectedAd(ad)
@@ -91,9 +100,10 @@ export function ComandoMarketing({ meta, tv }) {
   const modalOpen = !!(selectedAd || wonDealsProgram || lostDealsProgram || openDealsProgram || investidoRetornoProgram || leadsListState)
 
   useEffect(() => {
-    if (paused || modalOpen || !inRotation) return
+    if (paused || modalOpen || !activeProgramId) return
     const timer = setTimeout(() => {
-      const next = nextInRotation(rotationIds, activeProgramId)
+      const next = autoAdvance(rotationIds, activeProgramId, isPinned)
+      if (!next) return
       if (next.wrapped && tv) {
         tv.onCycleEnd()
         return
@@ -102,7 +112,7 @@ export function ComandoMarketing({ meta, tv }) {
       setEpoch((e) => e + 1)
     }, duration)
     return () => clearTimeout(timer)
-  }, [activeProgramId, paused, modalOpen, inRotation, rotationIds, tv, duration, epoch])
+  }, [activeProgramId, paused, modalOpen, isPinned, rotationIds, tv, duration, epoch])
 
   return (
     <div className="pkt-letterbox">
@@ -120,7 +130,7 @@ export function ComandoMarketing({ meta, tv }) {
             className="pkt-meta-progress__fill"
             style={{
               animationDuration: `${duration}ms`,
-              animationPlayState: paused || !inRotation ? 'paused' : 'running',
+              animationPlayState: paused || isPinned ? 'paused' : 'running',
             }}
           />
         </div>
