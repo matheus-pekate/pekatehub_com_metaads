@@ -12,6 +12,7 @@ import { LauraChats } from './pages/LauraChats.jsx'
 import { MetaAdsDash } from './pages/MetaAdsDash.jsx'
 import { ComandoEventos } from './pages/ComandoEventos.jsx'
 import { DocsWiki } from './pages/DocsWiki.jsx'
+import { TvMode } from './pages/TvMode.jsx'
 import './theme.css'
 import './index.css'
 
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/meta-ads" element={<MetaAdsDash />} />
           <Route path="/eventos" element={<ComandoEventos />} />
           <Route path="/documentacao" element={<DocsWiki />} />
+          <Route path="/tv" element={<TvMode />} />
         </Routes>
       </BrowserRouter>
     </AuthGate>

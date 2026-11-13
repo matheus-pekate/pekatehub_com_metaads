@@ -1,0 +1,52 @@
+/* Aviso do Modo TV quando nenhum programa está em andamento. Paleta do hub. */
+.tv-empty {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #F5F0EB;
+  color: #08373F;
+  font-family: 'Lato', sans-serif;
+  text-align: center;
+  padding: 24px;
+}
+
+.tv-empty__logo {
+  height: 56px;
+}
+
+.tv-empty__title {
+  margin: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 56px;
+  text-transform: uppercase;
+}
+
+.tv-empty__title em {
+  color: #CB5B36;
+}
+
+.tv-empty__text {
+  margin: 0;
+  font-size: 18px;
+}
+
+.tv-empty__btn {
+  margin-top: 8px;
+  padding: 12px 24px;
+  border: 0;
+  border-radius: 10px;
+  background: #08373F;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tv-empty__btn:hover {
+  background: #CB5B36;
+}
