@@ -14,6 +14,7 @@ function B2BPulseCard({ program, active, onSelect, isClosedYear }) {
   return (
     <article
       className={`pktb2b-pgm${active ? ' pktb2b-pgm--active' : ''}`}
+      data-pgm-id={program.id}
       style={{ '--pgm-accent': accentColor }}
       onClick={onSelect}
     >

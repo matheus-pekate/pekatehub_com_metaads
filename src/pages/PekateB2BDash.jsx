@@ -74,7 +74,7 @@ export function ComandoB2B({ year, onChangeYear, b2b, tv }) {
   return (
     <div className="pktb2b-letterbox">
       <div className="pktb2b-stage" ref={stageRef}>
-        <div className="pktb2b-dash" style={{ '--pgm-accent': accent }}>
+        <div className="pktb2b-dash" data-pgm-id={activeId} style={{ '--pgm-accent': accent }}>
           <B2BTopbar
             year={year}
             yearOptions={B2B_YEAR_OPTIONS}
