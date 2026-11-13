@@ -52,6 +52,18 @@
   pointer-events: none;
 }
 
+/* O PAEX usa #08373F (teal escuro) como cor do programa, que some no tema escuro
+   (barra de progresso do topo, percentuais, valores, funil). No escuro usa o teal
+   claro do próprio tema. !important pra vencer o --pgm-accent inline do React. */
+:root[data-theme='dark'] [data-pgm-id='paex'] {
+  --pgm-accent: var(--t-text-teal) !important;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) [data-pgm-id='paex'] {
+    --pgm-accent: var(--t-text-teal) !important;
+  }
+}
+
 .pktb2b-dash {
   --pgm-accent: #08373f;
   position: relative;
@@ -586,6 +598,11 @@
   flex: 1 1 0;
 }
 .pktb2b-funcard--final { --card-c: var(--petroleo); }
+/* No escuro o petróleo (#08373F) some no fundo: usa o teal claro do tema. */
+:root[data-theme='dark'] .pktb2b-funcard--final { --card-c: var(--t-text-teal); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) .pktb2b-funcard--final { --card-c: var(--t-text-teal); }
+}
 .pktb2b-funcard__tag {
   font-size: 9.5px; font-weight: 900;
   letter-spacing: .18em; text-transform: uppercase;
